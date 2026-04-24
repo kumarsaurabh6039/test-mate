@@ -1,0 +1,164 @@
+<div class="admin-container">
+  
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Admin Controller</h1>
+      <p>Configure company calendar, leave policies, and announcements</p>
+    </div>
+    
+    <!-- Tab Switcher with Notifications -->
+    <div class="tab-switcher">
+      <button [class.active]="activeTab === 'holidays'" (click)="setTab('holidays')">Holidays</button>
+      <button [class.active]="activeTab === 'leaves'" (click)="setTab('leaves')">Leave Types</button>
+      <!-- NEW NOTIFICATION TOGGLE BUTTON -->
+      <button [class.active]="activeTab === 'notifications'" (click)="setTab('notifications')">
+        <i class="fas fa-bullhorn"></i> Notifications
+      </button>
+    </div>
+
+    <!-- Create button only shows for holidays and leaves -->
+    <button class="btn-primary-header" (click)="openCreate()" *ngIf="activeTab !== 'notifications'">
+      <i class="fas" [ngClass]="activeTab === 'holidays' ? 'fa-calendar-plus' : 'fa-plus-circle'"></i> 
+      {{ activeTab === 'holidays' ? 'Add Holiday' : 'Create Leave Type' }}
+    </button>
+  </header>
+
+  <!-- LOADING -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Synchronizing with server...</p>
+  </div>
+
+  <!-- HOLIDAYS GRID -->
+  <div class="cards-grid" *ngIf="!isLoading && activeTab === 'holidays'">
+    <div *ngFor="let h of holidays" class="holiday-card">
+      <div class="date-box">
+        <span class="day">{{ h.date | date:'dd' }}</span>
+        <span class="month">{{ h.date | date:'MMM' }}</span>
+        <span class="year">{{ h.date | date:'yyyy' }}</span>
+      </div>
+      <div class="info-section">
+        <div class="header-row">
+          <h3 class="holiday-name">{{ h.name }}</h3>
+          
+          <!-- UI update: Yahan naya helper function isHolidayOptional(h) lagaya gaya hai -->
+          <span [class]="'badge ' + (isHolidayOptional(h) ? 'optional' : 'mandatory')">
+            {{ isHolidayOptional(h) ? 'Optional' : 'Mandatory' }}
+          </span>
+          
+        </div>
+        <div class="location-tag">
+            <i class="fas fa-map-marker-alt"></i> {{ h.location || 'Global' }}
+        </div>
+        <p class="description">{{ h.description || 'No description provided.' }}</p>
+        <div class="card-actions">
+          <button class="btn-edit" (click)="openEditHoliday(h)">
+            <i class="fas fa-pencil-alt"></i> Edit
+          </button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="holidays.length === 0" class="empty-state">
+      <h3>No holidays found for this year.</h3>
+    </div>
+  </div>
+
+  <!-- LEAVE TYPES GRID -->
+  <div class="cards-grid" *ngIf="!isLoading && activeTab === 'leaves'">
+    <div *ngFor="let lt of leaveTypes" class="holiday-card">
+      <div class="date-box" style="background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);">
+        <span class="day" style="color: #16a34a;">{{ lt.annualQuota }}</span>
+        <span class="month">Days</span>
+        <span class="year">Quota</span>
+      </div>
+      <div class="info-section">
+        <div class="header-row">
+          <h3 class="holiday-name">{{ lt.name }}</h3>
+          <span class="badge mandatory">Active</span>
+        </div>
+        <div class="location-tag">
+            <i class="fas fa-building"></i> Org: {{ lt.orgCode }}
+        </div>
+        <p class="description">Standard policy for all employees. Maximum {{ lt.annualQuota }} days allowed per year.</p>
+        <div class="card-actions" style="gap: 8px;">
+          <button class="btn-edit" (click)="openEditLeaveType(lt)">
+            <i class="fas fa-pencil-alt"></i> Edit
+          </button>
+          <button class="btn-edit" style="color: #ef4444; border-color: #fee2e2;" (click)="deleteLeaveType(lt.id!)">
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="leaveTypes.length === 0" class="empty-state">
+      <div class="empty-icon"><i class="fas fa-umbrella-beach"></i></div>
+      <h3>No Leave Types Configured</h3>
+      <p>Create global leave types like Sick Leave, Casual Leave etc.</p>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS COMPONENT -->
+  <app-admin-notification *ngIf="activeTab === 'notifications'"></app-admin-notification>
+
+</div>
+
+<!-- MODAL (Only for Holidays and Leaves) -->
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ activeTab === 'holidays' ? (isEditing ? 'Edit Holiday' : 'Add Holiday') : (isEditing ? 'Edit Leave Type' : 'Create Leave Type') }}</h2>
+      <button class="btn-close" (click)="showModal=false"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- HOLIDAY FORM -->
+      <form *ngIf="activeTab === 'holidays'" [formGroup]="holidayForm" (ngSubmit)="submit()">
+        <div class="input-group">
+          <label>Holiday Name <span class="req">*</span></label>
+          <input formControlName="name" type="text" placeholder="e.g. Independence Day">
+        </div>
+        <div class="input-group">
+          <label>Date <span class="req">*</span></label>
+          <input formControlName="date" type="date">
+        </div>
+        <div class="input-group">
+            <label>Location <span class="req">*</span></label>
+            <input formControlName="location" type="text" placeholder="e.g. All Offices">
+        </div>
+        <div class="input-group">
+          <label>Description</label>
+          <textarea formControlName="description" rows="2"></textarea>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" formControlName="optional" id="optCheck">
+          <label for="optCheck">
+            <span class="cb-label">Mark as Optional Holiday</span>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="showModal=false">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="holidayForm.invalid">Save to Calendar</button>
+        </div>
+      </form>
+
+      <!-- LEAVE TYPE FORM -->
+      <form *ngIf="activeTab === 'leaves'" [formGroup]="leaveTypeForm" (ngSubmit)="submit()">
+        <div class="input-group">
+          <label>Leave Type Name <span class="req">*</span></label>
+          <input formControlName="name" type="text" placeholder="e.g. Sick Leave">
+        </div>
+        <div class="input-group">
+          <label>Annual Quota (Days) <span class="req">*</span></label>
+          <input formControlName="annualQuota" type="number" placeholder="e.g. 12">
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="showModal=false">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="leaveTypeForm.invalid">
+            {{ isEditing ? 'Update Policy' : 'Create Policy' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

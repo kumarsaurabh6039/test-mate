@@ -1,0 +1,51 @@
+<div class="training-container">
+    <div class="training-header">
+        <h2>Learning & Development</h2>
+        <p>Enhance your skills with our curated training programs.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn" [class.active]="activeTab === 'available'" (click)="switchTab('available')">
+            Available Trainings
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'my-trainings'" (click)="switchTab('my-trainings')">
+            My Enrollments
+        </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+        <i class="fas fa-spinner fa-spin"></i> Loading trainings...
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!loading" class="training-grid">
+        <!-- Mock Empty State for My Trainings -->
+        <div *ngIf="activeTab === 'my-trainings'" class="empty-state">
+            <i class="fas fa-book-reader"></i>
+            <p>You haven't enrolled in any trainings yet.</p>
+            <button class="btn-primary" (click)="switchTab('available')">Browse Courses</button>
+        </div>
+
+        <!-- Available Trainings List -->
+        <ng-container *ngIf="activeTab === 'available'">
+            <div class="training-card" *ngFor="let training of trainings">
+                <div class="card-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="card-content">
+                    <h3>{{ training.title }}</h3>
+                    <p class="description">{{ training.description }}</p>
+                    <div class="meta-info">
+                        <span><i class="far fa-clock"></i> {{ training.durationHours }} Hours</span>
+                        <span *ngIf="training.startDate"><i class="far fa-calendar-alt"></i> Starts: {{ training.startDate | date:'mediumDate' }}</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-enroll" (click)="startTraining(training)">Enroll Now</button>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>

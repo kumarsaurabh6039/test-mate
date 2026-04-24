@@ -1,0 +1,161 @@
+/* Styles for the Settings component */
+.settings-container {
+  padding: 24px;
+  background-color: white; /* Changed to white to match sidebars */
+  box-sizing: border-box;
+  margin-left: 180px;
+  margin-top: 27px;
+  width: calc(100% - 180px - 350px - 48px);
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  height: 874px; /* Same height as left sidebar for alignment */
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-header {
+  margin-bottom: 24px;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 16px;
+}
+
+/* New style for the single profile header tab */
+.profile-header-tab {
+  background-color: #EEF2FF;
+  border: 1px solid #4338CA;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4338CA;
+  cursor: default; /* It's not a button */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-content {
+  background-color: white;
+  padding: 24px;
+  border-radius: 8px;
+  flex-grow: 1; /* Allows content to fill available space */
+  overflow-y: auto; /* Adds scrollbar if content overflows */
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1E293B;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-button, .save-button, .cancel-button {
+  background-color: #4338CA;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.cancel-button {
+    background-color: #F1F5F9;
+    color: #475569;
+    border: 1px solid #CBD5E1;
+}
+
+.save-button:disabled {
+    background-color: #A5B4FC;
+    cursor: not-allowed;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.profile-summary {
+  grid-column: 1 / 2;
+  text-align: center;
+  background-color: #F8FAFC;
+  padding: 24px;
+  border-radius: 8px;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 16px;
+}
+
+.employee-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.job-role, .employee-id {
+  font-size: 14px;
+  color: #64748B;
+  margin: 4px 0 0;
+}
+
+.form-field {
+  grid-column: span 1;
+}
+
+.form-field.full-width {
+  grid-column: span 2;
+}
+
+.form-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #F8FAFC;
+}
+
+.form-field input[readonly],
+.form-field textarea[readonly] {
+    background-color: #F1F5F9;
+    color: #64748B;
+    cursor: not-allowed;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 40px;
+}

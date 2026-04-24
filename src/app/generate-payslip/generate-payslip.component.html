@@ -1,0 +1,262 @@
+<div class="generator-overlay">
+  <div class="generator-container">
+    
+    <!-- Header -->
+    <div class="generator-header">
+      <div class="header-left">
+        <h2><i class="fas fa-magic"></i> Payslip Generator</h2>
+        <p>Edit the details on the left, preview updates instantly on the right.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-cancel" (click)="closeModal()">Close</button>
+        <button class="btn-download" (click)="downloadPDF()" [disabled]="isGenerating">
+          <i class="fas" [ngClass]="isGenerating ? 'fa-spinner fa-spin' : 'fa-download'"></i>
+          {{ isGenerating ? 'Generating...' : 'Download PDF' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="generator-body">
+      
+      <!-- LEFT: Editor Form -->
+      <div class="editor-section">
+        
+        <!-- Section 1: Company -->
+        <div class="form-group-section">
+          <h3><i class="fas fa-building"></i> Company Details</h3>
+          <div class="input-row">
+            <div class="input-group full-width">
+              <label>Company Name</label>
+              <input type="text" [(ngModel)]="data.companyName" placeholder="Enter Company Name">
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group full-width">
+              <label>Address</label>
+              <input type="text" [(ngModel)]="data.companyAddress" placeholder="Enter Address">
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group full-width">
+              <label>Upload Logo</label>
+              <input type="file" (change)="onLogoSelected($event)" accept="image/*">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Employee -->
+        <div class="form-group-section">
+          <h3><i class="fas fa-user-tie"></i> Employee Details</h3>
+          <div class="input-row">
+            <div class="input-group">
+              <label>Employee Name</label>
+              <input type="text" [(ngModel)]="data.empName" placeholder="e.g. Rahul Kumar">
+            </div>
+            <div class="input-group">
+              <label>Employee ID</label>
+              <input type="text" [(ngModel)]="data.empId" placeholder="e.g. EMP-001">
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label>Designation</label>
+              <input type="text" [(ngModel)]="data.designation" placeholder="e.g. Software Engineer">
+            </div>
+            <div class="input-group">
+              <label>Department</label>
+              <input type="text" [(ngModel)]="data.department" placeholder="e.g. Engineering">
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label>Pay Period</label>
+              <input type="text" [(ngModel)]="data.payPeriod" placeholder="e.g. October 2025">
+            </div>
+            <div class="input-group">
+              <label>Pay Date</label>
+              <input type="date" [(ngModel)]="data.payDate">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Earnings -->
+        <div class="form-group-section earnings-group">
+          <h3><i class="fas fa-plus-circle text-green"></i> Earnings</h3>
+          <div class="input-row">
+            <div class="input-group">
+              <label>Basic Pay</label>
+              <input type="number" [(ngModel)]="data.basic" (input)="calculateTotals()" placeholder="0">
+            </div>
+            <div class="input-group">
+              <label>HRA</label>
+              <input type="number" [(ngModel)]="data.hra" (input)="calculateTotals()" placeholder="0">
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label>Conveyance</label>
+              <input type="number" [(ngModel)]="data.conveyance" (input)="calculateTotals()" placeholder="0">
+            </div>
+            <div class="input-group">
+              <label>Medical</label>
+              <input type="number" [(ngModel)]="data.medical" (input)="calculateTotals()" placeholder="0">
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label>Special Allowance</label>
+              <input type="number" [(ngModel)]="data.special" (input)="calculateTotals()" placeholder="0">
+            </div>
+            <div class="input-group">
+              <label>Bonus</label>
+              <input type="number" [(ngModel)]="data.bonus" (input)="calculateTotals()" placeholder="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Deductions -->
+        <div class="form-group-section deductions-group">
+          <h3><i class="fas fa-minus-circle text-red"></i> Deductions</h3>
+          <div class="input-row">
+            <div class="input-group">
+              <label>Provident Fund (PF)</label>
+              <input type="number" [(ngModel)]="data.pf" (input)="calculateTotals()" placeholder="0">
+            </div>
+            <div class="input-group">
+              <label>Income Tax (TDS)</label>
+              <input type="number" [(ngModel)]="data.tax" (input)="calculateTotals()" placeholder="0">
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label>Insurance</label>
+              <input type="number" [(ngModel)]="data.insurance" (input)="calculateTotals()" placeholder="0">
+            </div>
+            <div class="input-group">
+              <label>Other Deductions</label>
+              <input type="number" [(ngModel)]="data.otherDeductions" (input)="calculateTotals()" placeholder="0">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Live Preview (A4 Paper) -->
+      <div class="preview-section">
+        <div class="preview-label">Live Preview</div>
+        
+        <!-- This ID is targeted by HTML2PDF -->
+        <div id="printable-preview" class="a4-paper">
+          
+          <!-- PDF Header -->
+          <div class="pdf-header">
+            <div class="pdf-company-info">
+              <img *ngIf="data.companyLogo" [src]="data.companyLogo" class="pdf-logo" alt="Logo">
+              <!-- Placeholder if no logo -->
+              <div *ngIf="!data.companyLogo" class="pdf-logo-placeholder">Upload Logo</div>
+              
+              <h1 class="pdf-company-name">{{ data.companyName || 'COMPANY NAME' }}</h1>
+              <p class="pdf-company-address">{{ data.companyAddress || 'Company Address' }}</p>
+            </div>
+            <div class="pdf-payslip-label">
+              <span>Payslip For</span>
+              <strong>{{ data.payPeriod || 'Month Year' }}</strong>
+            </div>
+          </div>
+
+          <!-- Employee Summary -->
+          <div class="pdf-summary">
+            <div class="pdf-section-title">EMPLOYEE SUMMARY</div>
+            <div class="pdf-grid-2">
+              <div class="pdf-row"><span class="lbl">Employee Name</span> <span class="val">: {{ data.empName || 'Employee Name' }}</span></div>
+              <div class="pdf-row"><span class="lbl">Designation</span> <span class="val">: {{ data.designation || 'Designation' }}</span></div>
+              <div class="pdf-row"><span class="lbl">Employee ID</span> <span class="val">: {{ data.empId || 'EMP-000' }}</span></div>
+              <div class="pdf-row"><span class="lbl">Department</span> <span class="val">: {{ data.department || 'Department' }}</span></div>
+              <div class="pdf-row"><span class="lbl">Pay Date</span> <span class="val">: {{ data.payDate ? (data.payDate | date:'dd MMM yyyy') : 'DD MMM YYYY' }}</span></div>
+            </div>
+          </div>
+
+          <!-- Salary Table -->
+          <div class="pdf-table-wrapper">
+            <table class="pdf-table">
+              <thead>
+                <tr>
+                  <th>EARNINGS</th>
+                  <th class="text-right">AMOUNT</th>
+                  <th class="pl-30">DEDUCTIONS</th>
+                  <th class="text-right">AMOUNT</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Basic Salary</td>
+                  <td class="text-right">₹{{ (data.basic || 0) | number:'1.2-2' }}</td>
+                  <td class="pl-30">Provident Fund</td>
+                  <td class="text-right">₹{{ (data.pf || 0) | number:'1.2-2' }}</td>
+                </tr>
+                <tr>
+                  <td>House Rent Allowance</td>
+                  <td class="text-right">₹{{ (data.hra || 0) | number:'1.2-2' }}</td>
+                  <td class="pl-30">Income Tax</td>
+                  <td class="text-right">₹{{ (data.tax || 0) | number:'1.2-2' }}</td>
+                </tr>
+                <tr>
+                  <td>Conveyance Allowance</td>
+                  <td class="text-right">₹{{ (data.conveyance || 0) | number:'1.2-2' }}</td>
+                  <td class="pl-30">Insurance</td>
+                  <td class="text-right">₹{{ (data.insurance || 0) | number:'1.2-2' }}</td>
+                </tr>
+                <tr>
+                  <td>Medical Allowance</td>
+                  <td class="text-right">₹{{ (data.medical || 0) | number:'1.2-2' }}</td>
+                  <td class="pl-30">Other Deductions</td>
+                  <td class="text-right">₹{{ (data.otherDeductions || 0) | number:'1.2-2' }}</td>
+                </tr>
+                <tr>
+                  <td>Special Allowance</td>
+                  <td class="text-right">₹{{ (data.special || 0) | number:'1.2-2' }}</td>
+                  <td class="pl-30"></td>
+                  <td class="text-right"></td>
+                </tr>
+                <tr>
+                  <td>Bonus</td>
+                  <td class="text-right">₹{{ (data.bonus || 0) | number:'1.2-2' }}</td>
+                  <td class="pl-30"></td>
+                  <td class="text-right"></td>
+                </tr>
+                
+                <!-- Totals Row -->
+                <tr class="pdf-gross-row">
+                  <td>Gross Earnings</td>
+                  <td class="text-right">₹{{ grossPay | number:'1.2-2' }}</td>
+                  <td class="pl-30">Total Deductions</td>
+                  <td class="text-right">₹{{ totalDeductions | number:'1.2-2' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Net Pay -->
+          <div class="pdf-net-pay">
+            <div class="net-left">
+              <h4>TOTAL NET PAYABLE</h4>
+              <span>Gross Earnings - Total Deductions</span>
+            </div>
+            <div class="net-right">
+              ₹{{ netPay | number:'1.2-2' }}
+            </div>
+          </div>
+
+          <div class="pdf-words">
+            Amount In Words: {{ amountInWords }}
+          </div>
+          
+          <div class="pdf-footer">
+            <p>-- This is a computer generated document --</p>
+            <p>Generated via Lovahr Platform</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

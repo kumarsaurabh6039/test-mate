@@ -1,0 +1,49 @@
+{
+  "users": [
+    { 
+      "id": "hr_admin", 
+      "password": "password", 
+      "empId": "HR007", 
+      "role": "HR" 
+    },
+    { 
+      "id": "emp1001", 
+      "password": "password", 
+      "empId": "EMP1001", 
+      "role": "Employee" 
+    }
+  ],
+  "employeeInfo": [
+    { 
+      "id": 1, 
+      "empId": "EMP1001", 
+      "firstName": "Arjun", 
+      "surname": "Verma", 
+      "workEmail": "arjun.v@company.com", 
+      "role": "Employee"
+    },
+    { 
+      "id": 2, 
+      "empId": "HR007", 
+      "firstName": "Priya", 
+      "surname": "Sharma", 
+      "workEmail": "priya.s@company.com", 
+      "role": "HR"
+    }
+  ],
+  "leaveBalances": [
+    { "id": "LB1", "empId": "EMP1001", "leaveType": "Casual", "total": 10, "consumed": 3 }
+  ],
+  "attendances": [
+    { "id": "A001", "empId": "EMP1001", "date": "2025-10-25", "loginTime": "2025-10-25T09:00:00.000Z", "logoutTime": null }
+  ],
+  "assets": [
+    { "id": "AST001", "empId": "EMP1001", "name": "MacBook Pro 14\"", "category": "Laptop", "status": "Assigned" }
+  ],
+  "timesheet": [
+    { "id": "T001", "empId": "EMP1001", "date": "2025-10-22", "project": "Antforge Project", "hours": 8.0, "status": "Draft" }
+  ],
+  "payslips": [
+    { "id": "P001", "empId": "EMP1001", "month": "Sep 2025", "salary": "₹70,000", "link": "https://example.com/payslip_sep_2025.pdf" }
+  ]
+}

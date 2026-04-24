@@ -1,0 +1,127 @@
+<form class="form" [formGroup]="signUpForm" (ngSubmit)="beginJourney()">
+  <div class="container">
+    <div class="left-section">
+      <button type="button" class="back-circle" (click)="goBack()" aria-label="Go back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+      </button>
+      <img src="/assets/logo-stream.png" alt="Iovahi Logo" class="logo" />
+      <h1 class="main-heading">Rooted Welcome</h1>
+      <p class="sub-heading">It Starts With You</p>
+      <p class="welcome-title">Welcome,</p>
+      <p class="description">
+        You're not just joining a company – you're becoming part of a rhythm. Let's lay the roots.
+      </p>
+
+      <div class="input-row">
+        <!-- Surname -->
+        <div class="input-group">
+          <label>Sur name <span style="color:#e30613">*</span></label>
+          <input type="text" placeholder="Enter your surname" formControlName="surname"
+                 [class.input-error]="signUpForm.get('surname')?.invalid && signUpForm.get('surname')?.touched" />
+          <ng-container *ngIf="signUpForm.get('surname')?.touched && signUpForm.get('surname')?.errors as errs">
+            <small class="error-text" *ngIf="errs['required']">Surname is required.</small>
+            <small class="error-text" *ngIf="errs['minlength'] || errs['maxlength']">Surname must be between 1 and 100 characters.</small>
+            <small class="error-text" *ngIf="errs['pattern']">Only letters, spaces, hyphens, dots, and apostrophes are allowed.</small>
+          </ng-container>
+        </div>
+
+        <!-- First Name -->
+        <div class="input-group">
+          <label>First name <span style="color:#e30613">*</span></label>
+          <input type="text" placeholder="Enter your first name" formControlName="firstName"
+                 [class.input-error]="signUpForm.get('firstName')?.invalid && signUpForm.get('firstName')?.touched" />
+          <ng-container *ngIf="signUpForm.get('firstName')?.touched && signUpForm.get('firstName')?.errors as errs">
+            <small class="error-text" *ngIf="errs['required']">First name is required.</small>
+            <small class="error-text" *ngIf="errs['minlength']">First name must be at least 2 characters.</small>
+            <small class="error-text" *ngIf="errs['maxlength']">First name must not exceed 100 characters.</small>
+            <small class="error-text" *ngIf="errs['pattern']">Only letters, spaces, hyphens, dots, and apostrophes are allowed.</small>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="input-row">
+        <!-- Middle Name -->
+        <div class="input-group">
+          <label>Middle name</label>
+          <input type="text" placeholder="Enter your middle name (optional)" formControlName="middleName"
+                 [class.input-error]="signUpForm.get('middleName')?.invalid && signUpForm.get('middleName')?.touched" />
+          <ng-container *ngIf="signUpForm.get('middleName')?.touched && signUpForm.get('middleName')?.errors as errs">
+            <small class="error-text" *ngIf="errs['maxlength']">Middle name must not exceed 100 characters.</small>
+            <small class="error-text" *ngIf="errs['pattern']">Only letters, spaces, hyphens, dots, and apostrophes are allowed.</small>
+          </ng-container>
+        </div>
+
+        <!-- Nick Name -->
+        <div class="input-group">
+          <label>Nick name</label>
+          <input type="text" placeholder="Enter your nickname (optional)" formControlName="nickName"
+                 [class.input-error]="signUpForm.get('nickName')?.invalid && signUpForm.get('nickName')?.touched" />
+          <ng-container *ngIf="signUpForm.get('nickName')?.touched && signUpForm.get('nickName')?.errors as errs">
+            <small class="error-text" *ngIf="errs['maxlength']">Nickname must not exceed 50 characters.</small>
+            <small class="error-text" *ngIf="errs['pattern']">Only letters, numbers, spaces, hyphens, dots, and apostrophes are allowed.</small>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="input-row">
+        <!-- Emp ID -->
+        <div class="input-group full-width">
+          <label>Emp ID <span style="color:#e30613">*</span></label>
+          <input type="text" placeholder="LOP1312" formControlName="empId" [readonly]="true" />
+          <ng-container *ngIf="signUpForm.get('empId')?.touched && signUpForm.get('empId')?.errors as errs">
+            <small class="error-text" *ngIf="errs['required']">Employee ID is required.</small>
+            <small class="error-text" *ngIf="errs['minlength']">Employee ID must be at least 3 characters.</small>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="input-row">
+        <!-- Gender -->
+        <div class="input-group">
+          <label>Gender <span style="color:#e30613">*</span></label>
+          <select formControlName="gender"
+                  [class.input-error]="signUpForm.get('gender')?.invalid && signUpForm.get('gender')?.touched">
+            <option value="" disabled selected>Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+          <small class="error-text"
+                 *ngIf="signUpForm.get('gender')?.errors?.['required'] && signUpForm.get('gender')?.touched">
+            Please select your gender.
+          </small>
+        </div>
+
+        <!-- Age -->
+        <div class="input-group">
+          <label>Age <span style="color:#e30613">*</span></label>
+          <input type="number" placeholder="Enter your age" formControlName="age"
+                 [class.input-error]="signUpForm.get('age')?.invalid && signUpForm.get('age')?.touched" />
+          <ng-container *ngIf="signUpForm.get('age')?.touched && signUpForm.get('age')?.errors as errs">
+            <small class="error-text" *ngIf="errs['required']">Age is required.</small>
+            <small class="error-text" *ngIf="errs['min']">You must be at least 18 years old to register.</small>
+            <small class="error-text" *ngIf="errs['max']">Please enter a valid age (maximum 100).</small>
+          </ng-container>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="signUpForm.invalid">Begin My Journey</button>
+
+      <div class="progress-bar">
+        <div class="step active"></div>
+        <div class="step"></div>
+        <div class="step"></div>
+        <div class="step"></div>
+        <div class="step"></div>
+        <div class="step"></div>
+      </div>
+    </div>
+
+    <div class="right-section">
+      <img src="assets/image-root.jpg" alt="Tree with roots" class="illustration" />
+      <p class="image-text">Names are where stories begin. Let's make yours known.</p>
+    </div>
+  </div>
+</form>

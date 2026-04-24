@@ -1,0 +1,221 @@
+/* --- Global Theme Variables --- */
+:root {
+  --primary-color: #2563eb;
+  --primary-dark: #1e40af;
+  --bg-page: #f8fafc;
+  --text-dark: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --radius: 12px;
+}
+
+/* Main Container */
+.admin-container {
+  padding: 2rem;
+  background-color: var(--bg-page);
+  min-height: 100vh;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  color: var(--text-dark);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- Page Header --- */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+}
+
+.header-content p {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.btn-primary-header {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  transition: all 0.2s;
+  font-size: 0.875rem;
+}
+
+.btn-primary-header:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn-primary-header:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-cancel-text {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 1rem;
+  font-size: 0.875rem;
+}
+
+/* --- Policy Editor Panel --- */
+.policy-editor-panel {
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.panel-header {
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafafa;
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.badge-view {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.badge-edit {
+  background: #fffbeb;
+  color: #92400e;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* --- Read Mode --- */
+.policy-display-container {
+  padding: 2rem;
+}
+
+.saved-content-box {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  min-height: 400px;
+}
+
+.saved-content-box pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #334155;
+  margin: 0;
+}
+
+.empty-placeholder {
+  text-align: center;
+  padding: 5rem 0;
+  color: #94a3b8;
+}
+
+.empty-placeholder i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+  display: block;
+}
+
+/* --- Edit Mode --- */
+.policy-edit-container {
+  padding: 2rem;
+}
+
+.edit-label {
+  font-weight: 700;
+  color: #475569;
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.875rem;
+}
+
+.editor-textarea {
+  width: 100%;
+  padding: 1.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.editor-textarea:focus {
+  border-color: var(--primary-color);
+}
+
+.help-box {
+  background: #f0fdf4;
+  border-left: 4px solid #22c55e;
+  color: #166534;
+  padding: 15px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-top: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 640px) {
+  .admin-container { padding: 1rem; }
+  .page-header { flex-direction: column; align-items: stretch; }
+  .header-actions { flex-direction: column; width: 100%; }
+  .btn-primary-header { width: 100%; justify-content: center; }
+}

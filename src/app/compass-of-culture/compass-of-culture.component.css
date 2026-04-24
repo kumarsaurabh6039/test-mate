@@ -1,0 +1,248 @@
+/* compass-of-culture.component.css */
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  background-color: #f0f2f5;
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.container {
+  background-color: #fff;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 30px;
+}
+
+.logo img {
+  height: 40px;
+  width: auto;
+}
+
+main {
+  padding: 0 40px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+main h1 {
+  font-size: 32px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+main .subtitle {
+  font-size: 20px;
+  color: #555;
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+
+.policy-summary {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  height: 350px;
+  display: flex;
+  flex-direction: column;
+}
+
+.policy-summary .header {
+  background-color: #f9f9f9;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: bold;
+  color: #333;
+  flex-shrink: 0;
+}
+
+.policy-summary .header .right {
+  font-weight: normal;
+  color: #777;
+  font-size: 13px;
+}
+
+.policy-summary textarea {
+  width: 100%;
+  flex-grow: 1;
+  padding: 20px;
+  border: none;
+  resize: none;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  box-sizing: border-box;
+  overflow-y: scroll; /* Force scrollbar to show there is content */
+}
+
+/* User Instruction Hint */
+.read-hint {
+  color: #ef4444;
+  font-size: 13px;
+  margin-top: -15px;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  transition: opacity 0.3s ease;
+}
+
+.disabled-opacity {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.checkbox-container input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.checkbox-container input[type="checkbox"]:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.checkbox-container input[type="checkbox"]:checked {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.checkbox-container input[type="checkbox"]:checked::before {
+  content: '\2713';
+  display: block;
+  color: white;
+  font-size: 14px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.checkbox-container label {
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+}
+
+.form-actions-footer {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.flow-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-start;
+  margin-top: 15px;
+}
+
+.flow-btn:hover:not(.btn-disabled) {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+}
+
+.btn-disabled {
+  background-color: #cbd5e1 !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+/* Progress bar styling */
+.progress-bar-steps {
+  display: flex;
+  gap: 8px;
+  margin-top: 30px;
+  margin-bottom: 40px;
+}
+
+.step {
+  height: 5px;
+  width: 40px;
+  background-color: #ddd;
+  border-radius: 3px;
+}
+
+.step.active {
+  background-color: #0078d4;
+}
+/* ─── Circular Back Icon ──────────────────────── */
+.logo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.back-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid #d1d5db;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 10px;
+  color: #444;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+.back-circle:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #111;
+  transform: translateX(-2px);
+}
+.back-circle svg { transition: transform 0.2s ease; }
+.back-circle:hover svg { transform: translateX(-2px); }

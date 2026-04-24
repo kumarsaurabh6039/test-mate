@@ -1,0 +1,210 @@
+<div class="admin-container">
+  
+  <!-- Header Section -->
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Payroll Management</h1>
+      <p>Configure CTC and process monthly salaries based on official structure</p>
+    </div>
+    <button class="btn-primary-header" (click)="openRunPayrollModal()">
+      <i class="fas fa-play-circle"></i> Run Bulk Payroll
+    </button>
+  </header>
+
+  <!-- Toolbar -->
+  <div class="toolbar-section">
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" placeholder="Search employees..." [(ngModel)]="searchText" (keyup)="applyFilters()">
+    </div>
+    <div class="stats-pills">
+      <div class="stat-pill">
+        <span class="label">Total Employees</span>
+        <span class="value">{{ employees.length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Loading -->
+  <div *ngIf="isLoading" class="loading-overlay-inline">
+    <div class="spinner"></div>
+    <p>Processing data...</p>
+  </div>
+
+  <!-- Grid -->
+  <div class="cards-grid" *ngIf="!isLoading">
+    <div *ngFor="let emp of filteredEmployees" class="payroll-card">
+      <div class="card-header-visual">
+        <div class="avatar-circle">
+          <span>{{ emp.firstName[0] }}{{ emp.surname[0] }}</span>
+        </div>
+        <div class="emp-identity">
+          <h3>{{ emp.firstName }} {{ emp.surname }}</h3>
+          <span class="emp-id">ID: {{ emp.empId }}</span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Dept:</span>
+          <span class="value">{{ emp.department || 'General' }}</span>
+        </div>
+        <div class="status-indicator configured">
+          <i class="fas fa-check-circle"></i> Active Employee
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button class="btn-action secondary" (click)="openCtcModal(emp)">
+          <i class="fas fa-edit"></i> {{ currentCtcId ? 'Edit CTC' : 'Config CTC' }}
+        </button>
+        <button class="btn-action primary" (click)="openRunPayrollModal(emp)">
+          <i class="fas fa-bolt"></i> Process
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredEmployees.length === 0" class="empty-state">
+    <i class="fas fa-search"></i>
+    <p>No results found for your search.</p>
+  </div>
+</div>
+
+<!-- CTC Modal (Mobile Friendly) -->
+<div class="modal-overlay" *ngIf="showCtcModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ currentCtcId ? 'Edit' : 'Configure' }} CTC</h2>
+      <button class="btn-close" (click)="showCtcModal=false">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="emp-summary-banner" *ngIf="selectedEmployee">
+        Editing for: <strong>{{ selectedEmployee.firstName }} {{ selectedEmployee.surname }}</strong>
+      </div>
+
+      <form [formGroup]="ctcForm" (ngSubmit)="submitCtc()">
+        
+        <div class="input-group toggle-row">
+          <label class="flex-label">
+            <input type="checkbox" formControlName="isMonthly"> 
+            Is this a Monthly CTC structure?
+          </label>
+        </div>
+
+        <div class="form-section-title">Earnings (Incomes)</div>
+        <div class="form-row-2">
+          <div class="input-group">
+            <label>Basic Salary <span class="req">*</span></label>
+            <input type="number" formControlName="basicSalary">
+          </div>
+          <div class="input-group">
+            <label>HRA</label>
+            <input type="number" formControlName="hra">
+          </div>
+        </div>
+        
+        <div class="form-row-3">
+          <div class="input-group">
+            <label>DA</label>
+            <input type="number" formControlName="da">
+          </div>
+          <div class="input-group">
+            <label>Medical Allw.</label>
+            <input type="number" formControlName="medicalAllowance">
+          </div>
+          <div class="input-group">
+            <label>Bonus</label>
+            <input type="number" formControlName="bonus">
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="input-group">
+            <label>Special Allowance</label>
+            <input type="number" formControlName="specialAllowance">
+          </div>
+          <div class="input-group">
+            <label>Other Allowances</label>
+            <input type="number" formControlName="otherAllowances">
+          </div>
+        </div>
+
+        <div class="form-section-title">Long Term & Benefits</div>
+        <div class="form-row-2">
+          <div class="input-group">
+            <label>ESOP (Units/Value)</label>
+            <input type="number" formControlName="esop">
+          </div>
+          <div class="input-group">
+            <label>Gratuity</label>
+            <input type="number" formControlName="gratuity">
+          </div>
+        </div>
+
+        <div class="form-section-title">Statutory Deductions</div>
+        <div class="form-row-3">
+          <div class="input-group">
+            <label>PF</label>
+            <input type="number" formControlName="pf">
+          </div>
+          <div class="input-group">
+            <label>Insurances</label>
+            <input type="number" formControlName="insurances">
+          </div>
+          <div class="input-group">
+            <label>Income Tax (TDS)</label>
+            <input type="number" formControlName="incomeTax">
+          </div>
+        </div>
+        
+        <div class="input-group">
+          <label>Professional Tax</label>
+          <input type="number" formControlName="professionalTax">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="showCtcModal=false">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="ctcForm.invalid || isSavingCtc">
+            <span *ngIf="!isSavingCtc">{{ currentCtcId ? 'Update Structure' : 'Save Structure' }}</span>
+            <span *ngIf="isSavingCtc"><i class="fas fa-spinner fa-spin"></i> Saving...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Run Payroll Modal -->
+<div class="modal-overlay" *ngIf="showRunModal">
+  <div class="modal-content small-modal">
+    <div class="modal-header">
+      <h2>Process Payroll</h2>
+      <button class="btn-close" (click)="showRunModal=false">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p *ngIf="selectedEmployee">Running for <strong>{{ selectedEmployee.firstName }}</strong></p>
+      <p *ngIf="!selectedEmployee">Running <strong>Bulk Process</strong> for all employees.</p>
+      
+      <div class="form-row-2">
+        <div class="input-group">
+          <label>Month</label>
+          <select [(ngModel)]="runMonth">
+            <option *ngFor="let m of months" [value]="m.value">{{ m.name }}</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Year</label>
+          <input type="number" [(ngModel)]="runYear">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="showRunModal=false">Close</button>
+        <button class="btn-submit" (click)="confirmRunPayroll()">Run Now</button>
+      </div>
+    </div>
+  </div>
+</div>

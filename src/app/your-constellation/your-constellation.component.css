@@ -1,0 +1,427 @@
+/* Main container */
+.main-wrapper {
+    display: flex;
+    flex-direction: column; /* Stack on small screens */
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 20px;
+    background-color: #e9f9f8;
+    min-height: 100vh; /* Ensure it takes full viewport height */
+    overflow: hidden; /* Prevent horizontal scroll from tree */
+}
+
+/* Left section */
+.left-section {
+    flex: 1 1 100%;
+    position: relative;
+    padding-bottom: 50px; /* Space for the dig button */
+}
+
+.logo {
+    width: 120px;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin: 16px 0 8px;
+}
+
+.subtext {
+    font-weight: 400;
+    color: #666;
+    margin-left: 8px;
+}
+
+.highlight {
+    color: #2a8e76;
+}
+
+/* Org Tree Container */
+.org-tree {
+    position: relative;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* Levels styling */
+.level {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+    padding: 20px 0; /* Vertical spacing between levels */
+    width: 100%; /* Allows flex items to spread */
+}
+
+/* Person card */
+.person {
+    text-align: center;
+    position: relative;
+    padding: 0 10px; /* Horizontal padding for spacing people */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.person img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 2px solid #2a8e76;
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+.person p {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Connections: This is the trickiest part. We'll use pseudo-elements extensively. */
+
+/* Boss and HR to Manager */
+.level.top {
+    gap: 120px; /* Wider gap for Boss and HR */
+}
+
+.level.top::after {
+    /* Horizontal line connecting Boss and HR */
+    content: "";
+    position: absolute;
+    top: calc(100% - 2px); /* At the bottom of the level */
+    left: 50%;
+    width: calc(120px + 64px * 2 + 20px * 2); /* Gap + 2 avatars width + their paddings */
+    height: 2px;
+    background: #ccc;
+    transform: translateX(-50%);
+    z-index: 0;
+}
+
+.level.top .person::before {
+    /* Vertical line from Boss/HR to horizontal line */
+    content: "";
+    position: absolute;
+    top: calc(100% + 2px); /* Below the person */
+    left: 50%;
+    width: 2px;
+    height: 20px; /* Length of the vertical line */
+    background: #ccc;
+    transform: translateX(-50%);
+}
+
+.level.middle {
+    margin-top: 0px; /* Adjust spacing */
+}
+
+.level.middle .person::before {
+    /* Vertical line from Reporting Manager to horizontal line above it */
+    content: "";
+    position: absolute;
+    top: -20px; /* Above the person */
+    left: 50%;
+    width: 2px;
+    height: 20px;
+    background: #ccc;
+    transform: translateX(-50%);
+}
+
+/* Manager to Third Level */
+.level.middle::after {
+    /* Vertical line from Manager down */
+    content: "";
+    position: absolute;
+    bottom: -20px; /* Below the manager */
+    left: 50%;
+    width: 2px;
+    height: 20px;
+    background: #ccc;
+    transform: translateX(-50%);
+    z-index: 0;
+}
+
+.level.third {
+    justify-content: center;
+    gap: 80px; /* Gap between the two people in third level */
+    position: relative; /* For connector positioning */
+}
+
+.level.third::before {
+    /* Horizontal line connecting the two in third level */
+    content: "";
+    position: absolute;
+    top: 0; /* At the top of the level */
+    left: 50%;
+    width: calc(80px + 64px * 2 + 20px * 2); /* Gap + 2 avatars width + their paddings */
+    height: 2px;
+    background: #ccc;
+    transform: translateX(-50%);
+    z-index: 0;
+}
+
+.level.third .person::before {
+    /* Vertical line from third level people down */
+    content: "";
+    position: absolute;
+    top: calc(100% + 2px); /* Below the person */
+    left: 50%;
+    width: 2px;
+    height: 20px;
+    background: #ccc;
+    transform: translateX(-50%);
+}
+
+/* Third Level to Bottom Level */
+/* This connection needs individual lines from the two third-level people to the horizontal line above the bottom level. */
+/* We'll make the bottom level itself handle the horizontal line. */
+
+.level.bottom {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 30px; /* Gap between people in the bottom level */
+    position: relative;
+    padding-top: 30px; /* Space for incoming lines */
+}
+
+.level.bottom::before {
+    /* Horizontal line above the bottom level, connecting all */
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 90%; /* Adjust as needed to cover all persons */
+    max-width: 600px; /* Limit width for large screens */
+    height: 2px;
+    background: #ccc;
+    transform: translateX(-50%);
+    z-index: 0;
+}
+
+.level.bottom .person::before {
+    /* Vertical line from horizontal line to each person in bottom level */
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 30px; /* Length of the vertical line */
+    background: #ccc;
+    transform: translateX(-50%);
+}
+
+/* Override specific vertical line for Reporting Manager to connect to the horizontal line of the third level */
+#manager + .level.third::before {
+    /* Line from manager to the horizontal line of the third level */
+    content: "";
+    position: absolute;
+    top: -20px; /* Start from top of third level */
+    left: 50%;
+    width: 2px;
+    height: 20px; /* This vertical line goes up to connect */
+    background: #ccc;
+    transform: translateX(-50%);
+}
+
+/* Adjusting specific connections to match the image precisely */
+/* Connecting the "Boss" and "HR" vertical lines to the horizontal line. */
+/* The general .person::before takes care of the vertical line below each person.
+   We need a specific vertical line from the horizontal line to the "Reporting Manager". */
+
+/* This is where it gets very custom to connect Boss/HR to Manager */
+/* We need a specific line from the horizontal bar below Boss/HR to the Manager's top bar */
+/* This is often better handled with SVG or a library, but with CSS: */
+
+/* Invisible element to create connection point */
+.org-tree::before {
+    content: '';
+    position: absolute;
+    top: calc(85px + 20px + 20px); /* Height of Boss/HR level + vertical line + padding */
+    left: 50%;
+    width: 2px;
+    height: 20px; /* Gap for vertical line */
+    background: #ccc;
+    transform: translateX(-50%);
+    z-index: 0;
+}
+
+
+/* Dig button */
+.dig {
+    display: block;
+    margin: 40px auto 0;
+    background-color: #2a8e76;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: 500;
+    position: absolute; /* Position relative to .left-section */
+    bottom: 20px; /* Adjust as needed */
+    left: 20px; /* Position to the left */
+    margin: 0; /* Override auto margin */
+}
+
+/* Right section */
+.right-section {
+    flex: 1 1 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px; /* Give it some height for positioning */
+}
+
+.tree-image {
+    width: 100%;
+    max-width: 500px; /* Adjust max-width as needed */
+    height: auto;
+    object-fit: contain;
+    position: absolute; /* Absolute positioning within .right-section */
+    bottom: 0; /* Align to the bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 0;
+}
+
+.say-hello {
+    position: absolute;
+    top: 50%; /* Start from the middle vertically */
+    right: 20px; /* Adjust right spacing */
+    background-color: #f44336;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    z-index: 1;
+    border-radius: 4px;
+    transform: translateY(-50%); /* Center vertically */
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Responsive Breakpoint */
+@media (min-width: 768px) {
+    .main-wrapper {
+        flex-direction: row; /* Side-by-side on larger screens */
+        padding: 40px 60px;
+    }
+
+    .left-section,
+    .right-section {
+        flex: 1;
+        min-height: 700px; /* Ensure sufficient height for layout */
+    }
+
+    .left-section {
+        padding-bottom: 20px; /* Reset padding */
+    }
+
+    /* Adjust specific org chart gaps for larger screens */
+    .level.top {
+        gap: 150px; /* Increase gap for Boss and HR */
+    }
+
+    .level.top::after {
+        width: calc(150px + 64px * 2 + 20px * 2);
+    }
+
+    .level.third {
+        gap: 100px; /* Increase gap for third level */
+    }
+
+    .level.third::before {
+        width: calc(100px + 64px * 2 + 20px * 2);
+    }
+
+    .level.bottom {
+        gap: 40px; /* Increase gap for bottom level */
+    }
+
+    /* Dig button repositioning */
+    .dig {
+        position: static; /* Remove absolute positioning */
+        margin: 40px 0 0 0; /* Back to flow */
+    }
+
+    /* Right section adjustments for desktop */
+    .right-section {
+        justify-content: flex-start; /* Align tree to bottom but button can be higher */
+        align-items: flex-end; /* Align items to the right */
+    }
+
+    .tree-image {
+        position: absolute;
+        bottom: 0;
+        right: -10%; /* Adjust to move it further right */
+        left: unset; /* Unset left positioning */
+        transform: none; /* Remove transform */
+        max-width: 600px; /* Larger tree */
+        width: 120%; /* Make it bigger relative to container */
+    }
+
+    .say-hello {
+        position: absolute;
+        top: 250px; /* Position higher on larger screens */
+        right: 180px; /* Align with the image in mind */
+        transform: none; /* Remove translateY */
+    }
+
+    /* Fine-tune specific vertical lines for desktop */
+    .org-tree::before {
+        top: calc(85px + 20px + 20px); /* Adjust as needed based on exact measurements */
+        height: 20px;
+    }
+}
+
+/* Even larger screens if needed */
+@media (min-width: 1200px) {
+    .main-wrapper {
+        padding: 50px 80px;
+    }
+
+    .say-hello {
+        right: 220px; /* Further right */
+        top: 220px; /* Adjust vertically */
+    }
+
+    .tree-image {
+        right: -15%; /* Move further right */
+        max-width: 700px;
+    }
+}
+/* ─── Circular Back Icon ──────────────────────── */
+.back-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid #d1d5db;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 14px;
+  color: #444;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+.back-circle:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #111;
+  transform: translateX(-2px);
+}
+.back-circle svg { transition: transform 0.2s ease; }
+.back-circle:hover svg { transform: translateX(-2px); }

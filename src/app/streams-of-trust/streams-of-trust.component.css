@@ -1,0 +1,240 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', sans-serif;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+.container {
+  position: relative;
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  padding: 40px 60px;
+  justify-content: space-between;
+  align-items: center;
+  background: url('/assets/stream-background.jpg') no-repeat center center;
+  background-size: cover;
+}
+
+.left {
+  width: 50%;
+  max-width: 600px;
+  z-index: 1;
+}
+
+.logo {
+  width: 150px;
+  margin-bottom: 10px;
+}
+
+h1, h2 {
+  color: #3a3a3a;
+  margin-bottom: 8px;
+}
+h1 {
+  font-size: 28px;
+  font-weight: 800;
+}
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #4a4a4a;
+}
+
+form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 24px;
+  margin-top: 20px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+input {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  font-size: 13px;
+  color: #222;
+}
+
+/* --- Validation Styles --- */
+input.input-error {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+input.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 11px;
+  margin-top: 6px;
+  font-weight: 500;
+  animation: slideDown 0.2s ease-out forwards;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* -------------------------- */
+
+.note {
+  font-size: 11px;
+  color: #999;
+  margin-top: 4px;
+  align-self: flex-end;
+}
+
+.button-wrap {
+  grid-column: span 2;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+button {
+  background-color: #e60012;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.progress-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.progress-step {
+  flex: 1;
+  max-width: 40px;
+  height: 4px;
+  background-color: #e0e0e0;
+  border-radius: 2px;
+}
+.progress-step.active {
+  background-color: #0a8ae5;
+}
+
+.right {
+  width: 50%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  z-index: 1;
+  padding-right: 60px;
+}
+
+/* Right text - clean, no card */
+.right-text {
+  padding: 0;
+  max-width: 420px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  position: relative;
+}
+
+.highlight {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #e60012;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.highlight::after {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 2px;
+  background: #e60012;
+  margin: 10px auto 0 auto;
+  border-radius: 2px;
+}
+
+.value-text {
+  font-size: 19px;
+  font-weight: 400;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #1a1a1a;
+  line-height: 2.1;
+  font-style: italic;
+  text-shadow: 0 1px 6px rgba(255,255,255,0.7);
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  html, body {
+    overflow: auto;
+  }
+  .container {
+    flex-direction: column;
+    padding: 20px;
+    height: auto;
+  }
+  .left, .right {
+    width: 100%;
+    max-width: 100%;
+  }
+  form {
+    grid-template-columns: 1fr;
+  }
+  .button-wrap {
+    justify-content: flex-start;
+  }
+  .right {
+    margin-top: 40px;
+  }
+  .logo {
+    width: 120px;
+  }
+  h1 { font-size: 22px; }
+  h2 { font-size: 16px; }
+  .right-text { font-size: 13px; }
+}
+/* ─── Circular Back Icon ──────────────────────── */
+.back-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid #d1d5db;
+  background: rgba(255,255,255,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 16px;
+  color: #444;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+.back-circle:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #111;
+  transform: translateX(-2px);
+}
+.back-circle svg { transition: transform 0.2s ease; }
+.back-circle:hover svg { transform: translateX(-2px); }

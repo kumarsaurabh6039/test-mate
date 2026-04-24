@@ -1,0 +1,190 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+<div class="container">
+  <!-- HEADER -->
+  <header>
+    <div class="logo-search">
+      <div class="logo">
+        <img src="assets/logo-stream.png" alt="Lovahr Logo" class="logo-img" height="40px">
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="user-avatar-container">
+        <div class="avatar-placeholder">
+           {{ getUserInitial() }}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a routerLink="/dashboard-leaves"><i class="fas fa-leaf"></i>Leaves</a>
+      <a routerLink="/dashboard-swipedata"><i class="fas fa-exchange-alt"></i>Attendance</a>
+      <a routerLink="/dashboard-timesheet"><i class="fas fa-clock"></i>Timesheet</a>
+      <a routerLink="/payslip"><i class="fas fa-file-invoice-dollar"></i>Payslip</a>
+      <a routerLink="/dashboard-assets"><i class="fas fa-box-open"></i>Assets</a>
+      <a routerLink="/dashboard-team"><i class="fas fa-users"></i>Team</a>
+      <a class="active"><i class="fas fa-sign-out-alt"></i>Exit</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    
+    <!-- LIVE STATUS BANNER -->
+    <!-- Yeh tabhi dikhega jab API se koi active request milegi -->
+    <div *ngIf="currentExitRequest" class="status-banner fade-in">
+        <div class="status-header">
+            <h3><i class="fas fa-info-circle"></i> Application Status</h3>
+            <span class="live-indicator"><span class="dot"></span> Live Updates</span>
+        </div>
+        <div class="status-steps">
+            <!-- Step 1: Submission -->
+            <div class="step" [class.completed]="true">
+                <div class="icon"><i class="fas fa-check"></i></div>
+                <div class="label">Submitted</div>
+                <div class="date">{{ currentExitRequest.resignationDate | date:'dd MMM' }}</div>
+            </div>
+            
+            <div class="line" [class.active]="currentExitRequest.managerApprovalStatus === 'APPROVED'"></div>
+            
+            <!-- Step 2: Manager Approval -->
+            <div class="step" [class.completed]="currentExitRequest.managerApprovalStatus === 'APPROVED'" [class.rejected]="currentExitRequest.managerApprovalStatus === 'REJECTED'">
+                <div class="icon">
+                    <i class="fas" [ngClass]="currentExitRequest.managerApprovalStatus === 'REJECTED' ? 'fa-times' : (currentExitRequest.managerApprovalStatus === 'APPROVED' ? 'fa-check' : 'fa-hourglass-half')"></i>
+                </div>
+                <div class="label">Manager Approval</div>
+                <div class="status-text" [ngClass]="getStatusClass(currentExitRequest.managerApprovalStatus)">
+                    {{ currentExitRequest.managerApprovalStatus || 'PENDING' }}
+                </div>
+            </div>
+            
+            <div class="line" [class.active]="currentExitRequest.hrApprovalStatus === 'APPROVED'"></div>
+
+            <!-- Step 3: HR Approval -->
+            <div class="step" [class.completed]="currentExitRequest.hrApprovalStatus === 'APPROVED'" [class.rejected]="currentExitRequest.hrApprovalStatus === 'REJECTED'">
+                <div class="icon">
+                    <i class="fas" [ngClass]="currentExitRequest.hrApprovalStatus === 'REJECTED' ? 'fa-times' : (currentExitRequest.hrApprovalStatus === 'APPROVED' ? 'fa-check' : 'fa-hourglass-half')"></i>
+                </div>
+                <div class="label">HR Approval</div>
+                <div class="status-text" [ngClass]="getStatusClass(currentExitRequest.hrApprovalStatus)">
+                    {{ currentExitRequest.hrApprovalStatus || 'PENDING' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN FORM -->
+    <form [formGroup]="exitForm" (ngSubmit)="onSubmit()" class="exit-form-card">
+        
+        <div class="form-header">
+            <h2>{{ currentExitRequest ? 'Application Details' : 'Resignation Application' }}</h2>
+            <p *ngIf="!currentExitRequest">Submit your details to initiate the exit process.</p>
+            <p *ngIf="currentExitRequest">Viewing submitted application.</p>
+        </div>
+
+        <div class="form-grid">
+            <!-- Row 1 -->
+            <div class="form-group">
+                <label>Employee ID</label>
+                <input type="text" formControlName="empId" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label>Exit Type</label>
+                <select formControlName="exitType">
+                    <option value="Resignation">Resignation</option>
+                    <option value="Retirement">Retirement</option>
+                    <option value="Termination">Termination (Self)</option>
+                </select>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="form-group">
+                <label>Resignation Date</label>
+                <input type="date" formControlName="resignationDate" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Notice Period (Days)</label>
+                <input type="number" formControlName="noticePeriodDays" readonly>
+            </div>
+
+            <!-- Row 3: Early Release Logic -->
+            <div class="form-group toggle-wrapper">
+                <label class="toggle-switch">
+                    <input type="checkbox" formControlName="earlyReleaseRequested">
+                    <span class="slider"></span>
+                </label>
+                <label style="margin-bottom: 0;" [style.cursor]="exitForm.disabled ? 'default' : 'pointer'" (click)="toggleEarlyRelease()">Request Early Release</label>
+            </div>
+
+            <div class="form-group">
+                <label>Last Working Date (LWD)</label>
+                <!-- Only editable if Early Release is checked AND form is active -->
+                <input type="date" formControlName="lastWorkingDate" [readonly]="!exitForm.get('earlyReleaseRequested')?.value || exitForm.disabled">
+                <small *ngIf="!exitForm.get('earlyReleaseRequested')?.value" class="text-gray-400">Calculated automatically based on notice period</small>
+            </div>
+
+            <!-- Row 4: Buyout (Conditional) -->
+            <div class="form-group" *ngIf="exitForm.get('earlyReleaseRequested')?.value">
+                <label>Estimated Notice Buyout Amount (Auto-calc)</label>
+                <input type="number" formControlName="noticeBuyoutAmount">
+                <small class="text-gray-400">Calculated based on Basic Salary & Shortfall Days</small>
+            </div>
+
+            <!-- Row 5: Reason -->
+            <div class="form-group full-width">
+                <label>Reason for Leaving</label>
+                <textarea formControlName="reason" rows="4" placeholder="Please provide a detailed reason..."></textarea>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="onCancel()">Back to Dashboard</button>
+            
+            <!-- Submit Button (Only visible if NO active request) -->
+            <button *ngIf="!currentExitRequest" type="submit" class="btn-submit" [disabled]="exitForm.invalid || isSubmitting">
+                <i class="fas fa-paper-plane"></i>
+                {{ isSubmitting ? 'Submitting...' : 'Submit Resignation' }}
+            </button>
+
+            <!-- Withdraw Button -->
+            <!-- Visible ONLY if request exists AND status is PENDING -->
+            <button *ngIf="currentExitRequest && 
+                           currentExitRequest.status !== 'WITHDRAWN' && 
+                           currentExitRequest.hrApprovalStatus !== 'APPROVED'" 
+                    type="button" class="btn-withdraw" (click)="onWithdraw()" [disabled]="isSubmitting">
+                <i class="fas fa-undo"></i> Withdraw Application
+            </button>
+        </div>
+    </form>
+  </main>
+
+  <!-- RIGHT PANEL (Static Guide) -->
+  <aside class="right-info-panel">
+    <div class="info-card">
+        <h3>Exit Process Guide</h3>
+        <ul class="info-list">
+            <li>Submit your resignation via this portal.</li>
+            <li>Manager approval is required for LWD confirmation.</li>
+            <li>Asset handover checklist will be triggered 7 days before LWD.</li>
+            <li>Full & Final settlement takes 45 days after exit.</li>
+        </ul>
+    </div>
+
+    <div class="contact-hr-box">
+        <div class="contact-icon">
+            <i class="fas fa-headset"></i>
+        </div>
+        <div class="contact-details">
+            <strong>HR Helpdesk</strong>
+            <p>hr-support@lovahr.com</p>
+        </div>
+    </div>
+  </aside>
+</div>

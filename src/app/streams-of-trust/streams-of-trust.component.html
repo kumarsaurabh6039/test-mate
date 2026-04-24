@@ -1,0 +1,147 @@
+<div class="container">
+  <div class="left">
+    <button type="button" class="back-circle" (click)="goBack()" aria-label="Go back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+    </button>
+    <img class="logo" src="/assets/logo-stream.png" alt="lovahr logo" />
+    <h1>Streams of Trust</h1>
+    <h2>Where Value Flows</h2>
+
+    <form #streamForm="ngForm" (ngSubmit)="moveForward(streamForm)">
+
+      <!-- Bank Account Number: @NotBlank, @Pattern(^[0-9]{9,18}$) -->
+      <div class="input-group">
+        <input
+          type="text" name="bankAccountNumber"
+          [(ngModel)]="trustData.bankAccountNumber"
+          required
+          pattern="^[0-9]{9,18}$"
+          placeholder="Bank account number"
+          #accNum="ngModel"
+          [class.input-error]="accNum.invalid && (accNum.touched || streamForm.submitted)"
+        />
+        <ng-container *ngIf="accNum.invalid && (accNum.touched || streamForm.submitted)">
+          <div class="error-message" *ngIf="accNum.errors?.['required']">Bank account number is required.</div>
+          <div class="error-message" *ngIf="accNum.errors?.['pattern']">Bank account number must contain only digits (9 to 18 digits).</div>
+        </ng-container>
+        <span class="note">(You can update this later)</span>
+      </div>
+
+      <!-- Bank Name: @NotBlank, @Size(2-100) -->
+      <div class="input-group">
+        <input
+          type="text" name="bankName"
+          [(ngModel)]="trustData.bankName"
+          required minlength="2" maxlength="100"
+          placeholder="Bank name"
+          #bankName="ngModel"
+          [class.input-error]="bankName.invalid && (bankName.touched || streamForm.submitted)"
+        />
+        <ng-container *ngIf="bankName.invalid && (bankName.touched || streamForm.submitted)">
+          <div class="error-message" *ngIf="bankName.errors?.['required']">Bank name is required.</div>
+          <div class="error-message" *ngIf="bankName.errors?.['minlength']">Bank name must be at least 2 characters.</div>
+          <div class="error-message" *ngIf="bankName.errors?.['maxlength']">Bank name must not exceed 100 characters.</div>
+        </ng-container>
+        <span class="note">(You can update this later)</span>
+      </div>
+
+      <!-- IFSC Code: @NotBlank, @Pattern(^[A-Z]{4}0[A-Z0-9]{6}$) -->
+      <div class="input-group">
+        <input
+          type="text" name="ifscCode"
+          [(ngModel)]="trustData.ifscCode"
+          required
+          pattern="^[a-zA-Z]{4}0[a-zA-Z0-9]{6}$"
+          placeholder="IFSC code (e.g. SBIN0001234)"
+          #ifsc="ngModel"
+          [class.input-error]="ifsc.invalid && (ifsc.touched || streamForm.submitted)"
+        />
+        <ng-container *ngIf="ifsc.invalid && (ifsc.touched || streamForm.submitted)">
+          <div class="error-message" *ngIf="ifsc.errors?.['required']">IFSC code is required.</div>
+          <div class="error-message" *ngIf="ifsc.errors?.['pattern']">
+            Please enter a valid IFSC code (e.g. SBIN0001234) — 4 letters, 0, then 6 alphanumeric characters.
+          </div>
+        </ng-container>
+        <span class="note">(Auto-converted to uppercase on save)</span>
+      </div>
+
+      <!-- Banking Location: @Size(max=200) -->
+      <div class="input-group">
+        <input
+          type="text" name="bankingLocation"
+          [(ngModel)]="trustData.bankingLocation"
+          required maxlength="200"
+          placeholder="Banking location"
+          #location="ngModel"
+          [class.input-error]="location.invalid && (location.touched || streamForm.submitted)"
+        />
+        <ng-container *ngIf="location.invalid && (location.touched || streamForm.submitted)">
+          <div class="error-message" *ngIf="location.errors?.['required']">Banking location is required.</div>
+          <div class="error-message" *ngIf="location.errors?.['maxlength']">Banking location must not exceed 200 characters.</div>
+        </ng-container>
+        <span class="note">(You can update this later)</span>
+      </div>
+
+      <!-- PAN Number: @NotBlank, @Pattern(^[A-Z]{5}[0-9]{4}[A-Z]$) -->
+      <div class="input-group">
+        <input
+          type="text" name="panNumber"
+          [(ngModel)]="trustData.panNumber"
+          required
+          pattern="^[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}$"
+          placeholder="PAN number (e.g. ABCDE1234F)"
+          #pan="ngModel"
+          [class.input-error]="pan.invalid && (pan.touched || streamForm.submitted)"
+        />
+        <ng-container *ngIf="pan.invalid && (pan.touched || streamForm.submitted)">
+          <div class="error-message" *ngIf="pan.errors?.['required']">PAN number is required.</div>
+          <div class="error-message" *ngIf="pan.errors?.['pattern']">
+            Please enter a valid PAN number (e.g. ABCDE1234F) — 5 letters, 4 digits, 1 letter.
+          </div>
+        </ng-container>
+        <span class="note">(Auto-converted to uppercase on save)</span>
+      </div>
+
+      <!-- UAN Number: @Pattern(^[0-9]{12}$|^$) — optional -->
+      <div class="input-group">
+        <input
+          type="text" name="uanNumber"
+          [(ngModel)]="trustData.uanNumber"
+          pattern="^\d{12}$"
+          placeholder="UAN number (optional)"
+          #uan="ngModel"
+          [class.input-error]="uan.invalid && (uan.touched || streamForm.submitted)"
+        />
+        <div *ngIf="uan.errors?.['pattern'] && (uan.touched || streamForm.submitted)" class="error-message">
+          UAN number must be exactly 12 digits (or leave empty).
+        </div>
+        <span class="note">(Optional)</span>
+      </div>
+
+      <div class="button-wrap">
+        <button type="submit">Link the Stream</button>
+      </div>
+    </form>
+
+    <div class="progress-bar">
+      <div class="progress-step active"></div>
+      <div class="progress-step active"></div>
+      <div class="progress-step active"></div>
+      <div class="progress-step active"></div>
+      <div class="progress-step active"></div>
+      <div class="progress-step"></div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="right-text">
+      <p class="highlight">Here's where</p>
+      <p class="value-text">
+        The value you create flows back to you.<br />
+        Let's link the stream.
+      </p>
+    </div>
+  </div>
+</div>

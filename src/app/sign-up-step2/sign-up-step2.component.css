@@ -1,0 +1,302 @@
+/* Universal box-sizing and font-family */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Body and HTML height for full viewport */
+body,
+html {
+  height: 100%;
+  background-color: #fff;
+}
+
+/* Main wrapper for the entire layout, using flexbox for responsive design */
+.main-wrapper {
+  display: flex;
+  min-height: 100vh; /* Minimum height to cover full viewport */
+  width: 100%;
+  flex-wrap: wrap; /* Allow sections to wrap on smaller screens */
+}
+
+/* Left section styling */
+.left-section {
+  width: 55%; /* 55% width for desktop */
+  display: flex;
+  background-color: #fff;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 60px;
+  box-sizing: border-box; /* Include padding in width */
+}
+
+/* Responsive adjustments for left section */
+@media (max-width: 1024px) {
+  .left-section {
+    width: 100%; /* Full width on smaller screens */
+    padding: 30px 40px;
+  }
+}
+
+/* Logo styling */
+.logo {
+  width: 120px;
+  margin-bottom: 20px;
+}
+
+/* Brand header styling */
+.brand-header h1 {
+  font-size: 28px;
+  color: #e30613;
+  margin-bottom: 4px;
+}
+
+/* Subtitle styling */
+.subtitle {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Upload button styling */
+.upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f6f6f6;
+  border: 1px solid #ccc;
+  padding: 12px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  width: fit-content;
+  margin-bottom: 30px;
+}
+
+/* Upload button image styling */
+.upload-btn img:first-child {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Upload button text styling */
+.upload-btn span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Form group styling */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+/* Form group label styling */
+.form-group label {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+/* Form group label span (hint text) styling */
+.form-group label span {
+  font-size: 12px;
+  color: #888;
+  margin-left: 4px;
+}
+
+/* Form group input styling */
+.form-group input {
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
+}
+
+/* --- Real-Time Validation Feedback Styles --- */
+.form-group input.ng-invalid.ng-touched,
+.form-group input.input-error {
+  border-color: #e30613;
+  background-color: #fef2f2;
+  box-shadow: 0 0 0 2px rgba(227, 6, 19, 0.1);
+}
+
+.form-group input.ng-valid.ng-touched {
+  border-color: #10b981; /* Green border for correct input */
+}
+
+/* Error message styling */
+.error {
+  color: #e30613;
+  font-size: 12px;
+  margin-top: 4px;
+  animation: slideDown 0.2s ease-out forwards;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form layout with flexbox and gap */
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Form group width within the form */
+form .form-group {
+  width: calc(50% - 10px); /* Two columns with a gap */
+}
+
+/* Responsive adjustments for form groups */
+@media (max-width: 768px) {
+  form .form-group {
+    width: 100%; /* Full width on smaller screens */
+  }
+}
+
+/* Last row of the form for alignment */
+.form-last-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  flex-wrap: wrap; /* Allow elements to wrap */
+}
+
+/* Birthday input width */
+.birthday {
+  width: calc(50% - 10px);
+}
+
+/* Responsive adjustments for birthday input */
+@media (max-width: 768px) {
+  .birthday {
+    width: 100%; /* Full width on smaller screens */
+    margin-bottom: 16px; /* Add margin when wrapped */
+  }
+}
+
+/* Submit button styling */
+.submit-btn {
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  background-color: #e30613;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  height: 42px;
+  flex-shrink: 0; /* Prevent shrinking */
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #b9040f;
+}
+
+/* Disabled submit button styling */
+.submit-btn:disabled {
+  background-color: #fca5a5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Progress bar styling */
+.progress-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.step {
+  height: 5px;
+  width: 40px;
+  background-color: #ddd;
+  border-radius: 3px;
+}
+
+.step.active {
+  background-color: #0078d4;
+}
+
+/* Right section styling */
+.right-section {
+  width: 45%; /* 45% width for desktop */
+  background-color: #fff; /* Changed background for better contrast */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+  box-sizing: border-box; /* Include padding in width */
+}
+
+/* Responsive adjustments for right section */
+@media (max-width: 1024px) {
+  .right-section {
+    width: 100%; /* Full width on smaller screens */
+    height: auto; /* Adjust height automatically */
+    padding: 30px 40px;
+  }
+}
+
+/* Right image styling */
+.right-image {
+  width: 300px;
+  max-width: 100%; /* Ensure image doesn't overflow */
+  height: auto;
+  margin-bottom: 20px;
+}
+
+/* Quote text styling */
+.quote {
+  font-size: 16px;
+  color: #333;
+  max-width: 80%;
+}
+
+/* ===== Circular Back Icon ===== */
+.back-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 18px;
+  color: #444;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.back-circle:hover {
+  background: #f5f5f5;
+  border-color: #aaa;
+  color: #111;
+  transform: translateX(-2px);
+}
+
+.back-circle:hover svg {
+  transform: translateX(-2px);
+}

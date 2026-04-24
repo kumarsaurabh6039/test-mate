@@ -1,0 +1,374 @@
+/* Basic Reset & Body Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #fcfcfc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Main Container */
+.container {
+    display: flex;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    max-width: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Left Section (Form) */
+.left {
+    flex: 1;
+    padding: 40px 50px;
+    display: flex;
+    flex-direction: column;
+    /* Removed justify-content: space-between; from .left */
+    /* We want content to flow naturally, not space out */
+}
+
+.logo-container {
+    margin-bottom: 35px;
+}
+
+.logo-container img {
+    max-width: 140px;
+    height: auto;
+}
+
+h2 {
+    color: #e53935;
+    font-size: 2.6em;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 1.15em;
+    margin-top: 0;
+    margin-bottom: 35px;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 35px; /* Increased gap between form-sections for more breathing room */
+    /* Add flex-grow to the form so it takes available space and pushes the progress bar down */
+    flex-grow: 1; /* This will make the form expand and push the progress bar to the bottom if .left has space-between */
+    /* Since we removed space-between from .left, flex-grow is less critical here for positioning
+       but good for ensuring the form takes up the necessary space. */
+}
+
+/* Form Sections - Removing default box look */
+.form-section {
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    background-color: transparent;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px 40px; /* Vertical (row) and Horizontal (column) gap between fields */
+    justify-content: space-between;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 25px;
+}
+
+/* First form section should not have a top border */
+.form-section:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+/* Styling for the h3 headings within form-sections */
+.form-section h3 {
+    color: #333;
+    font-size: 1.4em;
+    margin: 0 0 18px 0;
+    border-bottom: none;
+    padding-bottom: 0;
+    flex-basis: 100%;
+    font-weight: 600;
+}
+
+/* Styling for individual field containers */
+.form-section > div {
+    display: flex;
+    flex-direction: column;
+    flex-basis: calc(50% - 20px);
+}
+
+/* Special handling for the last field in Emergency Contact to take full width */
+.form-section:first-of-type > div:last-of-type {
+    flex-basis: 100%;
+}
+
+label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.small-text {
+    font-size: 0.88em;
+    color: #999;
+    margin-left: 0;
+    margin-bottom: 6px;
+    display: block;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    border-color: #e53935;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.15);
+}
+
+/* --- Real-Time Validation Feedback Styles --- */
+input.input-error,
+select.input-error {
+    border-color: #e53935 !important;
+    background-color: #fef2f2 !important;
+    box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.1) !important;
+}
+
+.error-message {
+    color: #e53935;
+    font-size: 0.85em;
+    margin-top: 6px;
+    font-weight: 500;
+    animation: slideDown 0.2s ease-out forwards;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="#555555" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    padding-right: 40px;
+}
+
+
+/* Submit Button Container */
+/* TARGET THIS DIV THAT WRAPS THE BUTTON */
+form > div:last-of-type {
+    /* Removed text-align: center; if you want it aligned with left form fields. */
+    /* If you want it centered, keep text-align: center; */
+    /* For now, let's align it with the fields. */
+    text-align: left; /* Aligns the button with the left side of the form */
+    margin-top: 35px; /* Keep some space above the button */
+    margin-bottom: 0; /* Remove any bottom margin here */
+    /* Added to make the button align to the left and not push to the right */
+    width: 100%; 
+    display: flex;
+    justify-content: flex-start;
+}
+
+.btn-submit {
+    /* REMOVED margin-bottom: 80px; from here as it was causing the large gap */
+    background-color: #e53935;
+    color: #fff;
+    padding: 16px 40px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.15em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: auto;
+    min-width: 220px;
+    display: inline-block;
+    /* Removed margin-left to align it with other form elements */
+    margin-left: 0; 
+}
+
+.btn-submit:hover {
+    background-color: #c62828;
+    transform: translateY(-2px);
+}
+
+/* Progress bar styling */
+.progress-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.step {
+  height: 5px;
+  width: 40px;
+  background-color: #ddd;
+  border-radius: 3px;
+}
+
+.step.active {
+  background-color: #0078d4;
+}
+/* Right Section (Visual) */
+.right {
+    flex: 0.8;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+    padding-left: 20px;
+}
+
+.circle-container {
+    width: 420px;
+    height: 420px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 8px 40px rgba(229, 57, 53, 0.12), 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.circle-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.right p {
+    font-size: 1.25em;
+    color: #444;
+    line-height: 1.6;
+    max-width: 450px;
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+        border-radius: 10px;
+    }
+
+    .left, .right {
+        padding: 30px;
+    }
+
+    .right {
+        order: -1;
+        margin-bottom: 20px;
+        padding-left: 30px;
+    }
+
+    .form-section {
+        flex-direction: column;
+        gap: 20px;
+        padding-top: 20px;
+    }
+
+    .form-section > div {
+        flex-basis: 100%;
+    }
+
+    .form-section:first-of-type {
+        padding-top: 0;
+    }
+
+    .btn-submit {
+        min-width: 140px;
+        padding: 14px 30px;
+        /* Aligned to center for mobile view */
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    .progress-bar {
+        margin-top: 30px;
+    }
+}
+
+@media (max-width: 600px) {
+    .left, .right {
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 2.2em;
+    }
+
+    .subtitle {
+        font-size: 1.05em;
+    }
+
+    .right p {
+        font-size: 1.1em;
+    }
+
+    .logo-container {
+        margin-bottom: 25px;
+    }
+}
+
+/* ===== Circular Back Icon ===== */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.back-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 14px;
+  color: #444;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.back-circle:hover {
+  background: #f5f5f5;
+  border-color: #aaa;
+  color: #111;
+  transform: translateX(-2px);
+}
+
+.back-circle:hover svg {
+  transform: translateX(-2px);
+}

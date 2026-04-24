@@ -1,0 +1,372 @@
+<!-- Main Container -->
+<div class="admin-container">
+
+  <!-- Header Section -->
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Employee Directory</h1>
+      <p>Manage your active workforce</p>
+    </div>
+    <button class="btn-primary-header" (click)="openOnboardingModal()" [disabled]="isLoading">
+      <i class="fas fa-plus-circle"></i> Onboard New User
+    </button>
+  </header>
+
+  <!-- Toolbar & Filters -->
+  <div class="toolbar-section">
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input
+        type="text"
+        placeholder="Search by Name, ID, or Dept..."
+        [(ngModel)]="searchText"
+        (keyup)="applyFilters()">
+    </div>
+    <div class="filter-tabs">
+      <button class="tab-btn" [class.active]="roleFilter === 'All'"      (click)="setFilter('All')">All</button>
+      <button class="tab-btn" [class.active]="roleFilter === 'HR'"       (click)="setFilter('HR')">HR</button>
+      <button class="tab-btn" [class.active]="roleFilter === 'MANAGER'"  (click)="setFilter('MANAGER')">Managers</button>
+      <button class="tab-btn" [class.active]="roleFilter === 'EMPLOYEE'" (click)="setFilter('EMPLOYEE')">Employees</button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading employee data...</p>
+  </div>
+
+  <!-- Users Grid -->
+  <div class="cards-grid" *ngIf="!isLoading">
+    <div *ngFor="let user of filteredEmployees" class="employee-card">
+
+      <!-- Edit icon -->
+      <div class="card-actions-top">
+        <button class="icon-btn-edit" (click)="openEditUser(user)" title="Edit User">
+          <i class="fas fa-pencil-alt"></i>
+        </button>
+      </div>
+
+      <!-- Avatar -->
+      <div class="profile-section">
+        <div class="avatar-circle">
+          <img
+            [src]="user.profilePictureUrl || 'https://ui-avatars.com/api/?name='+user.firstName+'+'+user.surname+'&background=0D8ABC&color=fff&size=128'"
+            alt="Profile">
+          <span class="online-indicator"></span>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="info-section">
+        <h3 class="name">{{ user.firstName }} {{ user.surname }}</h3>
+        <p class="designation">{{ user.designation || 'No Designation' }}</p>
+        <div class="details-chips">
+          <span class="chip dept">{{ user.department }}</span>
+          <span class="chip id">ID: {{ user.empId }}</span>
+        </div>
+        <div class="role-badge-container">
+          <span class="role-badge" [ngClass]="user.role?.toLowerCase()">{{ user.role }}</span>
+        </div>
+      </div>
+
+      <!-- Footer: two buttons -->
+      <div class="card-footer">
+        <a href="mailto:{{user.personalEmailId || user['email']}}" class="btn-footer-email">
+          <i class="fas fa-envelope"></i> Send Email
+        </a>
+        <button type="button" class="btn-footer-docs" (click)="openDocsModal(user)" title="View Documents">
+          <i class="fas fa-folder-open"></i> See Documents
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && filteredEmployees.length === 0" class="empty-state">
+    <i class="fas fa-user-slash"></i>
+    <h3>No Employees Found</h3>
+    <p>Try clearing your search or filters.</p>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     ONBOARDING / EDIT MODAL
+════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ isEditing ? 'Edit Employee' : 'Onboard New Employee' }}</h2>
+      <button class="btn-close" (click)="showModal=false" [disabled]="isSubmitting">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="userForm" (ngSubmit)="submit()">
+        <div class="form-section-title">Personal Information</div>
+        <div class="form-row-2">
+          <div class="input-group">
+            <label>First Name *</label>
+            <input formControlName="firstName" type="text" placeholder="e.g. Rahul" 
+                   [class.is-invalid]="f['firstName'].invalid && (f['firstName'].dirty || f['firstName'].touched)">
+            <div class="error-message" *ngIf="f['firstName'].invalid && (f['firstName'].dirty || f['firstName'].touched)">
+              <span *ngIf="f['firstName'].errors?.['required']">First name is required.</span>
+              <span *ngIf="f['firstName'].errors?.['minlength']">Minimum 2 characters required.</span>
+              <span *ngIf="f['firstName'].errors?.['pattern']">Only alphabets are allowed.</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Surname *</label>
+            <input formControlName="surname" type="text" placeholder="e.g. Kumar" 
+                   [class.is-invalid]="f['surname'].invalid && (f['surname'].dirty || f['surname'].touched)">
+            <div class="error-message" *ngIf="f['surname'].invalid && (f['surname'].dirty || f['surname'].touched)">
+              <span *ngIf="f['surname'].errors?.['required']">Surname is required.</span>
+              <span *ngIf="f['surname'].errors?.['pattern']">Only alphabets are allowed.</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="input-group">
+            <label>Email Address *</label>
+            <input formControlName="email" type="email" placeholder="official@company.com" 
+                   [class.is-invalid]="f['email'].invalid && (f['email'].dirty || f['email'].touched)">
+            <div class="error-message" *ngIf="f['email'].invalid && (f['email'].dirty || f['email'].touched)">
+              <span *ngIf="f['email'].errors?.['required']">Email address is required.</span>
+              <span *ngIf="f['email'].errors?.['pattern']">Please enter a valid email format.</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Address *</label>
+            <input formControlName="address" type="text" placeholder="e.g. 123 Main St" 
+                   [class.is-invalid]="f['address'].invalid && (f['address'].dirty || f['address'].touched)">
+            <div class="error-message" *ngIf="f['address'].invalid && (f['address'].dirty || f['address'].touched)">
+              <span *ngIf="f['address'].errors?.['required']">Address is required.</span>
+              <span *ngIf="f['address'].errors?.['minlength']">Minimum 10 characters required.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section-title">Job Details</div>
+        <div class="form-row-2">
+          <div class="input-group">
+            <label>Employee ID</label>
+            <input formControlName="empId" class="input-readonly" readonly>
+          </div>
+          <div class="input-group">
+            <label>Joining Date *</label>
+            <input formControlName="joiningDate" type="date" 
+                   [class.is-invalid]="f['joiningDate'].invalid && (f['joiningDate'].dirty || f['joiningDate'].touched)">
+            <div class="error-message" *ngIf="f['joiningDate'].invalid && (f['joiningDate'].dirty || f['joiningDate'].touched)">
+              <span *ngIf="f['joiningDate'].errors?.['required']">Please select a joining date.</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="input-group">
+            <label>Department *</label>
+            <input formControlName="department" type="text" placeholder="e.g. IT" 
+                   [class.is-invalid]="f['department'].invalid && (f['department'].dirty || f['department'].touched)">
+            <div class="error-message" *ngIf="f['department'].invalid && (f['department'].dirty || f['department'].touched)">
+              <span *ngIf="f['department'].errors?.['required']">Department is required.</span>
+              <span *ngIf="f['department'].errors?.['minlength']">Minimum 2 characters required.</span>
+              <span *ngIf="f['department'].errors?.['pattern']">Please enter a valid department name.</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Designation</label>
+            <input formControlName="designation" type="text" placeholder="e.g. Senior Developer" 
+                   [class.is-invalid]="f['designation'].invalid && (f['designation'].dirty || f['designation'].touched)">
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="input-group">
+            <label>Role *</label>
+            <select formControlName="role" [class.is-invalid]="f['role'].invalid && (f['role'].dirty || f['role'].touched)">
+              <option value="EMPLOYEE">Employee</option>
+              <option value="MANAGER">Manager</option>
+              <option value="HR">HR</option>
+            </select>
+            <div class="error-message" *ngIf="f['role'].invalid && (f['role'].dirty || f['role'].touched)">
+              <span *ngIf="f['role'].errors?.['required']">Please select a role.</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Location</label>
+            <input formControlName="location" type="text" placeholder="e.g. Head Office">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Reporting Manager</label>
+          <select formControlName="managerEmpId">
+            <option value="">-- Select Manager --</option>
+            <option *ngFor="let m of availableManagers" [value]="m.empId">
+              {{ m.firstName }} {{ m.surname }}
+            </option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="showModal=false" [disabled]="isSubmitting">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="userForm.invalid || isSubmitting">
+            <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+            {{ isSubmitting ? 'Processing...' : (isEditing ? 'Update Profile' : 'Complete Onboarding') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     DOCUMENTS MODAL
+════════════════════════════════════════ -->
+<div class="docs-overlay" *ngIf="showDocsModal" (click)="closeDocsModal()">
+  <div class="docs-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="docs-modal-header">
+      <div class="docs-modal-title">
+        <div class="docs-employee-avatar">
+          <img
+            *ngIf="docsEmployee"
+            [src]="docsEmployee.profilePictureUrl || 'https://ui-avatars.com/api/?name='+docsEmployee.firstName+'+'+docsEmployee.surname+'&background=0D8ABC&color=fff&size=64'"
+            alt="Avatar">
+        </div>
+        <div>
+          <h2>{{ docsEmployee?.firstName }} {{ docsEmployee?.surname }}</h2>
+          <p>ID: {{ docsEmployee?.empId }} &nbsp;·&nbsp; {{ docsEmployee?.department }}</p>
+        </div>
+      </div>
+      <button class="docs-modal-close" (click)="closeDocsModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Body: left = list, right = preview -->
+    <div class="docs-modal-body">
+
+      <!-- Document list panel -->
+      <div class="docs-list-panel">
+
+        <div class="docs-panel-title">
+          <i class="fas fa-folder-open"></i>
+          Documents
+          <span class="docs-count" *ngIf="!isLoadingDocs">{{ employeeDocs.length }}</span>
+        </div>
+
+        <!-- Loading -->
+        <div class="docs-loading" *ngIf="isLoadingDocs">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>Loading documents...</span>
+        </div>
+
+        <!-- Empty -->
+        <div class="docs-empty" *ngIf="!isLoadingDocs && employeeDocs.length === 0">
+          <i class="fas fa-file-slash"></i>
+          <p>No documents uploaded yet</p>
+        </div>
+
+        <!-- Document items -->
+        <div class="doc-list" *ngIf="!isLoadingDocs && employeeDocs.length > 0">
+          <div
+            class="doc-item"
+            *ngFor="let doc of employeeDocs"
+            [class.doc-item-active]="preview.visible && preview.label === (doc.documentType || doc.fileName)"
+            (click)="openDocPreview(doc)">
+
+            <div class="doc-item-icon" [class]="getDocIconClass(doc)">
+              <i class="fas" [ngClass]="getDocIcon(doc)"></i>
+            </div>
+
+            <div class="doc-item-info">
+              <span class="doc-item-name">{{ doc.documentType || doc.fileName }}</span>
+              <span class="doc-item-sub">
+                {{ doc.category || 'Document' }}
+                <span *ngIf="doc.uploadedAt"> · {{ formatDate(doc.uploadedAt) }}</span>
+              </span>
+            </div>
+
+            <button class="doc-preview-btn" title="Preview">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /docs-list-panel -->
+
+      <!-- Preview panel -->
+      <div class="docs-preview-panel">
+
+        <!-- Empty state when nothing selected -->
+        <div class="preview-empty" *ngIf="!preview.visible">
+          <i class="fas fa-file-search"></i>
+          <p>Select a document to preview</p>
+        </div>
+
+        <!-- Preview header -->
+        <div class="preview-panel-header" *ngIf="preview.visible">
+          <span class="preview-panel-title">
+            <i class="fas fa-file-alt"></i> {{ preview.label }}
+          </span>
+          <button class="preview-close-btn" (click)="closeDocPreview()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Actual preview -->
+        <div class="preview-panel-content" *ngIf="preview.visible">
+
+          <!-- No data fallback -->
+          <div class="preview-no-data" *ngIf="!preview.data">
+            <i class="fas fa-eye-slash"></i>
+            <p>Preview not available for this document</p>
+          </div>
+
+          <iframe
+            *ngIf="preview.isPdf && preview.data"
+            [src]="preview.data"
+            class="doc-preview-iframe"
+            frameborder="0">
+          </iframe>
+
+          <img
+            *ngIf="preview.isImage && preview.data"
+            [src]="preview.data"
+            class="doc-preview-img"
+            alt="Document Preview" />
+
+        </div><!-- /preview-panel-content -->
+
+        <!-- Comment section (below preview) -->
+        <div class="preview-comment-section" *ngIf="preview.visible && preview.comment">
+          <div class="comment-heading">
+            <i class="fas fa-comment-dots"></i> User Remark
+          </div>
+          <p class="comment-text">{{ preview.comment }}</p>
+        </div>
+
+      </div><!-- /docs-preview-panel -->
+
+    </div><!-- /docs-modal-body -->
+
+    <!-- Footer -->
+    <div class="docs-modal-footer">
+      <span class="docs-footer-note">
+        <i class="fas fa-shield-alt"></i> Documents are confidential and protected
+      </span>
+      
+      <!-- Footer actions -->
+      <div class="footer-actions">
+        <button class="docs-download-footer-btn" *ngIf="preview.visible" (click)="downloadDocument()">
+          <i class="fas fa-download"></i> Download
+        </button>
+        <button class="docs-close-footer-btn" (click)="closeDocsModal()">
+          Close
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

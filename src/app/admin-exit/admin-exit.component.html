@@ -1,0 +1,215 @@
+<div class="exit-admin-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div>
+            <h2>Exit Management</h2>
+            <p>Manage employee resignations and offboarding lifecycle</p>
+        </div>
+        <div class="segment-control">
+            <button class="segment-btn" [class.active]="activeFilter === 'PENDING'" (click)="setFilter('PENDING')">Active</button>
+            <button class="segment-btn" [class.active]="activeFilter === 'HISTORY'" (click)="setFilter('HISTORY')">History</button>
+        </div>
+    </div>
+
+    <!-- Main Table -->
+    <div class="content-card">
+        <div *ngIf="isLoading" class="spinner-wrapper"><div class="spinner"></div></div>
+        
+        <table class="modern-table" *ngIf="!isLoading">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Type</th>
+                    <th>Last Working Day</th>
+                    <th>Statuses</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let req of filteredRequests">
+                    <td>
+                        <div class="emp-cell">
+                            <span class="emp-name">{{ req.employeeName }}</span>
+                            <small class="emp-id">{{ req.empId }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="type-text">{{ req.exitType }}</span>
+                        <div *ngIf="req.earlyReleaseRequested" class="early-release-badge">Early Release</div>
+                    </td>
+                    <td>
+                        <strong>{{ req.lastWorkingDate | date:'dd MMM yyyy' }}</strong>
+                        <div class="date-sub">Resigned: {{ req.resignationDate | date:'dd MMM' }}</div>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            <span class="status-pill" [class]="getStatusClass(req.managerApprovalStatus)">Mgr: {{ req.managerApprovalStatus || 'Pending' }}</span>
+                            <span class="status-pill" [class]="getStatusClass(req.hrApprovalStatus)">HR: {{ req.hrApprovalStatus || 'Pending' }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn-secondary small" (click)="openManageModal(req)">
+                            Manage Exit
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngIf="filteredRequests.length === 0">
+                    <td colspan="5" class="empty-state">
+                        <div class="empty-content"><i class="fas fa-inbox"></i><p>No requests found.</p></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- UNIFIED MANAGEMENT MODAL -->
+    <div class="modal-overlay" *ngIf="showProcessModal">
+        <div class="modal wide-modal">
+            <div class="modal-header">
+                <h3>Exit Process: {{ selectedRequest?.employeeName }}</h3>
+                <button class="btn-icon" (click)="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <!-- Tab Navigation -->
+            <div class="modal-tabs">
+                <button class="tab-btn" [class.active]="activeModalTab === 'APPROVAL'" (click)="switchTab('APPROVAL')">1. Approval</button>
+                <button class="tab-btn" [class.active]="activeModalTab === 'ASSETS'" (click)="switchTab('ASSETS')">2. Assets</button>
+                <button class="tab-btn" [class.active]="activeModalTab === 'CLEARANCE'" (click)="switchTab('CLEARANCE')">3. Clearances</button>
+                <button class="tab-btn" [class.active]="activeModalTab === 'INTERVIEW'" (click)="switchTab('INTERVIEW')">4. Interview</button>
+                <button class="tab-btn" [class.active]="activeModalTab === 'SETTLEMENT'" (click)="switchTab('SETTLEMENT')">5. Settlement</button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- 1. APPROVAL TAB -->
+                <div *ngIf="activeModalTab === 'APPROVAL'" [formGroup]="approvalForm" class="tab-content">
+                    <div class="info-box">
+                        <p><strong>Reason:</strong> {{ selectedRequest?.reason }}</p>
+                        <p><strong>Notice:</strong> {{ selectedRequest?.noticePeriodDays }} Days</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>HR Decision</label>
+                        <select formControlName="approvalStatus" class="form-control">
+                            <option value="APPROVED">Approve Resignation</option>
+                            <option value="REJECTED">Reject Resignation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Comments</label>
+                        <textarea formControlName="comments" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label><input type="checkbox" formControlName="isRehireEligible"> Eligible for Rehire?</label>
+                    </div>
+                    <button class="btn-primary" (click)="submitApproval()">Submit Decision</button>
+                </div>
+
+                <!-- 2. ASSETS TAB -->
+                <div *ngIf="activeModalTab === 'ASSETS'" class="tab-content">
+                    <table class="inner-table">
+                        <thead><tr><th>Asset</th><th>Current Status</th><th>Action</th></tr></thead>
+                        <tbody>
+                            <tr *ngFor="let asset of assets">
+                                <td>{{ asset.assetName || ('Asset #' + asset.assetId) }}</td>
+                                <td><span [class]="getStatusClass(asset.returnStatus)">{{ asset.returnStatus }}</span></td>
+                                <td>
+                                    <div *ngIf="asset.returnStatus === 'PENDING'" class="btn-group">
+                                        <button class="btn-xs success" (click)="updateAsset(asset, 'RETURNED')">Accept</button>
+                                        <button class="btn-xs danger" (click)="updateAsset(asset, 'DAMAGED')">Damaged</button>
+                                    </div>
+                                    <span *ngIf="asset.returnStatus !== 'PENDING'">Completed</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 3. CLEARANCE TAB -->
+                <div *ngIf="activeModalTab === 'CLEARANCE'" class="tab-content">
+                    <table class="inner-table">
+                        <thead><tr><th>Dept</th><th>Item</th><th>Status</th><th>Override</th></tr></thead>
+                        <tbody>
+                            <tr *ngFor="let c of clearances">
+                                <td>{{ c.department }}</td>
+                                <td>{{ c.clearanceItem }}</td>
+                                <td><span [class]="getStatusClass(c.status)">{{ c.status }}</span></td>
+                                <td>
+                                    <button *ngIf="c.status === 'PENDING'" class="btn-xs success" (click)="updateClearance(c, 'CLEARED')">Clear</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 4. INTERVIEW TAB -->
+                <div *ngIf="activeModalTab === 'INTERVIEW'" class="tab-content">
+                    <div *ngIf="!exitInterview" class="empty-msg">Employee has not submitted feedback yet.</div>
+                    <div *ngIf="exitInterview" class="interview-view">
+                        <div class="detail-row"><span>Reason:</span> <strong>{{ exitInterview.reasonForLeaving }}</strong></div>
+                        <div class="detail-row"><span>New Opportunity:</span> <strong>{{ exitInterview.newOpportunity }}</strong></div>
+                        <div class="detail-row"><span>Feedback:</span> <p>{{ exitInterview.feedback }}</p></div>
+                        <div class="rating-grid">
+                            <div class="rating-box">Management: {{ exitInterview.managementRating }}/5</div>
+                            <div class="rating-box">Environment: {{ exitInterview.workEnvironmentRating }}/5</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. SETTLEMENT TAB -->
+                <div *ngIf="activeModalTab === 'SETTLEMENT'" class="tab-content">
+                    <div *ngIf="!selectedRequest?.hrApprovalStatus || selectedRequest?.hrApprovalStatus === 'PENDING'" class="warning-box">
+                        Approve the exit first to generate settlement.
+                    </div>
+
+                    <div *ngIf="selectedRequest?.hrApprovalStatus === 'APPROVED'">
+                        <div *ngIf="!settlement" class="center-act">
+                            <button class="btn-primary" (click)="calculateSettlement()">Generate F&F Statement</button>
+                        </div>
+
+                        <div *ngIf="settlement" class="settlement-ui">
+                            <!-- Calculation Form -->
+                            <div [formGroup]="settlementForm" class="settlement-grid">
+                                <div class="col">
+                                    <h4>Earnings</h4>
+                                    <div class="row"><span>Base Salary:</span> <strong>{{ settlement.salaryAmount | currency:'INR' }}</strong></div>
+                                    <div class="row"><span>Gratuity:</span> <strong>{{ settlement.gratuityAmount | currency:'INR' }}</strong></div>
+                                    <div class="form-group"><label>Bonus</label><input type="number" formControlName="bonusAmount" class="form-control"></div>
+                                </div>
+                                <div class="col">
+                                    <h4>Deductions</h4>
+                                    <div class="form-group"><label>Notice Recovery</label><input type="number" formControlName="noticePeriodRecovery" class="form-control"></div>
+                                    <div class="form-group"><label>Asset Damages</label><input type="number" formControlName="assetDamageCharges" class="form-control"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="summary-bar">
+                                <div>Gross: {{ settlement.grossPayable | currency:'INR' }}</div>
+                                <div>Net Payable: <span class="highlight">{{ settlement.netPayable | currency:'INR' }}</span></div>
+                                <button *ngIf="settlement.paymentStatus === 'PENDING'" class="btn-secondary" (click)="updateSettlement()">Recalculate & Save</button>
+                            </div>
+
+                            <!-- Payment Section -->
+                            <div *ngIf="settlement.paymentStatus === 'PENDING'" [formGroup]="paymentForm" class="payment-section">
+                                <h4>Process Payment</h4>
+                                <div class="pay-row">
+                                    <select formControlName="paymentMode" class="form-control">
+                                        <option value="BANK_TRANSFER">Bank Transfer</option>
+                                        <option value="CHEQUE">Cheque</option>
+                                    </select>
+                                    <input formControlName="paymentReference" placeholder="Transaction Ref / UTR" class="form-control">
+                                    <button class="btn-primary" (click)="processPayment()">Mark Paid</button>
+                                </div>
+                            </div>
+
+                            <div *ngIf="settlement.paymentStatus === 'PAID'" class="paid-stamp">
+                                <i class="fas fa-check-circle"></i> SETTLED
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

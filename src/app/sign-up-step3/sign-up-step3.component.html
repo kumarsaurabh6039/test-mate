@@ -1,0 +1,234 @@
+<div class="container" role="main">
+  <div class="left">
+    <div aria-label="Company logo" class="logo-container">
+      <button type="button" class="back-circle" (click)="goBack()" aria-label="Go back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+      </button>
+      <img alt="Company logo" src="assets/logo-stream.png" width="140" height="60" />
+    </div>
+
+    <h2>Circle of Care</h2>
+    <p class="subtitle">The People Who Matter Most</p>
+
+    <form #careForm="ngForm" (ngSubmit)="moveForward(careForm)">
+
+      <!-- Emergency Contact -->
+      <div class="form-section">
+        <h3>Emergency Contact</h3>
+
+        <!-- Name: @NotBlank, @Size(2-150), @Pattern(letters only) -->
+        <div>
+          <label for="emergencyName">Name <span style="color: #e53935;">*</span></label>
+          <span class="small-text">(You can change this)</span>
+          <input
+            type="text" id="emergencyName" name="emergencyName"
+            [(ngModel)]="careData.emergencyName"
+            required minlength="2" maxlength="150"
+            pattern="^[a-zA-Z .\-']+$"
+            #emName="ngModel"
+            [class.input-error]="emName.invalid && (emName.touched || careForm.submitted)"
+          />
+          <ng-container *ngIf="emName.invalid && (emName.touched || careForm.submitted)">
+            <div class="error-message" *ngIf="emName.errors?.['required']">Emergency contact name is required.</div>
+            <div class="error-message" *ngIf="emName.errors?.['minlength']">Name must be at least 2 characters.</div>
+            <div class="error-message" *ngIf="emName.errors?.['maxlength']">Name must not exceed 150 characters.</div>
+            <div class="error-message" *ngIf="emName.errors?.['pattern']">Only letters, spaces, hyphens, dots, and apostrophes are allowed.</div>
+          </ng-container>
+        </div>
+
+        <!-- Contact: @NotBlank, @Pattern(10-15 digits, no all-same digits) -->
+        <div>
+          <label for="emergencyContact">Contact Number <span style="color: #e53935;">*</span></label>
+          <span class="small-text">(You can change this)</span>
+          <input
+            type="text" id="emergencyContact" name="emergencyContact"
+            [(ngModel)]="careData.emergencyContact"
+            required
+            pattern="^\+?(?!0{10,})(\d)(?!\1{9,})\d{9,14}$"
+            #emContact="ngModel"
+            [class.input-error]="emContact.invalid && (emContact.touched || careForm.submitted)"
+          />
+          <ng-container *ngIf="emContact.invalid && (emContact.touched || careForm.submitted)">
+            <div class="error-message" *ngIf="emContact.errors?.['required']">Contact number is required.</div>
+            <div class="error-message" *ngIf="emContact.errors?.['pattern']">
+              Please enter a valid contact number (10–15 digits). Numbers like 0000000000 or 1111111111 are not allowed.
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Relationship: @NotBlank, @Size(max=50) -->
+        <div>
+          <label for="relationship">Relationship <span style="color: #e53935;">*</span></label>
+          <span class="small-text">(You can change this)</span>
+          <select id="relationship" name="relationship"
+            [(ngModel)]="careData.relationship" required
+            #emRel="ngModel"
+            [class.input-error]="emRel.invalid && (emRel.touched || careForm.submitted)"
+          >
+            <option value="">Select</option>
+            <option *ngFor="let rel of relationshipOptions" [value]="rel">{{ rel }}</option>
+          </select>
+          <div *ngIf="emRel.invalid && (emRel.touched || careForm.submitted)" class="error-message">
+            Relationship is required.
+          </div>
+        </div>
+      </div>
+
+      <!-- Family Member 1 (Required) -->
+      <div class="form-section">
+        <h3>Family Member 1</h3>
+
+        <div>
+          <label for="familyMember1Name">Name <span style="color: #e53935;">*</span></label>
+          <input
+            type="text" id="familyMember1Name" name="familyMember1Name"
+            [(ngModel)]="careData.familyMembers[0].familyMemberName"
+            required maxlength="150"
+            #fm1Name="ngModel"
+            [class.input-error]="fm1Name.invalid && (fm1Name.touched || careForm.submitted)"
+          />
+          <ng-container *ngIf="fm1Name.invalid && (fm1Name.touched || careForm.submitted)">
+            <div class="error-message" *ngIf="fm1Name.errors?.['required']">Name is required.</div>
+            <div class="error-message" *ngIf="fm1Name.errors?.['maxlength']">Name must not exceed 150 characters.</div>
+          </ng-container>
+        </div>
+
+        <div>
+          <label for="familyMember1Age">Age <span style="color: #e53935;">*</span></label>
+          <input
+            type="number" id="familyMember1Age" name="familyMember1Age"
+            [(ngModel)]="careData.familyMembers[0].age"
+            required min="0" max="150"
+            #fm1Age="ngModel"
+            [class.input-error]="fm1Age.invalid && (fm1Age.touched || careForm.submitted)"
+          />
+          <ng-container *ngIf="fm1Age.invalid && (fm1Age.touched || careForm.submitted)">
+            <div class="error-message" *ngIf="fm1Age.errors?.['required']">Age is required.</div>
+            <div class="error-message" *ngIf="fm1Age.errors?.['min'] || fm1Age.errors?.['max']">Age must be between 0 and 150.</div>
+          </ng-container>
+        </div>
+
+        <div>
+          <label for="familyMember1Gender">Gender <span style="color: #e53935;">*</span></label>
+          <select id="familyMember1Gender" name="familyMember1Gender"
+            [(ngModel)]="careData.familyMembers[0].gender" required
+            #fm1Gender="ngModel"
+            [class.input-error]="fm1Gender.invalid && (fm1Gender.touched || careForm.submitted)"
+          >
+            <option value="">Select</option>
+            <option *ngFor="let gender of genderOptions" [value]="gender">{{ gender }}</option>
+          </select>
+          <div *ngIf="fm1Gender.invalid && (fm1Gender.touched || careForm.submitted)" class="error-message">
+            Gender is required.
+          </div>
+        </div>
+
+        <div>
+          <label for="familyMember1Relationship">Relationship <span style="color: #e53935;">*</span></label>
+          <select id="familyMember1Relationship" name="familyMember1Relationship"
+            [(ngModel)]="careData.familyMembers[0].relationship" required
+            #fm1Rel="ngModel"
+            [class.input-error]="fm1Rel.invalid && (fm1Rel.touched || careForm.submitted)"
+          >
+            <option value="">Select</option>
+            <option *ngFor="let rel of familyRelationshipOptions" [value]="rel">{{ rel }}</option>
+          </select>
+          <div *ngIf="fm1Rel.invalid && (fm1Rel.touched || careForm.submitted)" class="error-message">
+            Relationship is required.
+          </div>
+        </div>
+      </div>
+
+      <!-- Family Member 2 (Optional) -->
+      <div class="form-section">
+        <h3>Family Member 2 <span style="font-size: 0.6em; color: #999; font-weight: normal;">(Optional)</span></h3>
+
+        <div>
+          <label for="familyMember2Name">Name</label>
+          <input type="text" id="familyMember2Name" name="familyMember2Name"
+            [(ngModel)]="careData.familyMembers[1].familyMemberName" maxlength="150" />
+        </div>
+
+        <div>
+          <label for="familyMember2Age">
+            Age <span *ngIf="careData.familyMembers[1].familyMemberName" style="color: #e53935;">*</span>
+          </label>
+          <input
+            type="number" id="familyMember2Age" name="familyMember2Age"
+            [(ngModel)]="careData.familyMembers[1].age"
+            [required]="careData.familyMembers[1].familyMemberName.trim() !== ''"
+            min="0" max="150"
+            #fm2Age="ngModel"
+            [class.input-error]="fm2Age.invalid && (fm2Age.touched || careForm.submitted)"
+          />
+          <ng-container *ngIf="fm2Age.invalid && (fm2Age.touched || careForm.submitted)">
+            <div class="error-message" *ngIf="fm2Age.errors?.['required']">Age is required if name is provided.</div>
+            <div class="error-message" *ngIf="fm2Age.errors?.['min'] || fm2Age.errors?.['max']">Age must be between 0 and 150.</div>
+          </ng-container>
+        </div>
+
+        <div>
+          <label for="familyMember2Gender">
+            Gender <span *ngIf="careData.familyMembers[1].familyMemberName" style="color: #e53935;">*</span>
+          </label>
+          <select id="familyMember2Gender" name="familyMember2Gender"
+            [(ngModel)]="careData.familyMembers[1].gender"
+            [required]="careData.familyMembers[1].familyMemberName.trim() !== ''"
+            #fm2Gender="ngModel"
+            [class.input-error]="fm2Gender.invalid && (fm2Gender.touched || careForm.submitted)"
+          >
+            <option value="">Select</option>
+            <option *ngFor="let gender of genderOptions" [value]="gender">{{ gender }}</option>
+          </select>
+          <div *ngIf="fm2Gender.invalid && (fm2Gender.touched || careForm.submitted)" class="error-message">
+            Gender is required if name is provided.
+          </div>
+        </div>
+
+        <div>
+          <label for="familyMember2Relationship">
+            Relationship <span *ngIf="careData.familyMembers[1].familyMemberName" style="color: #e53935;">*</span>
+          </label>
+          <select id="familyMember2Relationship" name="familyMember2Relationship"
+            [(ngModel)]="careData.familyMembers[1].relationship"
+            [required]="careData.familyMembers[1].familyMemberName.trim() !== ''"
+            #fm2Rel="ngModel"
+            [class.input-error]="fm2Rel.invalid && (fm2Rel.touched || careForm.submitted)"
+          >
+            <option value="">Select</option>
+            <option *ngFor="let rel of familyRelationshipOptions" [value]="rel">{{ rel }}</option>
+          </select>
+          <div *ngIf="fm2Rel.invalid && (fm2Rel.touched || careForm.submitted)" class="error-message">
+            Relationship is required if name is provided.
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <button class="btn-submit" type="submit">Save My Circle</button>
+      </div>
+    </form>
+
+    <div class="progress-bar">
+      <div class="step active"></div>
+      <div class="step active"></div>
+      <div class="step active"></div>
+      <div class="step"></div>
+      <div class="step"></div>
+      <div class="step"></div>
+    </div>
+  </div>
+
+  <div class="right" aria-label="Circle of people holding heart">
+    <div class="circle-container">
+      <img src="/assets/circle.jpeg" class="circle-image" width="420" height="420"
+           alt="People in a circle holding heart" loading="lazy" />
+    </div>
+    <p>
+      Every person is more than their role. Let us know who holds your heart,
+      in case we ever need to hold theirs.
+    </p>
+  </div>
+</div>

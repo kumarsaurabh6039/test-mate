@@ -1,0 +1,244 @@
+/* ------------------------------------------------------------------------- /
+/ 1. Main Layout & Container /
+/ ------------------------------------------------------------------------- */
+.assets-container {
+    padding: 24px;
+    background-color: #F8FAFC;
+    margin-left: 180px;
+    margin-top: 27px;
+    width: calc(100% - 180px - 350px - 48px);
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    height: 874px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+}
+
+/* Header & Toggle Tabs */
+.assets-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.header-tabs {
+    display: flex;
+    gap: 8px;
+    background: #F1F5F9;
+    padding: 4px;
+    border-radius: 10px;
+}
+
+.tab-item {
+    padding: 8px 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748B;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-item i { font-size: 14px; }
+
+.tab-item.active {
+    background: white;
+    color: #4338CA;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* ------------------------------------------------------------------------- /
+/ 2. Grid & Cards /
+/ ------------------------------------------------------------------------- */
+.assets-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.asset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding-bottom: 24px;
+}
+
+.asset-card {
+    background: white;
+    border: 1px solid #F1F5F9;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.asset-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: #6366F1;
+}
+
+.link-card {
+    border-top: 4px solid #3B82F6;
+}
+
+.asset-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.asset-icon-container {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+}
+
+.bg-indigo-500 { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+.bg-blue-500 { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+
+.asset-card-header h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1E293B;
+}
+
+.asset-card-body {
+    flex-grow: 1;
+}
+
+.resource-desc {
+    font-size: 13px;
+    color: #64748B;
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+}
+
+.asset-detail {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+.asset-detail .label { color: #94A3B8; font-weight: 600; text-transform: uppercase; }
+.asset-detail .value { color: #334155; font-weight: 600; }
+
+/* ------------------------------------------------------------------------- /
+/ 3. UI Components (Badges, Buttons, States) /
+/ ------------------------------------------------------------------------- */
+.asset-status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.assigned-status-badge { background: #DCFCE7; color: #166534; }
+.maintenance-status-badge { background: #FEF3C7; color: #92400E; }
+.available-status-badge { background: #E0E7FF; color: #3730A3; }
+
+.action-button {
+    background: linear-gradient(135deg, #6366F1, #4F46E5);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+    box-sizing: border-box; /* Fixed: Width calculation will now be accurate */
+}
+
+.action-button:hover { transform: translateY(-1px); opacity: 0.95; }
+
+/* Fixed resource button class */
+.resource-link-btn {
+    width: 100%;
+    text-decoration: none;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #94A3B8;
+    text-align: center;
+}
+
+.empty-state i { margin-bottom: 16px; color: #E2E8F0; }
+
+.view-fade-in { animation: fadeIn 0.4s ease-out; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal and Form styles remain consistent */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 450px;
+    max-width: 90%;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header { padding: 20px; border-bottom: 1px solid #F1F5F9; display: flex; justify-content: space-between; }
+.modal-body { padding: 20px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: #475569; }
+.form-control { width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; box-sizing: border-box; }
+.form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #64748B;
+}

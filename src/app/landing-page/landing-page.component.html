@@ -1,0 +1,613 @@
+<!-- Payslip Generator Modal -->
+<app-generate-payslip *ngIf="showPayslipGenerator" (close)="togglePayslipGenerator(false)"></app-generate-payslip>
+
+<!-- Navbar -->
+<nav class="navbar" [class.scrolled]="isNavScrolled">
+    <div class="container">
+        <div class="nav-content">
+            <!-- Logo -->
+            <div class="logo">
+                <a (click)="scrollToTop()" style="cursor: pointer;">
+                    <img src="assets/logo-stream.png" onerror="this.src='https://placehold.co/150x45/ffffff/0f172a?text=Lovahr'" alt="Lovahr Logo" class="nav-logo-img">
+                </a>
+            </div>
+            
+            <!-- Desktop Menu -->
+            <div class="desktop-menu">
+                <a href="#features">Features</a>
+                <a href="#payroll">Payroll</a>
+                <a href="#admin">Admin Portal</a>
+                <a href="#testimonials">Reviews</a>
+                <a routerLink="/pricing">Pricing</a>
+            </div>
+
+            <!-- CTA Buttons -->
+            <div class="nav-actions">
+                <a routerLink="/sign-in" class="login-link">Log In</a>
+                <a routerLink="/company-onboarding" class="btn-primary">Start Free Trial</a>
+            </div>
+
+            <!-- Mobile menu button -->
+            <button class="mobile-menu-btn" (click)="toggleMobileMenu()" aria-label="Toggle menu">
+                <i class="fas" [class.fa-bars]="!isMobileMenuOpen" [class.fa-times]="isMobileMenuOpen"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Dropdown -->
+    <div class="mobile-menu" [class.open]="isMobileMenuOpen">
+        <div class="mobile-links">
+            <a href="#features" (click)="toggleMobileMenu()">Features</a>
+            <a href="#payroll" (click)="toggleMobileMenu()">Payroll</a>
+            <a href="#admin" (click)="toggleMobileMenu()">Admin Portal</a>
+            <a href="#testimonials" (click)="toggleMobileMenu()">Reviews</a>
+            <a routerLink="/pricing" (click)="toggleMobileMenu()">Pricing</a>
+        </div>
+        <div class="mobile-auth-actions">
+            <a routerLink="/sign-in" class="login-link-mobile" (click)="toggleMobileMenu()">Log In</a>
+            <a routerLink="/company-onboarding" class="btn-primary w-full" (click)="toggleMobileMenu()">Start Free Trial</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-decorations">
+        <div class="decor-circle decor-top-right"></div>
+        <div class="decor-circle decor-bottom-left"></div>
+    </div>
+
+    <div class="container hero-container">
+        <div class="hero-grid">
+            <div class="hero-text-content">
+                <div class="hero-badge">
+                    <span class="ping-dot">
+                        <span class="ping-animation"></span>
+                        <span class="dot"></span>
+                    </span>
+                    Your New & Smart HR Platform
+                </div>
+                <h1 class="hero-title">
+                    Make HR and Payroll <span class="text-gradient">Incredibly Easy</span>
+                </h1>
+                <p class="hero-description">
+                    Forget spreadsheets and legacy systems. Automate hiring, onboarding, attendance, and payroll with Lovahr. Everything you need, unified in one modern dashboard.
+                </p>
+                
+                <div class="hero-buttons">
+                    <button class="btn-primary btn-large" routerLink="/company-onboarding">
+                        Get Started Now <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <!-- Watch Demo Button Modified -->
+                    <button class="btn-secondary btn-large" (click)="openVideoModal()">
+                        <i class="fas fa-play-circle text-blue-600"></i> Watch Demo
+                    </button>
+                </div>
+            </div>
+
+            <div class="hero-image-wrapper">
+                <img src="assets/dashboard-copy.jpeg" onerror="this.src='https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop'" alt="Lovahr Dashboard" class="hero-image">
+                <div class="floating-badge">
+                    <div class="badge-icon">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div class="badge-text">
+                        <p class="badge-title">Payroll Done!</p>
+                        <p class="badge-subtitle">Just now</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Social Proof -->
+<section class="trusted-companies">
+    <div class="container text-center">
+        <p class="section-subtitle">Trusted By Top Companies</p>
+        <div class="logo-slider">
+            <div class="logo-track">
+                <!-- Group 1 -->
+                <div class="logo-group">
+                    <div class="logo-item"><img src="assets/akshaya.jpeg" onerror="this.src='https://placehold.co/120x40/ffffff/475569?text=Logo+1'" alt="Company 1" class="company-img"><span class="company-name">Akshaya Wealth Veda</span></div>
+                    <div class="logo-item"><img src="assets/antforge.jpeg" onerror="this.src='https://placehold.co/120x40/ffffff/475569?text=Logo+2'" alt="Company 2" class="company-img"><span class="company-name"></span></div>
+                    <div class="logo-item"><img src="assets/rupee.jpeg" onerror="this.src='https://placehold.co/120x40/ffffff/475569?text=Logo+3'" alt="Company 3" class="company-img"><span class="company-name">The Rupee Company </span></div>
+                </div>
+                <!-- Group 2 -->
+                <div class="logo-group">
+                    <div class="logo-item"><img src="assets/akshaya.jpeg" onerror="this.src='https://placehold.co/120x40/ffffff/475569?text=Logo+1'" alt="Company 1" class="company-img"><span class="company-name">Akshaya Wealth Veda</span></div>
+                    <div class="logo-item"><img src="assets/antforge.jpeg" onerror="this.src='https://placehold.co/120x40/ffffff/475569?text=Logo+2'" alt="Company 2" class="company-img"><span class="company-name"></span></div>
+                    <div class="logo-item"><img src="assets/rupee.jpeg" onerror="this.src='https://placehold.co/120x40/ffffff/475569?text=Logo+3'" alt="Company 3" class="company-img"><span class="company-name">The Rupee Company </span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Core Features -->
+<section id="features" class="features-section">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 class="section-subtitle-color">Complete Control, Simplified</h2>
+            <h3 class="section-title">Every tool you need to build a great workplace</h3>
+            <p class="section-description">Manage your employees' data, attendance, leaves, and performance seamlessly on a single platform.</p>
+        </div>
+
+        <div class="grid-3">
+            <div class="feature-card">
+                <div class="feature-icon bg-blue">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+                <h4 class="feature-title">Time & Attendance</h4>
+                <p class="feature-text">Manage attendance effortlessly with web clock-in, biometric integration, and real-time tracking with zero errors.</p>
+                <a href="#" (click)="openFeatureModal('attendance', $event)" class="feature-link cursor-pointer">Learn More <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon bg-orange">
+                    <i class="fas fa-umbrella-beach"></i>
+                </div>
+                <h4 class="feature-title">Leave Management</h4>
+                <p class="feature-text">Create custom leave policies. Employees can apply easily, and managers can approve with a single click.</p>
+                <a href="#" (click)="openFeatureModal('leave', $event)" class="feature-link cursor-pointer text-orange-600">Learn More <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon bg-purple">
+                    <i class="fas fa-laptop-house"></i>
+                </div>
+                <h4 class="feature-title">Asset Management</h4>
+                <p class="feature-text">Keep a complete track of laptops, phones, and other company assets. Assign and monitor them effortlessly.</p>
+                <a href="#" (click)="openFeatureModal('assets', $event)" class="feature-link cursor-pointer text-purple-700">Learn More <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HR Admin Portal -->
+<section id="admin" class="deep-dive-section">
+    <div class="container">
+        <div class="deep-dive-grid">
+            <div class="deep-dive-image">
+                <div class="image-backdrop backdrop-blue"></div>
+                <img src="assets/hr-img.jpeg" alt="HR Admin Portal" class="ui-image">
+            </div>
+            <div class="deep-dive-text">
+                <div class="section-label text-blue">
+                    <i class="fas fa-shield-alt"></i> Admin Control
+                </div>
+                <h2 class="deep-dive-title">Ultimate power and control for HR Admins</h2>
+                <p class="deep-dive-desc">
+                    Whether it's onboarding new employees or managing the employee directory, Lovahr's admin portal brings everything to one intuitive place.
+                </p>
+                <ul class="feature-list">
+                    <li>
+                        <i class="fas fa-check-circle check-icon"></i>
+                        <div class="list-content">
+                            <h4>Seamless Onboarding</h4>
+                            <p>Eliminate paperwork. Welcome new employees with a smooth, completely digital onboarding experience.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle check-icon"></i>
+                        <div class="list-content">
+                            <h4>Employee Directory</h4>
+                            <p>Easily view and manage your entire team's details, roles, and departments in real-time.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle check-icon"></i>
+                        <div class="list-content">
+                            <h4>Role-Based Access</h4>
+                            <p>Set fine-grained permissions and customize dashboards based on HR, Manager, and Employee roles.</p>
+                        </div>
+                    </li>
+                </ul>
+                <!-- Removed 'Explore Admin Features' link as requested -->
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Payroll Section -->
+<section id="payroll" class="deep-dive-section bg-slate">
+    <div class="container">
+        <div class="deep-dive-grid reverse">
+            <div class="deep-dive-image">
+                <div class="image-backdrop backdrop-orange"></div>
+                <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1000&auto=format&fit=crop" onerror="this.src='https://placehold.co/600x800/f8fafc/334155?text=Payslip+Preview'" alt="Payslip Preview" class="ui-image payslip-img">
+            </div>
+            <div class="deep-dive-text">
+                <div class="section-label text-orange">
+                    <i class="fas fa-rupee-sign"></i> Smart Payroll
+                </div>
+                <h2 class="deep-dive-title">Run payroll in clicks, not days</h2>
+                <p class="deep-dive-desc">
+                    Leave compliance and calculation errors behind. Lovahr's automated payroll system accurately calculates salary, taxes (TDS), and PF with 100% precision.
+                </p>
+                <div class="mini-cards">
+                    <div class="mini-card">
+                        <i class="fas fa-file-invoice-dollar card-icon text-blue"></i>
+                        <h4>Automated Payslips</h4>
+                        <p>Employees receive instant, downloadable PDF payslips directly on their self-service portal.</p>
+                    </div>
+                    <div class="mini-card">
+                        <i class="fas fa-calculator card-icon text-blue"></i>
+                        <h4>Tax & Deductions</h4>
+                        <p>Automatic TDS and PF deductions perfectly aligned with the latest government tax slabs.</p>
+                    </div>
+                </div>
+                <!-- Premium Payslip CTA -->
+                <div class="payslip-cta-wrapper">
+                    <div class="payslip-offer-ribbon">
+                        <i class="fas fa-bolt"></i> Free Access
+                    </div>
+                    <button (click)="togglePayslipGenerator(true)" class="payslip-cta-btn">
+                        <span class="payslip-cta-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </span>
+                        <span class="payslip-cta-text">
+                            <span class="cta-main-text">Generate Payslip</span>
+                            <span class="cta-sub-text">Instant PDF · No Sign-up · 100% Free</span>
+                        </span>
+                        <span class="payslip-cta-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section id="testimonials" class="testimonials-section">
+    <div class="container text-center">
+        <h2 class="testimonials-title">The first choice of HR Leaders like you</h2>
+        <p class="testimonials-subtitle">Hear from the people who boosted their business culture and productivity after switching to Lovahr.</p>
+
+        <div class="grid-3 text-left">
+            <div class="testimonial-card">
+                <i class="fas fa-quote-left quote-icon"></i>
+                <p class="testimonial-text">"Lovahr has completely transformed how we manage our payroll and compliance. The automation saves us countless hours every month, and the accuracy is spot on. It's the perfect solution for a growing team."</p>
+                <div class="user-info">
+                    <img src="https://ui-avatars.com/api/?name=Ganesh+Atluri&background=random" alt="Ganesh Atluri" class="user-avatar">
+                    <div>
+                        <span class="user-name">Ganesh Atluri</span>
+                        <span class="user-role">Director, The Rupee Company</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <i class="fas fa-quote-left quote-icon"></i>
+                <p class="testimonial-text">"The user interface is incredibly intuitive. Our employees adopted it instantly, and the automated leave management system has brought so much transparency and efficiency to our daily operations."</p>
+                <div class="user-info">
+                    <img src="https://ui-avatars.com/api/?name=Sharat+Kumar&background=random" alt="Sharat Kumar" class="user-avatar">
+                    <div>
+                        <span class="user-name">Sharat Kumar</span>
+                        <span class="user-role">Director, Akshaya Wealth Veda</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <i class="fas fa-quote-left quote-icon"></i>
+                <p class="testimonial-text">"Having all our HR operations, from asset tracking to attendance, centralized in one robust platform is a game-changer. The support team is also exceptionally responsive and helpful whenever we need them."</p>
+                <div class="user-info">
+                    <img src="https://ui-avatars.com/api/?name=Abhiram&background=random" alt="Abhiram" class="user-avatar">
+                    <div>
+                        <span class="user-name">Abhiram</span>
+                        <span class="user-role">Managing Partner, Ant Forge</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container cta-container">
+        <div class="cta-box">
+            <div class="pattern pattern-top"><i class="fas fa-circle"></i></div>
+            <div class="pattern pattern-bottom"><i class="fas fa-shapes"></i></div>
+
+            <h2 class="cta-title">Build a phenomenal workplace.</h2>
+            <p class="cta-text">Start your free trial today and see how Lovahr simplifies your HR processes. No credit card required.</p>
+            
+            <div class="cta-buttons">
+                <button class="btn-solid-white" routerLink="/company-onboarding">Start Free Trial</button>
+                <button class="btn-outline-white" (click)="openSalesModal()">Talk to Sales</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Footer Section -->
+<footer class="footer-dark">
+    <div class="container footer-dark-container">
+        <div class="footer-cta-row">
+            <div class="anim-circle-bg">
+                <div class="anim-circle-inner"><div class="anim-dot"></div></div>
+            </div>
+            <h2 class="footer-cta-text">
+                Ready to Transform Your Workplace? Let's Automate Your HR & Payroll Today. <span class="animate-float">🚀</span>
+            </h2>
+            <a routerLink="/company-onboarding" class="btn-footer-cta">
+                Start Free Trial 
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <hr class="footer-divider">
+        <div class="footer-copyright">
+            <p>© 2026 Lovahr. All rights reserved to Darshitha Digital Solutions - Crafted by <a href="http://antforge.com" target="_blank">Antforge</a>.</p>
+        </div>
+        <hr class="footer-divider">
+        <div class="footer-bottom-row">
+            <div class="footer-logo-area">
+                <img src="assets/lova-white.png" onerror="this.src='https://placehold.co/150x45/0f172a/ffffff?text=Lovahr'" alt="Lovahr Logo" class="footer-logo-img">
+            </div>
+            <!-- Updated Social Media Links here -->
+            <div class="footer-social-dark">
+                <a href="https://www.facebook.com/people/Ant-Forge/61567245436208/" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                <a href="https://www.instagram.com/ant.forge/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://www.youtube.com/@Antforge" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+                <a href="https://x.com/antforge" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Floating Action Buttons (Updated WhatsApp Link) -->
+<div class="floating-actions">
+    <a href="https://wa.me/919553453534?text=Hi,%20I%20need%20help%20with%20Lovahr%20HRMS." target="_blank" class="float-wa">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span class="ping-wa-wrapper"><span class="ping-wa-anim"></span><span class="ping-wa-dot"></span></span>
+    </a>
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="float-scroll">
+        <i class="fa-solid fa-angles-up"></i>
+    </button>
+</div>
+
+<!-- ============================================== -->
+<!-- SALES CONTACT POPUP MODAL                      -->
+<!-- ============================================== -->
+<div class="sales-modal-overlay" *ngIf="showSalesModal" (click)="closeSalesModal()">
+    <div class="sales-modal-container" (click)="$event.stopPropagation()">
+        <button class="sales-modal-close" (click)="closeSalesModal()" [disabled]="isSubmitting"><i class="fas fa-times"></i></button>
+        <div *ngIf="!isMessageSent" class="sales-modal-content fade-in">
+            <div class="sales-header">
+                <h3><i class="fas fa-headset text-blue"></i> Contact Sales</h3>
+                <p>Tell us a bit about your needs, and our team will get in touch shortly.</p>
+            </div>
+            <form class="sales-form" (submit)="submitSalesForm(); $event.preventDefault()">
+                <div class="sales-form-group">
+                    <label>Full Name *</label>
+                    <input type="text" [(ngModel)]="salesForm.name" name="name" required pattern="^[a-zA-Z .\-']+$" placeholder="e.g. Rahul Kumar">
+                </div>
+                <div class="sales-form-group">
+                    <label>Work Email *</label>
+                    <input type="email" [(ngModel)]="salesForm.email" name="email" required placeholder="rahul@company.com">
+                </div>
+                <div class="sales-form-group">
+                    <label>Company Name (Optional)</label>
+                    <input type="text" [(ngModel)]="salesForm.company" name="company" placeholder="e.g. TechCorp India">
+                </div>
+                <div class="sales-form-group">
+                    <label>Phone Number (Optional)</label>
+                    <input type="tel" [(ngModel)]="salesForm.phoneNumber" name="phoneNumber" pattern="^(\+?[0-9]{10,15})?$" placeholder="e.g. +919876543210">
+                </div>
+                <div class="sales-form-group">
+                    <label>How can we help? *</label>
+                    <textarea [(ngModel)]="salesForm.message" name="message" required minlength="10" rows="4" placeholder="I'm interested in scaling my HR operations..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary btn-sales-submit" [disabled]="isSubmitting">
+                    {{ isSubmitting ? 'Sending...' : 'Send Message' }} 
+                    <i class="fas fa-paper-plane" *ngIf="!isSubmitting"></i>
+                    <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+                </button>
+            </form>
+        </div>
+        <div *ngIf="isMessageSent" class="sales-success-state fade-in">
+            <div class="success-icon-wrapper"><i class="fas fa-check-circle"></i></div>
+            <h3>Message Sent Successfully!</h3>
+            <p>Thank you for reaching out. Our sales team will review your query and contact you within 24 hours.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- PREMIUM FEATURE DEEP-DIVE MODALS               -->
+<!-- ============================================== -->
+<div class="feature-modal-overlay" *ngIf="activeFeatureModal" (click)="closeFeatureModal()">
+    <div class="feature-modal-container" (click)="$event.stopPropagation()">
+        <!-- Close Button -->
+        <button class="feature-modal-close" (click)="closeFeatureModal()" aria-label="Close modal">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <ng-container [ngSwitch]="activeFeatureModal">
+            
+            <!-- 1. TIME & ATTENDANCE -->
+            <div *ngSwitchCase="'attendance'" class="feature-modal-grid">
+                <div class="feature-modal-content">
+                    <div class="fm-icon-badge bg-blue">
+                        <i class="fas fa-user-clock"></i> Time & Attendance
+                    </div>
+                    <h2 class="fm-title">Precision tracking without the micromanagement.</h2>
+                    <p class="fm-desc">Monitor employee hours, breaks, and overtime with absolute accuracy. Our system integrates seamlessly with web clock-ins, ensuring HR and managers have real-time visibility into workforce availability.</p>
+                    
+                    <ul class="fm-list">
+                        <li>
+                            <div class="fm-list-icon"><i class="fas fa-check"></i></div>
+                            <div>
+                                <strong>Real-time Visual Timers</strong>
+                                <span>Employees can clock in/out and track their gross and net hours directly from their dashboard.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="fm-list-icon"><i class="fas fa-check"></i></div>
+                            <div>
+                                <strong>Smart Break Management</strong>
+                                <span>Categorize breaks (Lunch, Coffee, Short) to automatically deduct from total working hours.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="fm-list-icon"><i class="fas fa-check"></i></div>
+                            <div>
+                                <strong>Manager Approvals & Regularization</strong>
+                                <span>Easily handle missed punches or irregular attendance with a one-click manager approval workflow.</span>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="fm-actions">
+                        <button class="btn-primary" routerLink="/company-onboarding" (click)="closeFeatureModal()">Start Free Trial</button>
+                        <button class="btn-secondary" (click)="openSalesModal(); closeFeatureModal()">Talk to Sales</button>
+                    </div>
+                </div>
+                <div class="feature-modal-visual">
+                    <div class="fm-image-wrapper">
+                        <div class="fm-backdrop bg-blue-100"></div>
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop" alt="Time Tracking Dashboard" class="fm-img">
+                        
+                        <!-- Floating Element -->
+                        <div class="fm-floating-card top-right">
+                            <i class="fas fa-play-circle text-green-500"></i>
+                            <div>
+                                <h4>Clocked In</h4>
+                                <p>09:00 AM Today</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. LEAVE MANAGEMENT -->
+            <div *ngSwitchCase="'leave'" class="feature-modal-grid">
+                <div class="feature-modal-content">
+                    <div class="fm-icon-badge bg-orange">
+                        <i class="fas fa-umbrella-beach"></i> Leave Management
+                    </div>
+                    <h2 class="fm-title">Hassle-free leaves for a happier workforce.</h2>
+                    <p class="fm-desc">Say goodbye to email requests and confusing spreadsheets. Lovahr provides a transparent, easy-to-use interface for employees to request time off and for managers to approve it instantly.</p>
+                    
+                    <ul class="fm-list">
+                        <li>
+                            <div class="fm-list-icon text-orange-600 bg-orange-100"><i class="fas fa-check"></i></div>
+                            <div>
+                                <strong>Visual Balance Rings</strong>
+                                <span>Employees immediately see their used, pending, and total balance for Casual, Sick, and Annual leaves.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="fm-list-icon text-orange-600 bg-orange-100"><i class="fas fa-check"></i></div>
+                            <div>
+                                <strong>Integrated Holiday Calendar</strong>
+                                <span>Company-wide holidays are synced automatically, ensuring employees don't accidentally apply for leave on a public holiday.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="fm-list-icon text-orange-600 bg-orange-100"><i class="fas fa-check"></i></div>
+                            <div>
+                                <strong>Instant Manager Notifications</strong>
+                                <span>Managers get real-time alerts for leave requests and can approve or reject them directly from their mobile or desktop.</span>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="fm-actions">
+                        <button class="btn-primary" style="background-color: var(--orange-600); border-color: var(--orange-600);" routerLink="/company-onboarding" (click)="closeFeatureModal()">Start Free Trial</button>
+                    </div>
+                </div>
+                <div class="feature-modal-visual">
+                    <div class="fm-image-wrapper">
+                        <div class="fm-backdrop bg-orange-100"></div>
+                        <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1000&auto=format&fit=crop" alt="Leave Management UI" class="fm-img">
+                        
+                        <!-- Floating Element -->
+                        <div class="fm-floating-card bottom-left">
+                            <i class="fas fa-check-circle text-orange-500"></i>
+                            <div>
+                                <h4>Leave Approved</h4>
+                                <p>Sick Leave (2 Days)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. ASSET MANAGEMENT -->
+            <div *ngSwitchCase="'assets'" class="feature-modal-grid">
+                <div class="feature-modal-content">
+                    <div class="fm-icon-badge bg-purple">
+                        <i class="fas fa-laptop-house"></i> Asset Management
+                    </div>
+                    <h2 class="fm-title">Total Visibility of Company Inventory.</h2>
+                    <p class="fm-desc">Maintain a centralized database of all company hardware. Track who owns what, manage requests for new equipment, and streamline the offboarding recovery process securely.</p>
+                    
+                    <ul class="fm-list">
+                        <li>
+                            <div class="fm-list-icon text-purple-600 bg-purple-100"><i class="fas fa-check"></i></div>
+                            <div>
+                                <strong>Smart Asset Tagging</strong>
+                                <span>Automatically generate unique tags for laptops, monitors, phones, and accessories based on serial numbers.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="fm-list-icon text-purple-600 bg-purple-100"><i class="fas fa-check"></i></div>
+                            <div>
+                                <strong>Self-Service Requests</strong>
+                                <span>Employees can request replacement chargers, monitors, or new laptops directly from their dashboard.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="fm-list-icon text-purple-600 bg-purple-100"><i class="fas fa-check"></i></div>
+                            <div>
+                                <strong>Seamless Recovery on Exit</strong>
+                                <span>When an employee resigns, the system automatically triggers a checklist of assigned assets that must be returned.</span>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="fm-actions">
+                        <button class="btn-primary" style="background-color: var(--purple-600); border-color: var(--purple-600);" routerLink="/company-onboarding" (click)="closeFeatureModal()">Start Free Trial</button>
+                    </div>
+                </div>
+                <div class="feature-modal-visual">
+                    <div class="fm-image-wrapper">
+                        <div class="fm-backdrop bg-purple-200"></div>
+                        <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1000&auto=format&fit=crop" alt="Asset Inventory UI" class="fm-img">
+                        
+                        <!-- Floating Element -->
+                        <div class="fm-floating-card top-left">
+                            <i class="fas fa-laptop text-purple-600"></i>
+                            <div>
+                                <h4>MacBook Pro M2</h4>
+                                <p>Assigned to: Neha</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </ng-container>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- DEMO VIDEO MODAL                               -->
+<!-- ============================================== -->
+<div class="video-modal-overlay" *ngIf="showVideoModal" (click)="closeVideoModal()">
+    <!-- Close Button outside container for better UX -->
+    <button class="video-modal-close" (click)="closeVideoModal()" aria-label="Close video">
+        <i class="fas fa-times"></i>
+    </button>
+    <div class="video-modal-container" (click)="$event.stopPropagation()">
+        <div class="video-wrapper">
+            <video controls autoplay class="demo-video">
+                <source src="assets/demo.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>

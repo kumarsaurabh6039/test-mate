@@ -1,0 +1,162 @@
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- admin-policy.component.html                                             -->
+<!-- HR Admin — Policy tab: upload docs + Lova Policy Bot button             -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+<div class="policy-page">
+
+  <!-- ── Page header ────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h2>Policy Management</h2>
+      <p>Upload and manage company policy documents. Lova Bot will answer employee questions using these documents.</p>
+    </div>
+
+    <!-- ✅ "Know about Policy using Lova Bot" button -->
+    <button class="btn-lova-bot" (click)="openPolicyBot()">
+      <i class="fas fa-robot"></i>
+      Know about Policy using Lova Bot
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- LEFT/RIGHT layout: upload + docs list on left, chatbot on right      -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="policy-layout" [class.policy-layout--split]="showPolicyBot">
+
+    <!-- ── Left column: Upload + Documents ──────────────────────────────── -->
+    <div class="policy-left">
+
+      <!-- Upload card -->
+      <div class="content-card upload-card">
+        <div class="card-header">
+          <i class="fas fa-cloud-upload-alt card-icon"></i>
+          <div>
+            <h3>Upload Policy Document</h3>
+            <p>Supported formats: PDF, DOC, DOCX &nbsp;·&nbsp; Max size: 20 MB</p>
+          </div>
+        </div>
+
+        <!-- Drop zone -->
+        <div
+          class="drop-zone"
+          [class.drop-zone--over]="isDragOver"
+          [class.drop-zone--uploading]="isUploading"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event)"
+          (click)="triggerFileInput()">
+
+          <input
+            type="file"
+            #fileInput
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            (change)="onFileSelected($event)"
+            style="display: none;">
+
+          <div class="drop-zone-content">
+            <div class="drop-zone-icon">
+              <i class="fas fa-circle-notch fa-spin" *ngIf="isUploading"></i>
+              <i class="fas fa-file-upload" *ngIf="!isUploading"></i>
+            </div>
+            <p class="drop-zone-title" *ngIf="!isUploading">
+              Drag & drop a file here, or <span class="drop-zone-link">click to browse</span>
+            </p>
+            <p class="drop-zone-title" *ngIf="isUploading">
+              Uploading document...
+            </p>
+            <p class="drop-zone-sub">PDF · DOC · DOCX up to 20 MB</p>
+          </div>
+        </div>
+
+        <!-- Upload feedback -->
+        <div class="upload-success" *ngIf="uploadSuccess">
+          <i class="fas fa-check-circle"></i> {{ uploadSuccess }}
+        </div>
+        <div class="upload-error" *ngIf="uploadError">
+          <i class="fas fa-exclamation-triangle"></i> {{ uploadError }}
+        </div>
+      </div>
+
+      <!-- Documents list card -->
+      <div class="content-card docs-card">
+        <div class="docs-card-header">
+          <div class="docs-card-title">
+            <i class="fas fa-folder-open"></i>
+            <span>Uploaded Documents</span>
+            <span class="docs-count">{{ documents.length }}</span>
+          </div>
+          <button class="btn-refresh" (click)="fetchDocuments()" [disabled]="isLoadingDocs" title="Refresh list">
+            <i class="fas fa-sync-alt" [class.fa-spin]="isLoadingDocs"></i>
+          </button>
+        </div>
+
+        <!-- Loading state -->
+        <div class="docs-loading" *ngIf="isLoadingDocs">
+          <i class="fas fa-circle-notch fa-spin"></i> Loading documents...
+        </div>
+
+        <!-- Empty state -->
+        <div class="docs-empty" *ngIf="!isLoadingDocs && documents.length === 0">
+          <i class="fas fa-file-alt"></i>
+          <p>No policy documents uploaded yet.</p>
+          <p>Upload a document above to get started.</p>
+        </div>
+
+        <!-- Documents table -->
+        <div class="modern-table-wrapper" *ngIf="!isLoadingDocs && documents.length > 0">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>Document</th>
+                <th>Uploaded By</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Refresh</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let doc of documents">
+                <td>
+                  <div class="doc-name-cell">
+                    <i [class]="fileIcon(doc.fileType) + ' doc-icon'"></i>
+                    <span>{{ doc.fileName }}</span>
+                  </div>
+                </td>
+                <td>{{ doc.uploadedBy || '—' }}</td>
+                <td>{{ formatDate(doc.createdAt) }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="docStatusClass(doc.status)">
+                    {{ doc.status }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    class="btn-status-refresh"
+                    (click)="refreshStatus(doc)"
+                    title="Check latest status"
+                    *ngIf="doc.status === 'PROCESSING'">
+                    <i class="fas fa-sync-alt"></i>
+                  </button>
+                  <span *ngIf="doc.status !== 'PROCESSING'" class="no-action">—</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    <!-- End left column -->
+
+    <!-- ── Right column: Lova Policy Bot ────────────────────────────────── -->
+    <div class="policy-right" *ngIf="showPolicyBot">
+      <app-chatbot-policy (closePanel)="closePolicyBot()"></app-chatbot-policy>
+    </div>
+
+  </div>
+  <!-- End layout -->
+
+</div>

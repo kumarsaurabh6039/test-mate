@@ -1,0 +1,81 @@
+<div class="swipedata-container">
+  <div class="swipedata-header">
+    <h2><i class="fas fa-exchange-alt"></i> Daily Attendance Summary</h2>
+    <div class="controls-bar">
+      <div class="date-filter-group">
+        <label for="startDate">From:</label>
+        <input type="date" id="startDate" [(ngModel)]="startDate" (change)="handleDateChange()">
+      </div>
+      <div class="date-filter-group">
+        <label for="endDate">To:</label>
+        <input type="date" id="endDate" [(ngModel)]="endDate" (change)="handleDateChange()">
+      </div>
+      <button (click)="loadSwipeData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+    </div>
+  </div>
+
+  <div class="swipedata-content" *ngIf="!isLoading; else loadingBlock">
+    <div *ngIf="dailyRecords.length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>First In</th>
+            <th>Last Out</th>
+            <th>Actual Work</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of dailyRecords">
+            <td data-label="Date">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 600; color: #334155;">{{ record.date | date:'dd MMM yyyy' }}</span>
+                    <span style="font-size: 11px; color: #64748B;">{{ record.day }}</span>
+                </div>
+            </td>
+            
+            <td data-label="First In">
+              <span class="time-pill in"><i class="fas fa-arrow-right"></i> {{ record.firstIn | date:'shortTime' }}</span>
+            </td>
+            
+            <td data-label="Last Out">
+              <ng-container *ngIf="record.lastOut">
+                <span class="time-pill out"><i class="fas fa-arrow-left"></i> {{ record.lastOut | date:'shortTime' }}</span>
+              </ng-container>
+              <ng-container *ngIf="!record.lastOut">
+                <span class="text-gray-400">--:--</span>
+              </ng-container>
+            </td>
+
+            <td data-label="Actual Work">
+               <div style="display: flex; align-items: center; gap: 8px;">
+                   <span style="font-weight: 600; color: #334155;">{{ record.formattedTotalHours }} Hrs</span>
+                   <span *ngIf="record.sessionsCount > 1" style="font-size: 10px; background: #F1F5F9; padding: 2px 6px; border-radius: 4px;">{{ record.sessionsCount }} Swipes</span>
+               </div>
+            </td>
+
+            <td data-label="Status">
+              <span class="status-badge" [ngClass]="record.statusClass">
+                {{ record.status }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div *ngIf="dailyRecords.length === 0" class="empty-state">
+        <i class="fas fa-calendar-times"></i>
+        <p class="title">No Records Found</p>
+        <p class="subtitle">Try adjusting the date range.</p>
+    </div>
+  </div>
+
+  <ng-template #loadingBlock>
+    <div class="loading-state">
+        <i class="fas fa-circle-notch fa-spin"></i>
+        <p>Syncing attendance data...</p>
+    </div>
+  </ng-template>
+</div>

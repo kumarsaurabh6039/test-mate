@@ -1,0 +1,296 @@
+<!-- Navbar -->
+<nav class="navbar" [class.scrolled]="isNavScrolled">
+    <div class="container">
+        <div class="nav-content">
+            <!-- Logo -->
+            <div class="logo">
+                <a routerLink="/">
+                    <img src="assets/logo-stream.png" onerror="this.src='https://placehold.co/150x45/ffffff/0f172a?text=Lovahr'" alt="Lovahr Logo" class="nav-logo-img">
+                </a>
+            </div>
+            
+            <!-- Desktop Menu -->
+            <div class="desktop-menu">
+                <a routerLink="/" fragment="features">Features</a>
+                <a routerLink="/" fragment="payroll">Payroll</a>
+                <a routerLink="/" fragment="admin">Admin Portal</a>
+                <a routerLink="/" fragment="testimonials">Reviews</a>
+                <a routerLink="/pricing" class="active-link">Pricing</a>
+            </div>
+
+            <!-- CTA Buttons (Desktop) -->
+            <div class="nav-actions">
+                <a routerLink="/sign-in" class="login-link">Log In</a>
+                <a routerLink="/company-onboarding" class="btn-primary">Start Free Trial</a>
+            </div>
+
+            <!-- Mobile menu button -->
+            <button class="mobile-menu-btn" (click)="toggleMobileMenu()" aria-label="Toggle menu">
+                <i class="fas" [class.fa-bars]="!isMobileMenuOpen" [class.fa-times]="isMobileMenuOpen"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Dropdown -->
+    <div class="mobile-menu" [class.open]="isMobileMenuOpen">
+        <div class="mobile-links">
+            <a routerLink="/" fragment="features" (click)="toggleMobileMenu()">Features</a>
+            <a routerLink="/" fragment="payroll" (click)="toggleMobileMenu()">Payroll</a>
+            <a routerLink="/" fragment="admin" (click)="toggleMobileMenu()">Admin Portal</a>
+            <a routerLink="/" fragment="testimonials" (click)="toggleMobileMenu()">Reviews</a>
+            <a routerLink="/pricing" class="active-link" (click)="toggleMobileMenu()">Pricing</a>
+        </div>
+        <div class="mobile-auth-actions">
+            <a routerLink="/sign-in" class="login-link-mobile" (click)="toggleMobileMenu()">Log In</a>
+            <a routerLink="/company-onboarding" class="btn-primary w-full" (click)="toggleMobileMenu()">Start Free Trial</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Pricing Content -->
+<div class="main-wrapper">
+    <!-- Background Elements -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <section class="pricing-header">
+        <div class="badge-pill">
+            <span class="dot"></span> Flexible Plans for Modern Teams
+        </div>
+        <h1 class="hero-title">Simple Pricing, <br> <span class="text-gradient">Powerful Results.</span></h1>
+        <p class="hero-subtitle">
+            Choose the perfect plan for your team. Change plans as you grow. <br>
+            No hidden fees, cancel anytime.
+        </p>
+
+        <!-- Toggle Switch -->
+        <div class="billing-toggle">
+            <span class="toggle-text" [class.active]="!isAnnual">Monthly</span>
+            <div class="switch" (click)="toggleBilling()" [class.active]="isAnnual">
+                <div class="switch-handle"></div>
+            </div>
+            <span class="toggle-text" [class.active]="isAnnual">
+                Annually <span class="discount-tag">SAVE 20%</span>
+            </span>
+        </div>
+    </section>
+
+    <!-- Interactive Slider -->
+    <section class="slider-container">
+        <div class="slider-card">
+            <div class="slider-info">
+                <span class="label">Team Size</span>
+                <span class="value">{{ employeeCount }} <small>employees</small></span>
+            </div>
+            <input 
+                type="range" 
+                min="1" 
+                max="1000" 
+                step="1" 
+                [value]="employeeCount" 
+                (input)="updateEmployeeCount($event)"
+                class="custom-range"
+                [style.backgroundSize]="((employeeCount - 1) * 100) / 999 + '% 100%'"
+            >
+            <div class="slider-ticks">
+                <span>1</span>
+                <span>1000+</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Cards Grid -->
+    <section class="pricing-grid container">
+        <div class="card" *ngFor="let plan of plans" [class.featured]="plan.isPopular">
+            
+            <div class="popular-flag" *ngIf="plan.isPopular">Most Popular</div>
+
+            <div class="card-header">
+                <h3 class="plan-name">{{ plan.name }}</h3>
+                <p class="plan-desc">{{ plan.description }}</p>
+            </div>
+
+            <!-- DYNAMIC PRICING AREA -->
+            <div class="price-display">
+                <!-- Enterprise (Fixed Yearly Pricing) -->
+                <div *ngIf="plan.isFixedYearly">
+                    <div class="old-price-wrapper">
+                        <span class="strike-through">₹1,00,000</span>
+                    </div>
+                    <div class="current-price-wrapper">
+                        <span class="currency">₹</span>
+                        <span class="amount">72,000</span>
+                        <span class="period" style="font-size: 18px;">/year</span>
+                    </div>
+                    <div class="billing-note" style="min-height: 24px; color: var(--slate-500); font-size: 13px; margin-top: 6px;">
+                        <span>Flat pricing for unlimited users</span>
+                    </div>
+                </div>
+
+                <!-- Free Plan -->
+                <div *ngIf="!plan.isFixedYearly && plan.name === 'Free Trial'">
+                    <div class="current-price-wrapper">
+                        <span class="currency">₹</span>
+                        <span class="amount">0</span>
+                        <span class="period">/7 days</span>
+                    </div>
+                    <div class="billing-note" style="min-height: 24px; color: var(--slate-500); font-size: 13px; margin-top: 6px;">
+                        <span>No credit card required</span>
+                    </div>
+                </div>
+
+                <!-- Essential Plan -->
+                <div *ngIf="!plan.isFixedYearly && plan.name === 'Essential'">
+                    <div class="old-price-wrapper">
+                        <span class="strike-through">₹{{ getOldPriceDisplay(plan) | number:'1.0-0' }}</span>
+                    </div>
+                    <div class="current-price-wrapper">
+                        <span class="currency">₹</span>
+                        <span class="amount">{{ getDiscountedMonthlyTotal(plan) | number:'1.0-0' }}</span>
+                        <span class="period">/mo</span>
+                    </div>
+
+                    <div class="billing-note" style="min-height: 24px; color: var(--slate-500); font-size: 13px; margin-top: 6px;">
+                        <span *ngIf="isAnnual">Billed ₹{{ getYearlyBillAmount(plan) | number:'1.0-0' }} yearly (<del>₹500</del> ₹99/user)</span>
+                        <span *ngIf="!isAnnual">Billed monthly (<del>₹500</del> ₹99/user)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <ul class="features-list">
+                <li *ngFor="let feature of plan.features">
+                    <i class="fas fa-check"></i> {{ feature }}
+                </li>
+                <li *ngFor="let missing of plan.notIncluded" class="missing">
+                    <i class="fas fa-minus"></i> {{ missing }}
+                </li>
+            </ul>
+
+            <div class="card-footer">
+                <!-- Conditional Routing vs Modal -->
+                <button *ngIf="plan.ctaAction === '/company-onboarding'" class="btn-action" [class.filled]="plan.isPopular" routerLink="/company-onboarding">
+                    {{ plan.ctaText }}
+                </button>
+                <button *ngIf="plan.ctaAction === 'contact_sales'" class="btn-action" [class.filled]="plan.isPopular" (click)="openSalesModal()">
+                    {{ plan.ctaText }}
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trusted Logos (Animated logo only version) -->
+    <section class="trusted-companies">
+        <div class="container text-center">
+            <div class="logo-slider">
+                <div class="logo-track">
+                    <!-- Group 1 -->
+                    <div class="logo-group">
+                        <div class="logo-item"><img src="assets/akshaya.jpeg" onerror="this.src='https://placehold.co/120x50/ffffff/475569?text=Logo+1'" alt="Akshaya Wealth Veda" class="company-img"></div>
+                        <div class="logo-item"><img src="assets/antforge.jpeg" onerror="this.src='https://placehold.co/120x50/ffffff/475569?text=Logo+2'" alt="Ant Forge" class="company-img"></div>
+                        <div class="logo-item"><img src="assets/rupee.jpeg" onerror="this.src='https://placehold.co/120x50/ffffff/475569?text=Logo+3'" alt="The Rupee Company" class="company-img"></div>
+                    </div>
+                    <!-- Group 2 -->
+                    <div class="logo-group">
+                        <div class="logo-item"><img src="assets/akshaya.jpeg" onerror="this.src='https://placehold.co/120x50/ffffff/475569?text=Logo+1'" alt="Akshaya Wealth Veda" class="company-img"></div>
+                        <div class="logo-item"><img src="assets/antforge.jpeg" onerror="this.src='https://placehold.co/120x50/ffffff/475569?text=Logo+2'" alt="Ant Forge" class="company-img"></div>
+                        <div class="logo-item"><img src="assets/rupee.jpeg" onerror="this.src='https://placehold.co/120x50/ffffff/475569?text=Logo+3'" alt="The Rupee Company" class="company-img"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Main Dark Footer (Synced with Landing Page) -->
+<footer class="footer-dark">
+    <div class="container footer-dark-container">
+        <div class="footer-cta-row">
+            <div class="anim-circle-bg">
+                <div class="anim-circle-inner"><div class="anim-dot"></div></div>
+            </div>
+            <h2 class="footer-cta-text">
+                Ready to Transform Your Workplace? Let's Automate Your HR & Payroll Today. <span class="animate-float">🚀</span>
+            </h2>
+            <a routerLink="/company-onboarding" class="btn-footer-cta">
+                Start Free Trial 
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <hr class="footer-divider">
+        <div class="footer-copyright">
+            <p>© 2026 Lovahr. All rights reserved to Darshitha Digital Solutions - Crafted by <a href="http://antforge.com" target="_blank">Antforge</a>.</p>
+        </div>
+        <hr class="footer-divider">
+        <div class="footer-bottom-row">
+            <div class="footer-logo-area">
+                <img src="assets/lova-white.png" onerror="this.src='https://placehold.co/150x45/0f172a/ffffff?text=Lovahr'" alt="Lovahr Logo" class="footer-logo-img">
+            </div>
+            <div class="footer-social-dark">
+                <a href="https://www.facebook.com/people/Ant-Forge/61567245436208/" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                <a href="https://www.instagram.com/ant.forge/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://www.youtube.com/@Antforge" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+                <a href="https://x.com/antforge" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Floating Action Buttons -->
+<div class="floating-actions">
+    <a href="https://wa.me/919553453534?text=Hi,%20I%20need%20help%20with%20Lovahr%20HRMS." target="_blank" class="float-wa">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span class="ping-wa-wrapper"><span class="ping-wa-anim"></span><span class="ping-wa-dot"></span></span>
+    </a>
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="float-scroll">
+        <i class="fa-solid fa-angles-up"></i>
+    </button>
+</div>
+
+<!-- ============================================== -->
+<!-- SALES CONTACT POPUP MODAL                      -->
+<!-- ============================================== -->
+<div class="sales-modal-overlay" *ngIf="showSalesModal" (click)="closeSalesModal()">
+    <div class="sales-modal-container" (click)="$event.stopPropagation()">
+        <button class="sales-modal-close" (click)="closeSalesModal()" [disabled]="isSubmitting"><i class="fas fa-times"></i></button>
+        <div *ngIf="!isMessageSent" class="sales-modal-content fade-in">
+            <div class="sales-header">
+                <h3><i class="fas fa-headset text-blue"></i> Contact Sales</h3>
+                <p>Tell us a bit about your needs, and our team will get in touch shortly.</p>
+            </div>
+            <form class="sales-form" (submit)="submitSalesForm(); $event.preventDefault()">
+                <div class="sales-form-group">
+                    <label>Full Name *</label>
+                    <input type="text" [(ngModel)]="salesForm.name" name="name" required pattern="^[a-zA-Z .\-']+$" placeholder="e.g. Rahul Kumar">
+                </div>
+                <div class="sales-form-group">
+                    <label>Work Email *</label>
+                    <input type="email" [(ngModel)]="salesForm.email" name="email" required placeholder="rahul@company.com">
+                </div>
+                <div class="sales-form-group">
+                    <label>Company Name (Optional)</label>
+                    <input type="text" [(ngModel)]="salesForm.company" name="company" placeholder="e.g. TechCorp India">
+                </div>
+                <div class="sales-form-group">
+                    <label>Phone Number (Optional)</label>
+                    <input type="tel" [(ngModel)]="salesForm.phoneNumber" name="phoneNumber" pattern="^(\+?[0-9]{10,15})?$" placeholder="e.g. +919876543210">
+                </div>
+                <div class="sales-form-group">
+                    <label>How can we help? *</label>
+                    <textarea [(ngModel)]="salesForm.message" name="message" required minlength="10" rows="4" placeholder="I'm interested in scaling my HR operations..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary btn-sales-submit" [disabled]="isSubmitting">
+                    {{ isSubmitting ? 'Sending...' : 'Send Message' }} 
+                    <i class="fas fa-paper-plane" *ngIf="!isSubmitting"></i>
+                    <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+                </button>
+            </form>
+        </div>
+        <div *ngIf="isMessageSent" class="sales-success-state fade-in">
+            <div class="success-icon-wrapper"><i class="fas fa-check-circle"></i></div>
+            <h3>Message Sent Successfully!</h3>
+            <p>Thank you for reaching out. Our sales team will review your query and contact you within 24 hours.</p>
+        </div>
+    </div>
+</div>

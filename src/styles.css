@@ -1,0 +1,132 @@
+/* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files */
+/* Global styles for the LouvaHR application */
+:root {
+    /* Define your color palette here (match the design) */
+    --primary-color: #007bff;        /* Example: Blue */
+    --primary-dark: #0056b3;
+    --secondary-color: #6c757d;      /* Example: Gray */
+    --success-color: #28a745;        /* Example: Green */
+    --success-dark: #1e7e34;
+    --info-color: #17a2b8;         /* Example: Cyan */
+    --info-dark: #138496;
+    --warning-color: #ffc107;      /* Example: Yellow */
+    --warning-dark: #d39e00;
+    --danger-color: #dc3545;         /* Example: Red */
+    --danger-dark: #c82333;
+    --light-color: #f8f9fa;         /* Example: Light Gray */
+    --dark-color: #343a40;          /* Example: Dark Gray */
+    --text-color: #212529;
+    --heading-color: #2c3e50;
+    /* Define your font family */
+    --font-family: 'YourCustomFont', sans-serif;  /* Replace 'YourCustomFont' */
+    --font-size-base: 16px;
+    --line-height-base: 1.5;
+    /* Define spacing */
+    --spacing-unit: 1rem; /* 16px */
+    --border-radius: 0.25rem; /* 4px */
+  }
+  
+  body {
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: var(--text-color);
+    background-color: var(--light-color);
+    margin: 0;
+    padding: 0;
+  }
+  
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--heading-color);
+    margin-bottom: var(--spacing-unit);
+    font-weight: bold;
+  }
+  
+  h1 {
+    font-size: 2.5rem; /* 40px */
+  }
+  
+  h2 {
+    font-size: 2rem; /* 32px */
+  }
+  
+  h3 {
+    font-size: 1.75rem; /* 28px */
+  }
+  
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+  }
+  
+  button {
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    display: inline-flex; /* Use flexbox for button content alignment */
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  button:hover {
+    opacity: 0.9;
+  }
+  
+  form {
+    margin-bottom: var(--spacing-unit);
+  }
+  
+  form div {
+    margin-bottom: 1.5rem;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: var(--dark-color);
+  }
+  
+  input,
+  textarea,
+  select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+  }
+  
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1); /* Light blue shadow */
+  }
+  
+  .form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+  }
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

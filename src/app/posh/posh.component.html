@@ -1,0 +1,97 @@
+<div class="posh-container">
+    <div class="posh-header">
+        <h2><i class="fas fa-shield-alt"></i> POSH Complaint / Help</h2>
+        <p>Prevention of Sexual Harassment (POSH) Redressal Form</p>
+    </div>
+
+    <div class="warning-box">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+            <p><strong>Confidentiality Notice:</strong> All complaints are handled with strict confidentiality by the Internal Complaints Committee (ICC).</p>
+        </div>
+    </div>
+
+    <!-- Identity Toggle -->
+    <div class="identity-toggle-section">
+        <div class="identity-info">
+            <h4>Reveal My Identity</h4>
+            <p>Untick to submit this complaint anonymously.</p>
+        </div>
+        <div class="toggle-wrapper">
+            <span style="font-size: 13px; color: #64748B;">{{ revealIdentity ? 'Named' : 'Anonymous' }}</span>
+            <label class="toggle-switch">
+                <!-- FIX: Added standalone: true to avoid Reactive Form Conflict -->
+                <input type="checkbox" [(ngModel)]="revealIdentity" [ngModelOptions]="{standalone: true}">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- User Details (Shown only if revealIdentity is TRUE) -->
+    <div class="user-details-grid" *ngIf="revealIdentity">
+        <div class="form-group">
+            <label>Complainant Name</label>
+            <input type="text" [value]="employeeName" readonly style="background-color: #E2E8F0;">
+        </div>
+        <div class="form-group">
+            <label>Employee ID</label>
+            <input type="text" [value]="employeeId" readonly style="background-color: #E2E8F0;">
+        </div>
+    </div>
+
+    <!-- Anonymous Banner (Shown only if revealIdentity is FALSE) -->
+    <div class="anonymous-banner" *ngIf="!revealIdentity">
+        <i class="fas fa-user-secret"></i>
+        <span>You are submitting this complaint anonymously. Your details will be hidden.</span>
+    </div>
+
+    <!-- Main Complaint Form -->
+    <form [formGroup]="poshForm" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Name of Accused <span style="color:red">*</span></label>
+                <input type="text" formControlName="accusedName" placeholder="Enter name of person involved">
+                <!-- Validation Message -->
+                <div class="error-text" *ngIf="poshForm.get('accusedName')?.invalid && poshForm.get('accusedName')?.touched">
+                    <small>Name is required.</small>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Date of Incident <span style="color:red">*</span></label>
+                <input type="date" formControlName="incidentDate">
+                <div class="error-text" *ngIf="poshForm.get('incidentDate')?.invalid && poshForm.get('incidentDate')?.touched">
+                    <small>Date is required.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Location of Incident</label>
+            <input type="text" formControlName="location" placeholder="e.g., Office Cafeteria, Zoom Call, Desk...">
+        </div>
+
+        <div class="form-group">
+            <label>Detailed Description <span style="color:red">*</span></label>
+            <!-- Updated placeholder to reflect 50 characters -->
+            <textarea formControlName="description" rows="5" placeholder="Please describe the incident in detail... (Min 50 characters)"></textarea>
+            
+            <!-- FIX: Added Validation Messages -->
+            <div class="error-text" *ngIf="poshForm.get('description')?.invalid && poshForm.get('description')?.touched">
+                <small *ngIf="poshForm.get('description')?.errors?.['required']">Description is required.</small>
+                <!-- Updated error message to reflect 50 characters -->
+                <small *ngIf="poshForm.get('description')?.errors?.['minlength']">Description must be at least 50 characters long.</small>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Witnesses (if any)</label>
+            <textarea formControlName="witnesses" rows="2" placeholder="Names of any witnesses present..."></textarea>
+        </div>
+
+        <!-- FIX: Removed poshForm.invalid from disabled to allow users to click and see errors -->
+        <button type="submit" class="btn-submit" [disabled]="isSubmitting">
+            <i class="fas fa-paper-plane"></i>
+            {{ isSubmitting ? 'Submitting...' : 'File Complaint' }}
+        </button>
+    </form>
+</div>

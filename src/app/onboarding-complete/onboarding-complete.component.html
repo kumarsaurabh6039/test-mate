@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LovaHR Welcome</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: url('/assets/door.jpg.jpg') no-repeat center center;
+      background-size: cover;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .content {
+      max-width: 400px;
+      margin-left: 8%;
+      
+      padding: 40px;
+      border-radius: 8px;
+      color: #000;
+    }
+
+    .logo-image {
+      width: 160px;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 16px;
+      margin: 6px 0;
+    }
+
+    .highlight {
+      color: #e30613;
+      font-weight: 600;
+    }
+
+    button {
+      margin-top: 24px;
+      background-color: #e30613;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #b2040f;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .content {
+        margin-left: 0;
+        padding: 30px 20px;
+        text-align: center;
+      }
+
+      .logo-image {
+        display: block;
+        margin: 0 auto 24px auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="content" role="main">
+    <img src="/assets/logo-stream.png" alt="LovaHR Logo" class="logo-image" />
+    <h1>You’re One of Us</h1>
+    <p>Your journey has begun,</p>
+    <p class="highlight">{{ userName }}</p>
+    <p>We’re so glad you’re here,</p>
+    <p>Your workspace is ready,</p>
+    <p>Your people are waiting,</p>
+    <p>Let’s co-create something beautiful.</p>
+    <button type="button" (click)="enterLouvaHR()">Enter LovaHR</button>
+  </div>
+
+</body>
+</html>

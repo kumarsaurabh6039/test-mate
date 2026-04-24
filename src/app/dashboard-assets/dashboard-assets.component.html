@@ -1,0 +1,94 @@
+<div class="assets-container">
+  <!-- Header with Toggle Tabs -->
+  <div class="assets-header">
+    <div class="header-tabs">
+        <div class="tab-item" [class.active]="activeView === 'assets'" (click)="switchView('assets')">
+            <i class="fas fa-box-open"></i> <span>My Assets</span>
+        </div>
+        <div class="tab-item" [class.active]="activeView === 'links'" (click)="switchView('links')">
+            <i class="fas fa-link"></i> <span>Useful Resources</span>
+        </div>
+    </div>
+    
+    <!-- Request Button Removed -->
+  </div>
+
+  <div class="assets-content" *ngIf="!isLoading; else loadingBlock">
+    
+    <!-- 1. ASSETS VIEW -->
+    <div *ngIf="activeView === 'assets'" class="view-fade-in">
+        <div *ngIf="myAssets.length > 0" class="asset-grid">
+            <div class="asset-card" *ngFor="let asset of myAssets">
+                <div class="asset-card-header">
+                    <div class="asset-icon-container bg-indigo-500">
+                        <i [class]="getIconForCategory(asset.type)"></i>
+                    </div>
+                    <div>
+                        <h3>{{ asset.name }}</h3>
+                        <small style="color: #94A3B8;">SN: {{ asset.serialNumber }}</small>
+                    </div>
+                </div>
+                <div class="asset-card-body">
+                    <div class="asset-detail">
+                        <span class="label">Category</span>
+                        <span class="value">{{ asset.type }}</span>
+                    </div>
+                    <div class="asset-detail">
+                        <span class="label">Status</span>
+                        <span class="value">
+                            <span class="asset-status-badge" [class]="getStatusClass(asset.status || '')">
+                                {{ asset.status }}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div *ngIf="myAssets.length === 0" class="empty-state">
+            <i class="fas fa-box-open fa-3x"></i>
+            <h3>No Assets Assigned</h3>
+            <p>No assets have been assigned to you yet.</p>
+        </div>
+    </div>
+
+    <!-- 2. USEFUL RESOURCES (LINKS) VIEW -->
+    <div *ngIf="activeView === 'links'" class="view-fade-in">
+        <div class="asset-grid" *ngIf="externalLinks.length > 0">
+            <div class="asset-card link-card" *ngFor="let link of externalLinks">
+                <div class="asset-card-header">
+                    <div class="asset-icon-container bg-blue-500">
+                        <i [class]="getLinkIcon(link.linkType)"></i>
+                    </div>
+                    <h3>{{ link.linkName }}</h3>
+                </div>
+                <div class="asset-card-body">
+                    <p class="resource-desc">{{ link.description || 'Important resource for employees.' }}</p>
+                </div>
+                <div class="asset-card-footer">
+                    <a [href]="link.url" target="_blank" class="action-button resource-link-btn" style="width: 100%; text-decoration: none; justify-content: center;">
+                        Open Link <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="externalLinks.length === 0" class="empty-state">
+            <i class="fas fa-link fa-3x"></i>
+            <h3>No Resources Found</h3>
+            <p>No useful links are available right now.</p>
+        </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <ng-template #loadingBlock>
+    <div class="loading-spinner">
+        <i class="fas fa-circle-notch fa-spin fa-2x"></i>
+        <p>Loading information...</p>
+    </div>
+  </ng-template>
+
+  <!-- Asset Request Modal Removed -->
+</div>

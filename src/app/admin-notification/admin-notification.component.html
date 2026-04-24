@@ -1,0 +1,163 @@
+<div class="links-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div>
+      <h2>Notification Management</h2>
+      <p>Manage announcements, targeted notifications, and system cleanups.</p>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tabs-wrapper">
+    <button class="tab-btn" [class.active]="activeTab() === 'ANNOUNCE'" (click)="switchTab('ANNOUNCE')">
+      <i class="fas fa-bullhorn"></i> HR Announcements
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'DIRECT'" (click)="switchTab('DIRECT')">
+      <i class="fas fa-paper-plane"></i> Direct / Bulk Notifications
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'SYSTEM'" (click)="switchTab('SYSTEM')">
+      <i class="fas fa-cogs"></i> System Actions
+    </button>
+  </div>
+
+  <!-- Tab 1: HR Announcement -->
+  <div class="card-container animate-in" *ngIf="activeTab() === 'ANNOUNCE'">
+    <div class="card-header">
+      <h3>Broadcast HR Announcement</h3>
+      <p class="subtitle">This message will be visible to all employees in the organization.</p>
+    </div>
+    
+    <div class="card-body">
+      <form [formGroup]="announceForm" (ngSubmit)="submitAnnouncement()">
+        <div class="form-group">
+          <label>Announcement Title *</label>
+          <input type="text" formControlName="title" class="form-control" placeholder="e.g. Important Update Regarding Work from Home">
+          <small class="error-text" *ngIf="announceForm.get('title')?.touched && announceForm.get('title')?.invalid">
+            A valid title is required (min 3 chars).
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Priority Level *</label>
+          <select formControlName="priority" class="form-control">
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+            <option value="URGENT">Urgent (Red Alert)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Complete Message *</label>
+          <textarea formControlName="message" class="form-control" rows="4" placeholder="Type your full announcement here..."></textarea>
+          <small class="error-text" *ngIf="announceForm.get('message')?.touched && announceForm.get('message')?.invalid">
+            A message is required (min 10 chars).
+          </small>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="announceForm.invalid || isSubmitting()">
+            <i class="fas" [ngClass]="isSubmitting() ? 'fa-spinner fa-spin' : 'fa-broadcast-tower'"></i>
+            {{ isSubmitting() ? 'Sending...' : 'Broadcast Announcement' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tab 2: Direct / Bulk Notifications -->
+  <div class="card-container animate-in" *ngIf="activeTab() === 'DIRECT'">
+    <div class="card-header">
+      <h3>Send Targeted Notifications</h3>
+      <p class="subtitle">Send a direct message to one or more employees.</p>
+    </div>
+    
+    <div class="card-body">
+      <form [formGroup]="directForm" (ngSubmit)="submitDirectNotification()">
+        <div class="form-group">
+          <label>Recipient Employee IDs (Comma Separated) *</label>
+          <input type="text" formControlName="recipientEmpIds" class="form-control" placeholder="e.g. EMP001, EMP002, EMP005">
+          <small class="hint-text">Enter a single ID, or use comma-separated IDs for bulk sending.</small>
+          <small class="error-text" *ngIf="directForm.get('recipientEmpIds')?.touched && directForm.get('recipientEmpIds')?.invalid">
+            Recipient ID is required.
+          </small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label>Notification Type *</label>
+            <select formControlName="type" class="form-control">
+              <option *ngFor="let type of notificationTypes" [value]="type">{{ type | titlecase }}</option>
+            </select>
+          </div>
+          <div class="form-group flex-1">
+            <label>Priority</label>
+            <select formControlName="priority" class="form-control">
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+              <option value="URGENT">Urgent</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Notification Title *</label>
+          <input type="text" formControlName="title" class="form-control" placeholder="Notification subject...">
+        </div>
+
+        <div class="form-group">
+          <label>Message Content *</label>
+          <textarea formControlName="message" class="form-control" rows="3" placeholder="Notification body..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="directForm.invalid || isSubmitting()">
+            <i class="fas" [ngClass]="isSubmitting() ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
+            {{ isSubmitting() ? 'Sending...' : 'Send Notification(s)' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tab 3: System Actions -->
+  <div class="card-container animate-in" *ngIf="activeTab() === 'SYSTEM'">
+    <div class="card-header">
+      <h3>System Actions & Cleanup</h3>
+      <p class="subtitle">Keep the database clean and fire automated triggers.</p>
+    </div>
+    
+    <div class="card-body system-grid">
+      <!-- Action Card 1 -->
+      <div class="system-action-card">
+        <div class="icon-box blue"><i class="fas fa-calendar-alt"></i></div>
+        <div class="action-info">
+          <h4>Trigger Holiday Reminders</h4>
+          <p>Manual trigger to send reminders for upcoming holidays.</p>
+        </div>
+        <button class="btn-outline blue-btn" (click)="triggerHolidayReminders()">Run Trigger</button>
+      </div>
+
+      <!-- Action Card 2 -->
+      <div class="system-action-card">
+        <div class="icon-box orange"><i class="fas fa-broom"></i></div>
+        <div class="action-info">
+          <h4>Cleanup Expired</h4>
+          <p>Delete notifications that have crossed their expiry date.</p>
+        </div>
+        <button class="btn-outline orange-btn" (click)="cleanupExpired()">Clean Expired</button>
+      </div>
+
+      <!-- Action Card 3 -->
+      <div class="system-action-card">
+        <div class="icon-box red"><i class="fas fa-trash-alt"></i></div>
+        <div class="action-info">
+          <h4>Delete Old Data (90+ Days)</h4>
+          <p>Permanently remove system notifications older than 3 months.</p>
+        </div>
+        <button class="btn-outline red-btn" (click)="cleanupOld(90)">Delete Old</button>
+      </div>
+    </div>
+  </div>
+</div>

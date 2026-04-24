@@ -1,0 +1,212 @@
+<div class="admin-container">
+    <header class="page-header">
+        <div class="header-content">
+          <h1>POSH Case Management</h1>
+          <p>Review, investigate, and resolve employee workplace complaints</p>
+        </div>
+        
+        <div class="header-actions">
+          <button class="btn-primary-header" (click)="downloadAnnualReport()">
+            <i class="fas fa-file-download"></i> Download Annual Report
+          </button>
+        </div>
+    </header>
+
+    <!-- Header Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="icon-bg blue"><i class="fas fa-folder-open"></i></div>
+            <div>
+                <h3>{{ stats.total }}</h3>
+                <p>Total Complaints</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-bg orange"><i class="fas fa-search"></i></div>
+            <div>
+                <h3>{{ stats.pending }}</h3>
+                <p>Active / Pending</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-bg green"><i class="fas fa-check-circle"></i></div>
+            <div>
+                <h3>{{ stats.resolved }}</h3>
+                <p>Resolved / Closed</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-card">
+        <div class="card-header">
+            <h2>All Complaints</h2>
+            <button class="refresh-btn" (click)="loadComplaints()">
+                <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-sync-alt'"></i> Refresh
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Case ID</th>
+                        <th>Complainant</th>
+                        <th>Respondent (Accused)</th>
+                        <th>Incident Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let caseItem of complaints">
+                        <td class="case-id">#{{ caseItem.id }}</td>
+                        <td>
+                            <span *ngIf="caseItem.isAnonymous || caseItem.complainantName === 'Anonymous'" class="text-anonymous">
+                                <i class="fas fa-user-secret"></i> Anonymous
+                            </span>
+                            <span *ngIf="!caseItem.isAnonymous && caseItem.complainantName !== 'Anonymous'">
+                                {{ caseItem.complainantName || 'Unknown' }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>{{ caseItem.respondentName }}</strong>
+                        </td>
+                        <td>{{ caseItem.incidentDate | date:'dd MMM yyyy' }}</td>
+                        <td>
+                            <!-- Badges will now dynamically match PENDING, IN_REVIEW, etc -->
+                            <span class="status-badge" [ngClass]="getStatusClass(caseItem.status)">
+                                {{ caseItem.status.replace('_', ' ') }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-view" (click)="viewDetails(caseItem)">
+                                View & Act
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="complaints.length === 0 && !loading">
+                        <td colspan="6" class="no-data">
+                            <i class="fas fa-inbox empty-icon"></i>
+                            <p>No complaints found.</p>
+                        </td>
+                    </tr>
+                    <tr *ngIf="loading">
+                        <td colspan="6" class="no-data">
+                            <i class="fas fa-spinner fa-spin empty-icon"></i>
+                            <p>Loading complaints...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Case Detail Modal -->
+    <div class="modal-overlay" *ngIf="showDetailModal">
+        <div class="modal-content premium-modal">
+            <div class="modal-header">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.25rem;">Case #{{ selectedComplaint?.id }}</h3>
+                    <span style="font-size: 0.8rem; color: #64748B;">Filed on {{ selectedComplaint?.createdAt | date:'mediumDate' }}</span>
+                </div>
+                <button class="btn-close" (click)="closeModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body-grid">
+                <!-- Left: Details -->
+                <div class="case-info custom-scrollbar">
+                    <h4 class="section-title">Complaint Details</h4>
+                    <div class="info-row">
+                        <div class="info-group">
+                            <label>Complainant</label>
+                            <p [ngClass]="{'text-anonymous': selectedComplaint?.isAnonymous || selectedComplaint?.complainantName === 'Anonymous'}">
+                                <i *ngIf="selectedComplaint?.isAnonymous || selectedComplaint?.complainantName === 'Anonymous'" class="fas fa-user-secret"></i>
+                                {{ selectedComplaint?.complainantName || 'Anonymous' }}
+                            </p>
+                        </div>
+                        <div class="info-group">
+                            <label>Respondent (Accused)</label>
+                            <p style="font-weight: 600; color: #1E293B;">{{ selectedComplaint?.respondentName }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-group">
+                            <label>Incident Date</label>
+                            <p>{{ selectedComplaint?.incidentDate | date:'mediumDate' }}</p>
+                        </div>
+                        <div class="info-group">
+                            <label>Location</label>
+                            <p>{{ selectedComplaint?.location || 'Not specified' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="info-group full-width">
+                        <label>Detailed Description</label>
+                        <div class="desc-box">{{ selectedComplaint?.incidentDescription }}</div>
+                    </div>
+                    <div class="info-group full-width" *ngIf="selectedComplaint?.witnesses">
+                        <label>Witnesses</label>
+                        <p class="witness-box">{{ selectedComplaint?.witnesses }}</p>
+                    </div>
+                </div>
+
+                <!-- Right: Action -->
+                <div class="case-action custom-scrollbar">
+                    <h4 class="section-title">Committee Actions</h4>
+                    
+                    <div class="current-status-banner" [ngClass]="getStatusClass(selectedComplaint?.status)">
+                        Current Status: <strong>{{ selectedComplaint?.status.replace('_', ' ') }}</strong>
+                    </div>
+
+                    <!-- Only show action form if NOT resolved or withdrawn -->
+                    <div class="action-form" *ngIf="selectedComplaint?.status !== 'RESOLVED' && selectedComplaint?.status !== 'WITHDRAWN'">
+                        <div class="input-group">
+                            <label>ICC Remarks / Findings</label>
+                            <textarea [(ngModel)]="statusRemark" rows="5" placeholder="Enter confidential investigation summary or reasons for closing..."></textarea>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>Action Taken (if any)</label>
+                            <input type="text" [(ngModel)]="actionTaken" placeholder="e.g. Warning issued, Transferred, Terminated...">
+                        </div>
+
+                        <!-- CONDITIONAL BUTTONS BASED ON STATE MACHINE -->
+                        <div class="action-buttons">
+                            
+                            <!-- State 1: Action allowed when PENDING -->
+                            <button class="btn-investigate" (click)="updateStatus('IN_REVIEW')" *ngIf="selectedComplaint?.status === 'PENDING'">
+                                <i class="fas fa-search"></i> Start Investigation (In Review)
+                            </button>
+                            
+                            <!-- State 2: Actions allowed when IN_REVIEW -->
+                            <button class="btn-info" (click)="updateStatus('INVESTIGATED')" *ngIf="selectedComplaint?.status === 'IN_REVIEW'">
+                                <i class="fas fa-file-alt"></i> Mark as Investigated
+                            </button>
+
+                            <!-- State 3: Actions allowed when INVESTIGATED -->
+                            <button class="btn-resolve" (click)="updateStatus('RESOLVED')" *ngIf="selectedComplaint?.status === 'INVESTIGATED'">
+                                <i class="fas fa-check-circle"></i> Close as Resolved
+                            </button>
+
+                            <!-- Withdraw is usually allowed in early stages -->
+                            <button class="btn-dismiss" (click)="updateStatus('WITHDRAWN')" *ngIf="selectedComplaint?.status === 'PENDING' || selectedComplaint?.status === 'IN_REVIEW'">
+                                <i class="fas fa-times-circle"></i> Withdraw / Reject Case
+                            </button>
+
+                        </div>
+                    </div>
+                    
+                    <!-- Alert when case is closed -->
+                    <div *ngIf="selectedComplaint?.status === 'RESOLVED' || selectedComplaint?.status === 'WITHDRAWN'" style="padding: 16px; background: #f1f5f9; border-radius: 8px; color: #475569; text-align: center; font-size: 14px; margin-top: 20px;">
+                        <i class="fas fa-lock" style="margin-bottom: 8px; font-size: 20px;"></i>
+                        <p style="margin: 0; font-weight: 600;">This case is closed.</p>
+                        <p style="margin: 4px 0 0 0; font-size: 13px;">No further actions can be taken.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

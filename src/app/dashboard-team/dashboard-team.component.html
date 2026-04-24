@@ -1,0 +1,77 @@
+<div class="team-container">
+  <div class="team-header">
+    <!-- Title -->
+    <h2>
+        <i class="fas fa-users"></i> 
+        {{ myTeamName ? myTeamName : (isHR ? 'All Teams View' : 'My Team') }}
+    </h2>
+    <div class="team-controls">
+        <button (click)="refreshData()" class="refresh-button" title="Refresh Data">
+            <i class="fas fa-sync-alt" [class.fa-spin]="isLoading"></i>
+        </button>
+    </div>
+  </div>
+  
+  <div class="team-content" *ngIf="!isLoading; else loadingBlock"> 
+    <div *ngIf="teamMembers.length > 0" class="team-grid">
+      
+      <!-- Team Member Card loop -->
+      <div class="team-card" *ngFor="let member of teamMembers">
+        
+        <div class="profile-section">
+            <div class="profile-image-container">
+                <!-- Fallback for image -->
+                <img [src]="member.imageUrl" 
+                     onerror="this.src='https://ui-avatars.com/api/?name='+member.name+'&background=random'" 
+                     [alt]="member.name" 
+                     class="profile-image" />
+                <span class="status-dot" [class]="member.color"></span>
+            </div>
+            
+            <div class="member-info">
+                <h3 class="member-name">{{ member.name }}</h3>
+                <p class="member-designation">{{ member.designation }}</p>
+                <span class="status-badge" [class]="getStatusClass(member.status)">
+                    {{ member.status }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="contact-section">
+            <div class="contact-detail">
+                <i class="fas fa-envelope icon-blue"></i>
+                <span class="contact-text" [title]="member.email">{{ member.email }}</span>
+            </div>
+            <div class="contact-detail">
+                <i class="fas fa-phone icon-blue"></i>
+                <span class="contact-text">{{ member.phone }}</span>
+            </div>
+        </div>
+
+        <div class="team-card-actions">
+            <a [href]="'mailto:' + member.email" class="action-button primary-action">
+                <i class="fas fa-envelope"></i> Email
+            </a>
+            <a [href]="'tel:' + member.phone" class="action-button secondary-action">
+                <i class="fas fa-phone"></i> Call
+            </a>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div *ngIf="teamMembers.length === 0" class="loading-spinner">
+        <i class="fas fa-users-cog fa-3x mb-4 text-indigo-500"></i>
+        <p style="font-size: 18px; font-weight: 600; color: #334155;">Not Assigned to a Team</p>
+        <p style="color: #64748B;">You are currently not part of any specific team.</p>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <ng-template #loadingBlock>
+    <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin fa-2x mb-3 text-indigo-500"></i>
+        <p style="color: #64748B;">Loading team details...</p>
+    </div>
+  </ng-template>
+</div>

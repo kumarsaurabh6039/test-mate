@@ -1,0 +1,78 @@
+<div class="timesheet-container">
+    <div class="timesheet-header">
+      <h2><i class="fas fa-clock"></i> Daily Work Updates</h2>
+      <div class="controls">
+          <!-- Date Filter (Defaults to Today) -->
+          <input type="date" [(ngModel)]="filterDate" (change)="loadTimesheets()" class="date-input">
+          <button class="refresh-btn" (click)="loadTimesheets()" title="Refresh"><i class="fas fa-sync"></i></button>
+      </div>
+    </div>
+
+    <div class="loading-spinner" *ngIf="isLoading">
+        <i class="fas fa-spinner fa-spin"></i> Processing...
+    </div>
+
+    <!-- Timesheet List -->
+    <div class="timesheet-grid" *ngIf="!isLoading">
+      <div class="row header">
+          <div>Date</div>
+          <div>Work Update / Remarks</div>
+          <div style="text-align: center;">Status</div>
+          <div style="text-align: right;">Actions</div>
+      </div>
+      
+      <div class="timesheet-body">
+        <div class="row" *ngFor="let log of timesheets">
+            <div class="date-col">{{ log.workDate | date:'dd MMM' }}</div>
+            <div class="remarks-col" [title]="log.remarks">{{ log.remarks }}</div>
+            <div style="text-align: center;">
+                <span class="status-badge" [ngClass]="{'approved': log.status === 'Approved', 'rejected': log.status === 'Rejected'}">
+                    {{ log.status || 'Submitted' }}
+                </span>
+            </div>
+            <div class="actions-col">
+                <button class="icon-btn edit-btn" (click)="editTimesheet(log)" title="Edit">
+                    <i class="fas fa-pen"></i>
+                </button>
+                <button class="icon-btn delete-btn" (click)="deleteTimesheet(log.id)" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="no-data" *ngIf="timesheets.length === 0">
+            No work updates found for {{ filterDate | date:'mediumDate' }}.
+        </div>
+      </div>
+    </div>
+    
+    <!-- Add/Edit Entry Form -->
+    <div class="entry-form" [class.editing-mode]="isEditing">
+       <div class="form-header">
+           <h3>{{ isEditing ? 'Update Work Log' : 'Add Daily Work Update' }}</h3>
+           <button *ngIf="isEditing" (click)="resetForm()" class="cancel-edit-btn">Cancel Edit</button>
+       </div>
+       
+       <div class="form-row">
+           <div class="input-group">
+               <label>Date</label>
+               <input type="date" [(ngModel)]="formDate" class="input-field date-field">
+           </div>
+           
+           <!-- Removed Hours Input -->
+
+           <div class="input-group flex-grow">
+               <label>Work Update / Remarks</label>
+               <input type="text" [(ngModel)]="formRemarks" placeholder="What did you work on today?" class="input-field remarks-field">
+           </div>
+
+           <div class="input-group button-group">
+               <label>&nbsp;</label>
+               <button (click)="submitTimesheet()" class="submit-btn" [class.update-btn]="isEditing">
+                   <i class="fas" [ngClass]="isEditing ? 'fa-save' : 'fa-paper-plane'"></i> 
+                   {{ isEditing ? 'Update' : 'Submit' }}
+               </button>
+           </div>
+       </div>
+    </div>
+</div>

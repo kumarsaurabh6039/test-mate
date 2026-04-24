@@ -1,0 +1,299 @@
+<div class="admin-training-container">
+    <div class="header">
+        <div class="title-section">
+            <h2>Training Management</h2>
+            <p>Manage courses, status, and assignments</p>
+        </div>
+        <button class="btn-primary" (click)="openCreateModal()">
+            <i class="fas fa-plus"></i> Add New Training
+        </button>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-card">
+        <div *ngIf="loading" class="loading-overlay">
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+        </div>
+
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Duration</th>
+                    <th>Timeline</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let training of trainings">
+                    <td>
+                        <div class="training-title">{{ training.title }}</div>
+                        <div class="training-desc" title="{{training.description}}">{{ training.description }}</div>
+                    </td>
+                    <td>{{ training.durationHours }} Hours</td>
+                    <td>
+                        <div class="timeline">
+                            <small>Start: {{ training.startDate || 'N/A' }}</small>
+                            <small>End: {{ training.endDate || 'N/A' }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge" [ngClass]="getStatusClass(training.status)">
+                            {{ training.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <!-- New View Button -->
+                            <button class="btn-icon view" (click)="openViewAssignedModal(training)" title="View Assigned Users">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon edit" (click)="openEditModal(training)" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon assign" (click)="openAssignModal(training)" title="Assign to Employee">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                            <button class="btn-icon delete" (click)="deleteTraining(training.id)" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="trainings.length === 0 && !loading">
+                    <td colspan="5" class="no-data">No trainings found. Create one to get started.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- View Assigned Users Modal -->
+    <div class="modal-overlay" *ngIf="showViewAssignedModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Assigned Users</h3>
+                <button class="close-btn" (click)="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div *ngIf="loadingAssignments" style="text-align: center; padding: 20px; color: #4338CA;">
+                    <i class="fas fa-spinner fa-spin"></i> Loading users...
+                </div>
+
+                <div *ngIf="!loadingAssignments">
+                    <table class="styled-table" *ngIf="assignedEnrollments.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Emp ID</th>
+                                <th>Name</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let enrollment of assignedEnrollments">
+                                <td>{{ enrollment.employeeId }}</td>
+                                <td>{{ enrollment.employeeName }}</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="flex-grow: 1; background: #E2E8F0; border-radius: 4px; height: 8px;">
+                                            <div [style.width.%]="enrollment.overallProgress || 0" style="background: #4338CA; height: 100%; border-radius: 4px;"></div>
+                                        </div>
+                                        <small>{{ enrollment.overallProgress || 0 }}%</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge" [ngClass]="getStatusClass(enrollment.status)">
+                                        {{ enrollment.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="no-data" *ngIf="assignedEnrollments.length === 0">
+                        No employees have been assigned to this training yet.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div class="modal-overlay" *ngIf="showTrainingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>{{ isEditMode ? 'Edit Training' : 'Create New Training' }}</h3>
+                <button class="close-btn" (click)="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="trainingForm">
+
+                    <!-- Title -->
+                    <div class="form-group">
+                        <label>Title <span class="required">*</span></label>
+                        <input
+                            type="text"
+                            formControlName="title"
+                            placeholder="e.g. Java Basics"
+                            [class.input-error]="(trainingForm.get('title')?.invalid && trainingForm.get('title')?.touched) || serverErrors['title']"
+                            (input)="clearServerError('title')">
+                        <div class="field-error" *ngIf="trainingForm.get('title')?.invalid && trainingForm.get('title')?.touched">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span *ngIf="trainingForm.get('title')?.errors?.['required']">Title is required.</span>
+                        </div>
+                        <div class="field-error" *ngIf="serverErrors['title']">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>{{ serverErrors['title'] }}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Status -->
+                        <div class="form-group">
+                            <label>Status <span class="required">*</span></label>
+                            <select
+                                formControlName="status"
+                                [class.input-error]="(trainingForm.get('status')?.invalid && trainingForm.get('status')?.touched) || serverErrors['status']"
+                                (change)="clearServerError('status')">
+                                <option value="DRAFT">Draft</option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="INACTIVE">Inactive</option>
+                            </select>
+                            <div class="field-error" *ngIf="trainingForm.get('status')?.invalid && trainingForm.get('status')?.touched">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span *ngIf="trainingForm.get('status')?.errors?.['required']">Status is required.</span>
+                            </div>
+                            <div class="field-error" *ngIf="serverErrors['status']">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>{{ serverErrors['status'] }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Duration -->
+                        <div class="form-group">
+                            <label>Duration (Hours)</label>
+                            <input
+                                type="number"
+                                formControlName="durationHours"
+                                [class.input-error]="(trainingForm.get('durationHours')?.invalid && trainingForm.get('durationHours')?.touched) || serverErrors['durationHours']"
+                                (input)="clearServerError('durationHours')">
+                            <div class="field-error" *ngIf="trainingForm.get('durationHours')?.invalid && trainingForm.get('durationHours')?.touched">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span *ngIf="trainingForm.get('durationHours')?.errors?.['min']">Duration cannot be negative.</span>
+                            </div>
+                            <div class="field-error" *ngIf="serverErrors['durationHours']">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>{{ serverErrors['durationHours'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Start Date -->
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input
+                                type="date"
+                                formControlName="startDate"
+                                [class.input-error]="serverErrors['startDate']"
+                                (change)="clearServerError('startDate')">
+                            <div class="field-error" *ngIf="serverErrors['startDate']">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>{{ serverErrors['startDate'] }}</span>
+                            </div>
+                        </div>
+
+                        <!-- End Date -->
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input
+                                type="date"
+                                formControlName="endDate"
+                                [class.input-error]="serverErrors['endDate']"
+                                (change)="clearServerError('endDate')">
+                            <div class="field-error" *ngIf="serverErrors['endDate']">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>{{ serverErrors['endDate'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea
+                            formControlName="description"
+                            rows="3"
+                            placeholder="Enter course details..."
+                            [class.input-error]="(trainingForm.get('description')?.invalid && trainingForm.get('description')?.touched) || serverErrors['description']"
+                            (input)="clearServerError('description')"></textarea>
+                        <div class="field-error" *ngIf="trainingForm.get('description')?.invalid && trainingForm.get('description')?.touched">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span *ngIf="trainingForm.get('description')?.errors?.['maxlength']">Description cannot exceed 5000 characters.</span>
+                        </div>
+                        <div class="field-error" *ngIf="serverErrors['description']">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>{{ serverErrors['description'] }}</span>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeModal()">Cancel</button>
+                <button class="btn-save" (click)="saveTraining()" [disabled]="trainingForm.invalid">
+                    {{ isEditMode ? 'Update' : 'Create' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Modal -->
+    <div class="modal-overlay" *ngIf="showAssignModal">
+        <div class="modal-content small-modal">
+            <div class="modal-header">
+                <h3>Assign Training</h3>
+                <button class="close-btn" (click)="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="assignForm">
+                    <p class="modal-info">Assign this training to a specific employee.</p>
+
+                    <div class="form-group">
+                        <label>Filter by Role</label>
+                        <select (change)="onRoleFilterChange($event)">
+                            <option value="ALL">All Roles</option>
+                            <option value="EMPLOYEE">Employee</option>
+                            <option value="MANAGER">Manager</option>
+                            <option value="HR">HR</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Employee <span class="required">*</span></label>
+                        <select
+                            formControlName="employeeId"
+                            [class.input-error]="assignForm.get('employeeId')?.invalid && assignForm.get('employeeId')?.touched">
+                            <option value="" disabled selected>-- Select an Employee --</option>
+                            <option *ngFor="let emp of filteredEmployees" [value]="emp.empId">
+                                {{ emp.firstName }} {{ emp.surname }} ({{ emp.empId }})
+                            </option>
+                        </select>
+                        <small class="hint" *ngIf="filteredEmployees.length === 0">No available employees found for this role (or they are all already assigned).</small>
+                        <div class="field-error" *ngIf="assignForm.get('employeeId')?.invalid && assignForm.get('employeeId')?.touched">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Please select an employee.</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeModal()">Cancel</button>
+                <button class="btn-save" (click)="assignTraining()" [disabled]="assignForm.invalid">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,129 @@
+.onboarding-wrapper {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: #fff;
+  font-family: 'Roboto', sans-serif;
+}
+
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* ===== Circular Back Button — matches sign-up-step2 style ===== */
+.back-circle {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #444;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.back-circle:hover {
+  background: #f5f5f5;
+  border-color: #aaa;
+  color: #111;
+  transform: translateX(-2px);
+}
+
+.back-circle:hover svg {
+  transform: translateX(-2px);
+}
+
+/* CONTENT: CENTERED ON PLATFORM */
+.content {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -40%);
+  text-align: center;
+  z-index: 1;
+  width: 100%;
+  padding: 0 24px;
+}
+
+/* LOGO */
+.logo {
+  max-width: 220px;
+  margin: 0 auto 20px;
+  display: block;
+}
+
+/* TITLE */
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: #1f1f1f;
+}
+
+/* PARAGRAPH */
+.subtitle {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+/* BUTTON */
+button.mat-raised-button {
+  background-color: #e53935;
+  color: #fff;
+  padding: 10px 28px;
+  font-size: 1rem;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+button.mat-raised-button:hover {
+  background-color: #c62828;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .logo {
+    max-width: 140px;
+    margin-bottom: 16px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  button.mat-raised-button {
+    font-size: 0.9rem;
+    padding: 8px 22px;
+  }
+
+  .content {
+    top: 60%;
+  }
+
+  .back-circle {
+    top: 16px;
+    left: 16px;
+  }
+}

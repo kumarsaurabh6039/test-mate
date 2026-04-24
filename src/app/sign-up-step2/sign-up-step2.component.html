@@ -1,0 +1,100 @@
+<div class="main-wrapper">
+  <div class="left-section">
+    <button type="button" class="back-circle" (click)="goBack()" aria-label="Go back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+    </button>
+    <img src="/assets/logo-stream.png" alt="lovahr logo" class="logo" />
+
+    <div class="brand-header">
+      <h1>Identity Stream</h1>
+      <p class="subtitle">Who Flows In</p>
+    </div>
+
+    <button class="upload-btn" type="button" (click)="triggerFileInput()">
+      <img [src]="uploadedImage || '/assets/avatar-new.jpg'" alt="avatar" />
+      <span>Upload Profile Photo</span>
+    </button>
+
+    <input type="file" id="fileInput" style="display: none"
+           (change)="onFileSelected($event)" accept="image/*" />
+
+    <form [formGroup]="identityForm" (ngSubmit)="moveForward()">
+
+      <!-- Department -->
+      <div class="form-group">
+        <label for="department">Department <span>(You can change this)</span></label>
+        <input type="text" id="department" formControlName="department"
+               [class.input-error]="identityForm.get('department')?.invalid && identityForm.get('department')?.touched" />
+        <div *ngIf="identityForm.get('department')?.invalid && identityForm.get('department')?.touched" class="error">
+          Department is required.
+        </div>
+      </div>
+
+      <!-- Personal Email -->
+      <div class="form-group">
+        <label for="email">Personal Email ID <span>(You can change this)</span></label>
+        <input type="email" id="email" formControlName="personalEmailId"
+               [class.input-error]="identityForm.get('personalEmailId')?.invalid && identityForm.get('personalEmailId')?.touched" />
+        <ng-container *ngIf="identityForm.get('personalEmailId')?.touched && identityForm.get('personalEmailId')?.errors as errs">
+          <div class="error" *ngIf="errs['required']">Personal Email ID is required.</div>
+          <div class="error" *ngIf="errs['pattern']">
+            Please enter a valid email in lowercase only (e.g., john.doe@example.com). Uppercase letters are not allowed.
+          </div>
+          <div class="error" *ngIf="errs['maxlength']">Email must not exceed 254 characters.</div>
+          <div class="error" *ngIf="errs['sameAsWorkEmail']">Personal email cannot be the same as your work email.</div>
+        </ng-container>
+      </div>
+
+      <!-- Mobile Number -->
+      <div class="form-group">
+        <label for="mobile">Mobile Number <span>(You can change this)</span></label>
+        <input type="tel" id="mobile" formControlName="mobileNumber"
+               [class.input-error]="identityForm.get('mobileNumber')?.invalid && identityForm.get('mobileNumber')?.touched" />
+        <ng-container *ngIf="identityForm.get('mobileNumber')?.touched && identityForm.get('mobileNumber')?.errors as errs">
+          <div class="error" *ngIf="errs['required']">Mobile number is required.</div>
+          <div class="error" *ngIf="errs['pattern']">
+            Please enter a valid mobile number (10–15 digits). Numbers like 0000000000 or 1111111111 are not allowed.
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Birthday + Submit -->
+      <div class="form-last-row">
+        <div class="form-group birthday">
+          <label for="birthday">Birthday <span>(You can change this)</span></label>
+          <input type="date" id="birthday" formControlName="birthday" [max]="maxDate"
+                 [class.input-error]="identityForm.get('birthday')?.invalid && identityForm.get('birthday')?.touched" />
+          <ng-container *ngIf="identityForm.get('birthday')?.invalid && identityForm.get('birthday')?.touched">
+            <div class="error" *ngIf="identityForm.get('birthday')?.errors?.['required']">Birthday is required.</div>
+            <div class="error" *ngIf="identityForm.get('birthday')?.errors?.['futureDate']">Future dates are not allowed.</div>
+            <div class="error" *ngIf="identityForm.get('birthday')?.errors?.['underage']">You must be at least 18 years old.</div>
+          </ng-container>
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="identityForm.invalid">
+          Let's Move Forward
+        </button>
+      </div>
+    </form>
+
+    <div class="progress-bar">
+      <div class="step active"></div>
+      <div class="step active"></div>
+      <div class="step"></div>
+      <div class="step"></div>
+      <div class="step"></div>
+      <div class="step"></div>
+    </div>
+  </div>
+
+  <div class="right-section">
+    <div class="right-content">
+      <img src="/assets/image-sign2.jpg" alt="illustration" class="right-image" />
+      <p class="quote">
+        Every journey has a beginning, let's mark yours with the details that ground you.
+      </p>
+    </div>
+  </div>
+</div>

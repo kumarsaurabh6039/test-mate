@@ -1,0 +1,611 @@
+/* ------------------------------------------------------------------------- /
+/ 1. Container & Main UI Styles /
+/ ------------------------------------------------------------------------- */
+.payslip-container {
+  padding: 24px;
+  background-color: white; 
+  box-sizing: border-box;
+  margin-left: 180px; /* Desktop sidebar margin */
+  margin-top: 27px;
+  width: calc(100% - 180px - 350px - 48px); 
+  border: 1px solid #E2E8F0;
+  border-radius: 8px; 
+  height: 874px;
+  display: flex;
+  flex-direction: column;
+}
+
+.payslip-header {
+  margin-bottom: 24px;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 16px;
+}
+
+.payslip-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1E293B;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+}
+
+.payslip-header p {
+    font-size: 14px;
+    color: #64748B;
+    margin-top: 5px;
+}
+
+/* Filter Section */
+.filter-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #F8FAFC;
+    border-radius: 8px;
+    border: 1px solid #E2E8F0;
+}
+
+.search-wrapper {
+    position: relative;
+    width: 300px;
+}
+
+.search-wrapper input {
+    width: 100%;
+    padding: 8px 12px 8px 35px;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-wrapper i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+}
+
+.filter-stats {
+    font-size: 12px;
+    color: #64748B;
+    font-weight: 600;
+}
+
+/* Grid & Cards */
+.payslip-content {
+  flex-grow: 1; 
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.payslip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.payslip-card {
+    background-color: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    cursor: pointer;
+}
+
+.payslip-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    border-color: #4338CA;
+}
+
+.slip-icon {
+    flex-shrink: 0;
+}
+
+.calendar-icon {
+    width: 50px;
+    height: 50px;
+    background-color: #EEF2FF;
+    border: 1px solid #C7D2FE;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #4338CA;
+}
+
+.calendar-icon .month {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.calendar-icon .year {
+    font-size: 10px;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.slip-details {
+    flex-grow: 1;
+}
+
+.slip-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1E293B;
+}
+
+.slip-subtitle {
+    margin: 2px 0 8px 0;
+    font-size: 12px;
+    color: #64748B;
+}
+
+.slip-amount-row {
+    font-size: 14px;
+    color: #334155;
+    display: flex;
+    align-items: center;
+}
+
+.slip-amount-row .amount {
+    font-weight: 700;
+    color: #059669; /* Green */
+    margin-left: 4px;
+    margin-right: 8px;
+}
+
+.slip-amount-row .amount.blurred {
+    color: #94A3B8;
+    letter-spacing: 2px;
+    font-size: 16px;
+}
+
+.visibility-btn {
+    background: none;
+    border: none;
+    color: #64748B;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    transition: all 0.2s;
+}
+
+.visibility-btn:hover {
+    color: #4338CA;
+    transform: scale(1.1);
+}
+
+.view-button {
+    background-color: transparent;
+    color: #4338CA;
+    border: 1px solid #4338CA;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.view-button:hover {
+    background-color: #4338CA;
+    color: white;
+}
+
+/* Modal UI */
+.payslip-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.payslip-modal-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.payslip-modal-content {
+    background-color: #525659;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: auto; /* Ensure horizontal scrolling is enabled */
+}
+
+.modal-header {
+    width: 100%;
+    max-width: 210mm; /* Keep header strictly to A4 size */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-print {
+    background-color: #4338CA;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* ------------------------------------------------------------------------- /
+/ 5. ALLSET DESIGN REPLICATION /
+/ ------------------------------------------------------------------------- */
+/* Base Desktop/Print Style */
+.printable-payslip {
+    background-color: white;
+    width: 210mm !important; /* Forces strict A4 width to prevent cutting */
+    min-height: 297mm; 
+    padding: 15mm;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+    color: #333;
+    margin: 0 auto; 
+    position: relative;
+    line-height: 1.5;
+    max-width: none !important;
+}
+
+/* Header */
+.print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* New Left Section for Company Info */
+.company-info-left {
+    max-width: 60%;
+    text-align: left;
+}
+
+.company-info-left h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a1a;
+    text-transform: uppercase;
+}
+
+.company-info-left p {
+    font-size: 11px;
+    margin: 6px 0 0 0;
+    color: #555;
+    line-height: 1.4;
+}
+
+/* New Right Section for Logo + Month */
+.header-right-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.header-right-section img {
+    height: 50px;
+    width: auto;
+}
+
+.month-info-box {
+    text-align: right;
+}
+
+.month-info-box .label {
+    font-size: 10px;
+    color: #666;
+    display: block;
+    text-transform: uppercase;
+}
+
+.month-info-box .value {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000;
+    display: block;
+}
+
+/* Summary Section */
+.summary-container {
+    display: flex;
+    margin-bottom: 30px;
+}
+
+.employee-details-full {
+    width: 100%;
+}
+
+.section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns for details now that box is gone */
+    gap: 10px 40px; 
+}
+
+.detail-row {
+    display: flex;
+    font-size: 12px;
+    align-items: baseline;
+}
+
+.detail-row .lbl {
+    min-width: 110px;
+    color: #666;
+    font-weight: 500;
+}
+
+.detail-row .sep {
+    margin-right: 15px;
+    color: #666;
+}
+
+.detail-row .val {
+    color: #000;
+    font-weight: 600;
+}
+
+
+/* Table Design - The "Box" managing both */
+.salary-table-wrapper {
+    border: 1px solid #d1d5db; /* Grey border */
+    border-radius: 8px; /* Rounded corners */
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+.salary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+/* Bold and Black Headers */
+.salary-table th {
+    text-align: left;
+    padding: 12px 15px;
+    font-weight: 800; /* Extra Bold */
+    color: #000;      /* Pure Black */
+    text-transform: uppercase;
+    font-size: 11px;
+    border-bottom: 1px dotted #9ca3af;
+    background-color: #fff;
+}
+
+/* Specific Widths for better spacing */
+.salary-table th:nth-child(1) { width: 35%; }
+.salary-table th:nth-child(2) { width: 15%; text-align: right; }
+.salary-table th:nth-child(3) { width: 35%; padding-left: 30px; }
+.salary-table th:nth-child(4) { width: 15%; text-align: right; }
+
+.salary-table td {
+    padding: 10px 15px;
+    color: #000;
+    vertical-align: top;
+    border-bottom: 1px dotted #e5e7eb;
+}
+
+.salary-table td:nth-child(2),
+.salary-table td:nth-child(4) {
+    text-align: right;
+    font-weight: 600;
+}
+
+.salary-table td:nth-child(3) {
+    padding-left: 30px; /* Separation gap */
+}
+
+/* Gross Row - Grey BG */
+.gross-row td {
+    background-color: #f3f4f6; /* Light grey */
+    font-weight: 700 !important;
+    border-bottom: none;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+/* Bottom Net Pay Bar - Split Box */
+.net-pay-bar {
+    display: flex;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 30px;
+    height: 50px;
+}
+
+.net-pay-bar .left {
+    flex: 1;
+    background-color: white;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.net-pay-bar .left h4 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 800;
+    color: #000;
+    text-transform: uppercase;
+}
+
+.net-pay-bar .left span {
+    font-size: 10px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.net-pay-bar .right {
+    background-color: #ecfdf5; /* Light green */
+    padding: 0 25px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 150px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #000;
+}
+
+/* Footer */
+.amount-words-row {
+    text-align: right;
+    font-size: 12px;
+    margin-bottom: 40px;
+    color: #000;
+    font-weight: 500;
+}
+
+.footer-line {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 10px;
+    text-align: center;
+    font-size: 10px;
+    color: #9ca3af;
+}
+
+/* ------------------------------------------------------------------------- /
+/ 6. RESPONSIVE / MOBILE STYLES /
+/ ------------------------------------------------------------------------- */
+
+/* Tablet & Mobile Breakpoint (max-width: 768px) */
+@media screen and (max-width: 768px) {
+    /* Adjust Main Container */
+    .payslip-container {
+        margin-left: 0;
+        margin-top: 60px; /* Space for mobile nav */
+        width: 100%;
+        height: auto;
+        border: none;
+        border-radius: 0;
+        padding: 16px;
+    }
+
+    .payslip-grid {
+        grid-template-columns: 1fr; /* Single column cards */
+    }
+
+    .payslip-modal-content {
+        padding: 10px;
+        align-items: flex-start; /* Fix for horizontal scrolling on mobile */
+    }
+
+    .modal-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        min-width: 210mm; /* Match payslip width */
+    }
+
+    .header-actions {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .btn-print {
+        flex-grow: 1;
+        justify-content: center;
+    }
+
+    /* FIX: Hata diya gaya 'width: 100%' taki mobile par shrink hokar ajeeb na dikhe */
+    .printable-payslip {
+        width: 210mm !important; /* Forces A4 width even on mobile to capture correctly */
+        min-height: 297mm;
+        margin: 0; 
+    }
+}
+
+
+/* ------------------------------------------------------------------------- /
+/ 7. PRINT MEDIA SETTINGS (Always A4) /
+/ ------------------------------------------------------------------------- */
+@media print {
+    @page { size: A4; margin: 0; }
+    html, body { height: 100%; margin: 0; padding: 0; background: white; }
+    body * { visibility: hidden; }
+
+    .payslip-container, .payslip-header, .filter-section, .sidebar { display: none !important; }
+
+    #printable-payslip, #printable-payslip * { visibility: visible; }
+
+    #printable-payslip {
+        position: fixed !important;
+        left: 0 !important; top: 0 !important;
+        width: 210mm !important; /* Force A4 width on paper */
+        min-height: 297mm !important;
+        padding: 15mm !important;
+        background-color: white !important;
+        z-index: 999999 !important;
+        margin: 0 !important;
+        transform: none !important; /* No scaling on print */
+    }
+    
+    .payslip-modal-overlay { position: static; display: block; background: transparent; }
+    .btn-print, .btn-close, .modal-header { display: none !important; }
+}

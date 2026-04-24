@@ -1,0 +1,458 @@
+<div class="onboarding-wrapper">
+      
+  <!-- Left Side: Form Wizard -->
+  <div class="form-container">
+    
+    <!-- Top Navigation Row with SVG Back Arrow -->
+    <div class="top-nav-row">
+      <button class="back-link" (click)="goBackToAdmin()" title="Go Back">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+      </button>
+    </div>
+    
+    <div class="brand-header">
+      <div class="logo-area">
+         <img src="assets/logo-stream.png" alt="LogoStream" class="header-logo">
+      </div>
+      <span class="step-indicator">Step {{ currentStep }} of {{ totalSteps }}</span>
+    </div>
+
+    <!-- Global Loader Line -->
+    <div class="loader-line" *ngIf="isProcessing"></div>
+
+    <div class="wizard-content" [class.fade-animation]="animating">
+      
+      <!-- STEP 1: Company Identity -->
+      <div *ngIf="currentStep === 1" class="step-panel">
+        <h2>Company Setup</h2>
+        <p class="subtitle">Let's start by setting up your organization's digital identity.</p>
+
+        <!-- Logo Upload -->
+        <div class="form-group upload-group">
+          <label>Company Logo <span class="required">*</span></label>
+          <div class="logo-uploader" 
+               (click)="logoInput.click()" 
+               [class.has-file]="logoFile"
+               [class.error-border]="errors.logo || backendErrors.logo">
+            <i class="fas" [ngClass]="logoFile ? 'fa-check-circle' : 'fa-cloud-upload-alt'"></i>
+            <span>{{ logoFile ? 'Logo Uploaded: ' + companyData.companyLogo : 'Click to upload logo (PNG/JPG, Max 5MB)' }}</span>
+            <input #logoInput type="file" hidden (change)="onLogoUpload($event)" accept="image/*">
+          </div>
+          <span class="error-text" *ngIf="errors.logo">
+            {{ errors.logo === true ? 'Please upload a company logo to continue' : errors.logo }}
+          </span>
+          <span class="error-text" *ngIf="!errors.logo && backendErrors.logo">{{ backendErrors.logo }}</span>
+        </div>
+
+        <!-- Company Name -->
+        <div class="form-group">
+          <label>Company Name <span class="required">*</span></label>
+          <input type="text" name="companyName" [(ngModel)]="companyData.companyName" 
+                 required #cName="ngModel" placeholder="e.g. Acme Innovations Pvt Ltd" 
+                 [class.error]="(cName.invalid && cName.touched) || errors.name || backendErrors.name"
+                 (input)="errors.name = false; clearBackendError('name')">
+          <span class="error-text" *ngIf="cName.invalid && cName.touched">Company name is required</span>
+          <span class="error-text" *ngIf="errors.name && !cName.touched">Company name is required</span>
+          <span class="error-text" *ngIf="!errors.name && backendErrors.name">{{ backendErrors.name }}</span>
+        </div>
+
+        <div class="row">
+          <!-- ── INDUSTRY FIELD ── -->
+          <div class="form-group half">
+            <label>Industry <span class="required">*</span></label>
+
+            <!-- Dropdown mode -->
+            <div class="industry-select-wrap" *ngIf="!showCustomIndustry">
+              <select name="industry" [(ngModel)]="companyData.industry" required #cInd="ngModel"
+                      [class.error]="(cInd.invalid && cInd.touched) || errors.industry || backendErrors.industry"
+                      (change)="onIndustryChange($event); errors.industry = false; clearBackendError('industry')">
+                <option value="" disabled selected>Select Industry</option>
+                <option *ngFor="let ind of industryOptions" [value]="ind.value">{{ ind.label }}</option>
+                <option value="__custom__">+ Add Custom Industry</option>
+              </select>
+              <span class="error-text" *ngIf="cInd.invalid && cInd.touched">Please select an industry</span>
+              <span class="error-text" *ngIf="errors.industry && !cInd.touched">{{ errors.industry }}</span>
+              <span class="error-text" *ngIf="!errors.industry && backendErrors.industry">{{ backendErrors.industry }}</span>
+            </div>
+
+            <!-- Custom input mode -->
+            <div class="industry-custom-wrap" *ngIf="showCustomIndustry">
+              <div class="custom-industry-input-row">
+                <input type="text" name="customIndustry" [(ngModel)]="customIndustryName"
+                       placeholder="e.g. AgriTech, LegalTech..."
+                       [class.error]="errors.industry || backendErrors.industry"
+                       (input)="errors.industry = false; clearBackendError('industry')"
+                       (keyup.enter)="confirmCustomIndustry()">
+                <button type="button" class="btn-confirm-industry" 
+                        (click)="confirmCustomIndustry()" 
+                        [disabled]="!customIndustryName.trim()"
+                        title="Confirm">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button type="button" class="btn-cancel-industry" 
+                        (click)="cancelCustomIndustry()" 
+                        title="Cancel">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <small class="industry-hint">Type your industry name and press ✓ or Enter to confirm.</small>
+              <span class="error-text" *ngIf="errors.industry">{{ errors.industry }}</span>
+              <span class="error-text" *ngIf="!errors.industry && backendErrors.industry">{{ backendErrors.industry }}</span>
+            </div>
+
+            <!-- Confirmed custom industry badge -->
+            <div class="custom-industry-badge" 
+                 *ngIf="!showCustomIndustry && companyData.industry && !isPresetIndustry(companyData.industry)">
+              <span>
+                <i class="fas fa-tag"></i> {{ companyData.industry }}
+              </span>
+              <button type="button" (click)="editCustomIndustry()" title="Change industry">
+                <i class="fas fa-pencil-alt"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Company Size -->
+          <div class="form-group half">
+            <label>Company Size</label>
+            <select name="companySize" [(ngModel)]="companyData.companySize"
+                    [class.error]="backendErrors.companySize"
+                    (change)="clearBackendError('companySize')">
+              <option value="1-10">Startup (1-10)</option>
+              <option value="11-50">Small Business (11-50)</option>
+              <option value="51-200">Growth Phase (51-200)</option>
+              <option value="500+">Enterprise (500+)</option>
+            </select>
+            <span class="error-text" *ngIf="backendErrors.companySize">{{ backendErrors.companySize }}</span>
+          </div>
+        </div>
+
+        <!-- Website -->
+        <div class="form-group">
+          <label>Website / Domain <span class="required">*</span></label>
+          <input type="url" name="website" [(ngModel)]="companyData.website" 
+                 required pattern="^(https?:\/\/).+" #cWeb="ngModel" placeholder="https://www.yourcompany.com" 
+                 [class.error]="(cWeb.invalid && cWeb.touched) || errors.website || backendErrors.website"
+                 (input)="errors.website = null; clearBackendError('website')">
+          <span class="error-text" *ngIf="cWeb.errors?.['required'] && cWeb.touched">Website is required</span>
+          <span class="error-text" *ngIf="cWeb.errors?.['pattern'] && cWeb.touched">Website must start with http:// or https://</span>
+          <span class="error-text" *ngIf="errors.website && !(cWeb.invalid && cWeb.touched)">{{ errors.website }}</span>
+          <span class="error-text" *ngIf="!errors.website && backendErrors.website">{{ backendErrors.website }}</span>
+        </div>
+      </div>
+
+      <!-- STEP 2: Headquarters -->
+      <div *ngIf="currentStep === 2" class="step-panel">
+        <h2>Headquarters</h2>
+        <p class="subtitle">Set your primary location for compliance and holidays.</p>
+
+        <!-- Street Address -->
+        <div class="form-group">
+          <label>Street Address <span class="required">*</span></label>
+          <textarea name="corporateAddress" [(ngModel)]="headquartersData.corporateAddress" 
+                    rows="2" required #cAddr="ngModel" placeholder="Floor, Building, Street..." 
+                    [class.error]="(cAddr.invalid && cAddr.touched) || errors.address || backendErrors.address"
+                    (input)="errors.address = false; clearBackendError('address')"></textarea>
+          <span class="error-text" *ngIf="cAddr.invalid && cAddr.touched">Street address is required</span>
+          <span class="error-text" *ngIf="errors.address && !cAddr.touched">Street address is required</span>
+          <span class="error-text" *ngIf="!errors.address && backendErrors.address">{{ backendErrors.address }}</span>
+        </div>
+
+        <div class="row">
+          <!-- City -->
+          <div class="form-group half">
+            <label>City <span class="required">*</span></label>
+            <input type="text" name="city" [(ngModel)]="headquartersData.city" 
+                   required #cCity="ngModel" placeholder="e.g. Bangalore" 
+                   [class.error]="(cCity.invalid && cCity.touched) || errors.city || backendErrors.city"
+                   (input)="errors.city = false; clearBackendError('city')">
+            <span class="error-text" *ngIf="cCity.invalid && cCity.touched">City is required</span>
+            <span class="error-text" *ngIf="errors.city && !cCity.touched">City is required</span>
+            <span class="error-text" *ngIf="!errors.city && backendErrors.city">{{ backendErrors.city }}</span>
+          </div>
+
+          <!-- State -->
+          <div class="form-group half">
+            <label>State / Province <span class="required">*</span></label>
+            <input type="text" name="state" [(ngModel)]="headquartersData.state" 
+                   required #cState="ngModel" placeholder="e.g. Karnataka" 
+                   [class.error]="(cState.invalid && cState.touched) || errors.state || backendErrors.state"
+                   (input)="errors.state = false; clearBackendError('state')">
+            <span class="error-text" *ngIf="cState.invalid && cState.touched">State is required</span>
+            <span class="error-text" *ngIf="errors.state && !cState.touched">State is required</span>
+            <span class="error-text" *ngIf="!errors.state && backendErrors.state">{{ backendErrors.state }}</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Zip Code -->
+          <div class="form-group half">
+            <label>Zip / Postal Code <span class="required">*</span></label>
+            <input type="text" name="zipCode" [(ngModel)]="headquartersData.zipCode" 
+                   required pattern="[a-zA-Z0-9 -]+" #cZip="ngModel" placeholder="e.g. 560001" 
+                   [class.error]="(cZip.invalid && cZip.touched) || errors.zipCode || backendErrors.zipCode"
+                   (input)="errors.zipCode = false; clearBackendError('zipCode')">
+            <span class="error-text" *ngIf="cZip.invalid && cZip.touched">Valid Zip Code is required</span>
+            <span class="error-text" *ngIf="errors.zipCode && !cZip.touched">Zip Code is required</span>
+            <span class="error-text" *ngIf="!errors.zipCode && backendErrors.zipCode">{{ backendErrors.zipCode }}</span>
+          </div>
+
+          <!-- Country -->
+          <div class="form-group half">
+            <label>Country</label>
+            <input type="text" name="country" [(ngModel)]="headquartersData.country"
+                   [class.error]="backendErrors.country"
+                   (input)="clearBackendError('country')"
+                   readonly>
+            <span class="error-text" *ngIf="backendErrors.country">{{ backendErrors.country }}</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Currency -->
+          <div class="form-group half">
+            <label>Currency</label>
+            <select name="currency" [(ngModel)]="headquartersData.currency"
+                    [class.error]="backendErrors.currency"
+                    (change)="clearBackendError('currency')">
+              <option value="INR">INR (₹)</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+            </select>
+            <span class="error-text" *ngIf="backendErrors.currency">{{ backendErrors.currency }}</span>
+          </div>
+
+          <!-- Timezone -->
+          <div class="form-group half">
+            <label>Timezone</label>
+            <select name="timezone" [(ngModel)]="headquartersData.timezone"
+                    [class.error]="backendErrors.timezone"
+                    (change)="clearBackendError('timezone')">
+              <option>(GMT+05:30) IST</option>
+              <option>(GMT+00:00) UTC</option>
+              <option>(GMT-05:00) EST</option>
+              <option>(GMT-08:00) PST</option>
+            </select>
+            <span class="error-text" *ngIf="backendErrors.timezone">{{ backendErrors.timezone }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Departments -->
+      <div *ngIf="currentStep === 3" class="step-panel">
+        <h2>Departments</h2>
+        <p class="subtitle">Define departments to streamline workflows and permissions.</p>
+
+        <div class="add-dept-box">
+          <input type="text" name="newDeptName" [(ngModel)]="newDeptName" 
+                 (keyup.enter)="addDepartment()" placeholder="e.g. Engineering, Product, HR" 
+                 [class.error]="errors.dept || backendErrors.dept"
+                 (input)="clearBackendError('dept')">
+          <button (click)="addDepartment()" [disabled]="!newDeptName"><i class="fas fa-plus"></i> Add</button>
+        </div>
+        
+        <div class="error-text" *ngIf="errors.dept" style="margin-bottom: 15px; display: block;">
+          {{ errors.dept }}
+        </div>
+        <div class="error-text" *ngIf="!errors.dept && backendErrors.dept" style="margin-bottom: 15px; display: block;">
+          {{ backendErrors.dept }}
+        </div>
+
+        <div class="dept-list">
+          <div class="dept-tag" *ngFor="let dept of departmentData; let i = index">
+            <span>{{ dept.name }}</span>
+            <i class="fas fa-times" (click)="removeDepartment(i)" title="Remove"></i>
+          </div>
+          <div class="empty-state" *ngIf="departmentData.length === 0">
+            <i class="fas fa-network-wired"></i>
+            <p>No departments added yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: HR Admin Details -->
+      <div *ngIf="currentStep === 4" class="step-panel">
+        <h2>Primary HR Contact</h2>
+        <p class="subtitle">Enter the details of the HR Admin who will manage this organization.</p>
+
+        <!-- Full Name -->
+        <div class="form-group">
+          <label>Full Name <span class="required">*</span></label>
+          <input type="text" name="hrName" [(ngModel)]="hrData.fullName" 
+                 required #hrName="ngModel" placeholder="e.g. John Doe"
+                 [class.error]="(hrName.invalid && hrName.touched) || errors.hrName || backendErrors.hrName"
+                 (input)="errors.hrName = false; clearBackendError('hrName')">
+          <span class="error-text" *ngIf="hrName.invalid && hrName.touched">Full name is required</span>
+          <span class="error-text" *ngIf="errors.hrName && !hrName.touched">Full name is required</span>
+          <span class="error-text" *ngIf="!errors.hrName && backendErrors.hrName">{{ backendErrors.hrName }}</span>
+        </div>
+
+        <!-- Work Email -->
+        <div class="form-group">
+          <label>Work Email <span class="required">*</span></label>
+          <input type="email" name="hrEmail" [(ngModel)]="hrData.email" 
+                 required email #hrEmail="ngModel" placeholder="hr.admin@company.com"
+                 [class.error]="(hrEmail.invalid && hrEmail.touched) || errors.hrEmail || backendErrors.hrEmail"
+                 (input)="errors.hrEmail = false; clearBackendError('hrEmail')">
+          <span class="error-text" *ngIf="hrEmail.errors?.['required'] && hrEmail.touched">Email is required</span>
+          <span class="error-text" *ngIf="hrEmail.errors?.['email'] && hrEmail.touched">Please enter a valid email format</span>
+          <span class="error-text" *ngIf="errors.hrEmail && !hrEmail.touched">Valid email is required</span>
+          <span class="error-text" *ngIf="!errors.hrEmail && backendErrors.hrEmail">{{ backendErrors.hrEmail }}</span>
+          <small style="color: #94A3B8; font-size: 11px; margin-top: 5px; display: block;">This email will be the primary login ID for this company.</small>
+        </div>
+
+        <div class="row">
+          <!-- Contact Number -->
+          <div class="form-group half">
+            <label>Contact Number <span class="required">*</span></label>
+            <input type="tel" name="hrPhone" [(ngModel)]="hrData.phone" 
+                   required pattern="^[0-9+\- ]{10,15}$" #hrPhone="ngModel" placeholder="+91 XXXXX XXXXX"
+                   [class.error]="(hrPhone.invalid && hrPhone.touched) || errors.hrPhone || backendErrors.hrPhone"
+                   (input)="errors.hrPhone = false; clearBackendError('hrPhone')">
+            <span class="error-text" *ngIf="hrPhone.errors?.['required'] && hrPhone.touched">Contact number is required</span>
+            <span class="error-text" *ngIf="hrPhone.errors?.['pattern'] && hrPhone.touched">Enter a valid phone number (10-15 digits)</span>
+            <span class="error-text" *ngIf="errors.hrPhone && !hrPhone.touched">Valid contact number is required</span>
+            <span class="error-text" *ngIf="!errors.hrPhone && backendErrors.hrPhone">{{ backendErrors.hrPhone }}</span>
+          </div>
+
+          <!-- Designation -->
+          <div class="form-group half">
+            <label>Designation <span class="required">*</span></label>
+            <input type="text" name="hrDesignation" [(ngModel)]="hrData.designation" 
+                   required #hrDesig="ngModel" placeholder="e.g. HR Manager"
+                   [class.error]="(hrDesig.invalid && hrDesig.touched) || errors.hrDesignation || backendErrors.hrDesignation"
+                   (input)="errors.hrDesignation = false; clearBackendError('hrDesignation')">
+            <span class="error-text" *ngIf="hrDesig.invalid && hrDesig.touched">Designation is required</span>
+            <span class="error-text" *ngIf="errors.hrDesignation && !hrDesig.touched">Designation is required</span>
+            <span class="error-text" *ngIf="!errors.hrDesignation && backendErrors.hrDesignation">{{ backendErrors.hrDesignation }}</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Joining Date -->
+          <div class="form-group half">
+            <label>Joining Date <span class="required">*</span></label>
+            <input type="date" name="hrJoiningDate" [(ngModel)]="hrData.joiningDate" 
+                   required #hrDate="ngModel"
+                   [class.error]="(hrDate.invalid && hrDate.touched) || errors.hrJoiningDate || backendErrors.hrJoiningDate"
+                   (change)="errors.hrJoiningDate = false; clearBackendError('hrJoiningDate')">
+            <span class="error-text" *ngIf="hrDate.invalid && hrDate.touched">Joining Date is required</span>
+            <span class="error-text" *ngIf="errors.hrJoiningDate && !hrDate.touched">Joining Date is required</span>
+            <span class="error-text" *ngIf="!errors.hrJoiningDate && backendErrors.hrJoiningDate">{{ backendErrors.hrJoiningDate }}</span>
+          </div>
+
+          <!-- Address -->
+          <div class="form-group half">
+            <label>Address <span class="required">*</span></label>
+            <input type="text" name="hrAddress" [(ngModel)]="hrData.address" 
+                   required #hrAddr="ngModel" placeholder="e.g. 123 Main St, City"
+                   [class.error]="(hrAddr.invalid && hrAddr.touched) || errors.hrAddress || backendErrors.hrAddress"
+                   (input)="errors.hrAddress = false; clearBackendError('hrAddress')">
+            <span class="error-text" *ngIf="hrAddr.invalid && hrAddr.touched">Address is required</span>
+            <span class="error-text" *ngIf="errors.hrAddress && !hrAddr.touched">Address is required</span>
+            <span class="error-text" *ngIf="!errors.hrAddress && backendErrors.hrAddress">{{ backendErrors.hrAddress }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5: Success -->
+      <div *ngIf="currentStep === 5" class="step-panel success-panel">
+        <h2>{{ isProcessing ? 'Finalizing Setup...' : 'Ready for Takeoff!' }}</h2>
+        <p class="subtitle">{{ isProcessing ? 'Please wait while we create your workspace.' : 'Your enterprise workspace has been configured successfully.' }}</p>
+
+        <div class="summary-card" *ngIf="!isProcessing">
+          <div class="summary-logo-container" *ngIf="logoPreviewUrl">
+             <img [src]="logoPreviewUrl" alt="Company Logo" class="success-logo-preview">
+          </div>
+
+          <div class="summary-row">
+            <span>Organization</span>
+            <strong>{{ companyData.companyName || 'Not Set' }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Primary HR</span>
+            <strong>{{ hrData.fullName }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Org Code</span>
+            <strong style="color: #4338CA">{{ currentOrgCode }}</strong>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="wizard-footer">
+      <button class="btn-text" (click)="prevStep()" *ngIf="currentStep > 1 && currentStep < 5" [disabled]="isProcessing">
+        Back
+      </button>
+      <div class="spacer"></div>
+      
+      <button class="btn-primary" (click)="processStep1()" *ngIf="currentStep === 1" [disabled]="isProcessing">
+        <span>Continue <i class="fas fa-arrow-right"></i></span>
+      </button>
+
+      <button class="btn-primary" (click)="processStep2()" *ngIf="currentStep === 2" [disabled]="isProcessing">
+        <span>Continue <i class="fas fa-arrow-right"></i></span>
+      </button>
+      
+      <button class="btn-primary" (click)="processStep3()" *ngIf="currentStep === 3" [disabled]="isProcessing">
+         <span>Continue <i class="fas fa-arrow-right"></i></span>
+      </button>
+
+      <button class="btn-primary" (click)="processStep4()" *ngIf="currentStep === 4" [disabled]="isProcessing">
+         <span *ngIf="!isProcessing">Finish Setup <i class="fas fa-check-double"></i></span>
+         <span *ngIf="isProcessing"><i class="fas fa-circle-notch fa-spin"></i> Processing...</span>
+      </button>
+
+      <button class="btn-success-anim" (click)="goToDashboard()" *ngIf="currentStep === 5 && !isProcessing">
+        Return to Admin Panel
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Right Side: Visual & Tips -->
+  <div class="visual-container">
+    <div class="visual-content">
+      <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+           alt="Office Desk" class="hero-image" *ngIf="currentStep === 1">
+           
+      <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+           alt="Corporate Building" class="hero-image" *ngIf="currentStep === 2">
+
+      <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+           alt="Team Collaboration" class="hero-image" *ngIf="currentStep === 3">
+
+      <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+           alt="HR Administration" class="hero-image" *ngIf="currentStep === 4">
+
+      <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+           alt="Success" class="hero-image" *ngIf="currentStep === 5">
+
+      <div class="tips-box">
+        <h3>
+          <i class="fas fa-lightbulb"></i> 
+          {{ currentStep === 1 ? 'Branding Insight' : (currentStep === 2 ? 'Compliance Tip' : (currentStep === 3 ? 'Structure Tip' : (currentStep === 4 ? 'Admin Setup' : 'Welcome'))) }}
+        </h3>
+        <p *ngIf="currentStep === 1">A professional logo builds trust. It is mandatory to upload your official company logo.</p>
+        <p *ngIf="currentStep === 2">Correct address, state, and zip code ensure accurate tax and compliance records.</p>
+        <p *ngIf="currentStep === 3">Define departments to set up automated approval workflows. Duplicates are not allowed.</p>
+        <p *ngIf="currentStep === 4">The primary HR admin will have full access to manage employees.</p>
+        <p *ngIf="currentStep === 5">Setup complete. You can now access the management dashboard.</p>
+      </div>
+      
+      <div class="stepper-dots">
+        <span [class.active]="currentStep >= 1"></span>
+        <span [class.active]="currentStep >= 2"></span>
+        <span [class.active]="currentStep >= 3"></span>
+        <span [class.active]="currentStep >= 4"></span>
+        <span [class.active]="currentStep >= 5"></span>
+      </div>
+    </div>
+  </div>
+
+</div>

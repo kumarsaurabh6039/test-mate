@@ -1,0 +1,182 @@
+<div class="doctype-root">
+
+  <!-- ── Page Header ── -->
+  <div class="dt-header">
+    <div class="dt-header-left">
+      <h2 class="dt-title">
+        <i class="fas fa-file-alt dt-title-icon"></i>
+        Document Types
+      </h2>
+      <p class="dt-subtitle">Configure which documents employees must upload during onboarding</p>
+    </div>
+    <button class="btn-add-dt" (click)="openAdd()">
+      <i class="fas fa-plus"></i> Add Document Type
+    </button>
+  </div>
+
+  <!-- ── Loading ── -->
+  <div class="dt-state-card" *ngIf="isLoading">
+    <i class="fas fa-spinner fa-spin dt-state-icon"></i>
+    <span>Loading document types…</span>
+  </div>
+
+  <!-- ── Error ── -->
+  <div class="dt-state-card dt-state-error" *ngIf="loadError && !isLoading">
+    <i class="fas fa-exclamation-triangle dt-state-icon"></i>
+    <span>Failed to load document types.</span>
+    <button class="btn-retry" (click)="loadDocumentTypes()">
+      <i class="fas fa-redo"></i> Retry
+    </button>
+  </div>
+
+  <!-- ── Empty ── -->
+  <div class="dt-state-card dt-state-empty" *ngIf="!isLoading && !loadError && documentTypes.length === 0">
+    <i class="fas fa-folder-open dt-state-icon"></i>
+    <span>No document types configured yet.</span>
+    <button class="btn-add-dt small" (click)="openAdd()">
+      <i class="fas fa-plus"></i> Add First Type
+    </button>
+  </div>
+
+  <!-- ── Grouped Cards ── -->
+  <div class="dt-groups" *ngIf="!isLoading && !loadError && documentTypes.length > 0">
+
+    <div class="dt-group" *ngFor="let group of groupedByCategory()">
+
+      <div class="dt-group-header">
+        <span class="dt-group-dot" [style.background]="getCategoryColor(group.category)"></span>
+        <span class="dt-group-name">{{ group.category }}</span>
+        <span class="dt-group-count">{{ group.items.length }}</span>
+      </div>
+
+      <div class="dt-grid">
+        <div class="dt-card" *ngFor="let dt of group.items; trackBy: trackById">
+
+          <div class="dt-card-body">
+            <div class="dt-card-badge" [style.background]="getCategoryColor(dt.category) + '18'"
+                 [style.color]="getCategoryColor(dt.category)">
+              {{ dt.category }}
+            </div>
+            <div class="dt-card-type">{{ dt.type }}</div>
+            <div class="dt-card-id">ID: {{ dt.id }}</div>
+          </div>
+
+          <div class="dt-card-actions">
+            <button class="dt-btn dt-btn-edit" (click)="openEdit(dt)" title="Edit">
+              <i class="fas fa-pencil-alt"></i>
+            </button>
+            <button class="dt-btn dt-btn-del" (click)="confirmDelete(dt.id!)" title="Remove">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════ Add / Edit Modal ═══════════════════ -->
+<div class="dt-modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="dt-modal" (click)="$event.stopPropagation()">
+
+    <div class="dt-modal-head">
+      <span class="dt-modal-title">
+        <i class="fas" [class.fa-plus]="!isEditing" [class.fa-pencil-alt]="isEditing"></i>
+        {{ isEditing ? 'Edit Document Type' : 'Add Document Type' }}
+      </span>
+      <button class="dt-modal-close" (click)="closeModal()" [disabled]="isSaving">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="dt-modal-body">
+
+      <div class="dt-field">
+        <label class="dt-label">Document Type Name <span class="req">*</span></label>
+        <input
+          type="text"
+          class="dt-input"
+          [(ngModel)]="formModel.type"
+          placeholder="e.g. Aadhar Card (Front)"
+          [disabled]="isSaving"
+          (keydown.enter)="save()" />
+      </div>
+
+      <div class="dt-field">
+        <label class="dt-label">Category <span class="req">*</span></label>
+        <div class="dt-input-row">
+          <input
+            type="text"
+            class="dt-input"
+            [(ngModel)]="formModel.category"
+            placeholder="e.g. Identity"
+            list="cat-suggestions"
+            [disabled]="isSaving"
+            (keydown.enter)="save()" />
+          <datalist id="cat-suggestions">
+            <option *ngFor="let c of categorySuggestions" [value]="c">{{ c }}</option>
+          </datalist>
+        </div>
+        <div class="dt-cat-chips">
+          <button
+            type="button"
+            class="dt-chip"
+            *ngFor="let c of categorySuggestions"
+            [class.dt-chip-active]="formModel.category === c"
+            [disabled]="isSaving"
+            (click)="formModel.category = c">
+            {{ c }}
+          </button>
+        </div>
+      </div>
+
+      <div class="dt-save-error" *ngIf="saveError">
+        <i class="fas fa-exclamation-circle"></i> {{ saveError }}
+      </div>
+
+    </div>
+
+    <div class="dt-modal-foot">
+      <button class="dt-btn-cancel" (click)="closeModal()" [disabled]="isSaving">Cancel</button>
+      <button class="dt-btn-save" (click)="save()" [disabled]="isSaving">
+        <i class="fas fa-spinner fa-spin" *ngIf="isSaving"></i>
+        <i class="fas fa-check" *ngIf="!isSaving"></i>
+        {{ isSaving ? 'Saving…' : (isEditing ? 'Update' : 'Add Type') }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════ Delete Confirm ═══════════════════ -->
+<div class="dt-modal-overlay" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="dt-modal dt-modal-sm" (click)="$event.stopPropagation()">
+
+    <div class="dt-modal-head danger-head">
+      <span class="dt-modal-title">
+        <i class="fas fa-exclamation-triangle"></i> Confirm Removal
+      </span>
+    </div>
+
+    <div class="dt-modal-body">
+      <p class="dt-del-msg">
+        This will remove the document type from the list.
+        Employees who already uploaded this document will not be affected.
+      </p>
+    </div>
+
+    <div class="dt-modal-foot">
+      <button class="dt-btn-cancel" (click)="cancelDelete()">Cancel</button>
+      <button class="dt-btn-danger" (click)="deleteDoc()">
+        <i class="fas fa-trash-alt"></i> Remove
+      </button>
+    </div>
+
+  </div>
+</div>

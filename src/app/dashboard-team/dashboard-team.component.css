@@ -1,0 +1,381 @@
+/* ------------------------------------------------------------------------- /
+/ 1. Page Container & Layout (Dashboard ka General Layout) /
+/ ------------------------------------------------------------------------- */
+.team-container {
+  padding: 24px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  margin-left: 180px;
+  margin-top: 27px;
+  /* Fixed width logic for desktop */
+  width: calc(100% - 180px - 350px - 48px);
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  /* height: 100% logic to prevent cutoff */
+  min-height: 600px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 16px;
+}
+
+.team-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1E293B;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ------------------------------------------------------------------------- /
+/ 2. Header Controls (Search and Button) /
+/ ------------------------------------------------------------------------- */
+.team-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.refresh-button {
+  background-color: white;
+  border: 1px solid #CBD5E1;
+  color: #64748B;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refresh-button:hover {
+  color: #4338CA;
+  border-color: #4338CA;
+  background-color: #F8FAFC;
+}
+
+.search-wrapper {
+  position: relative;
+  width: 250px;
+}
+
+.search-wrapper input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #334155;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.search-wrapper input:focus {
+  border-color: #4338CA;
+  box-shadow: 0 0 0 2px rgba(67, 56, 202, 0.2);
+}
+
+.add-member-button {
+  background-color: #F43F5E;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(244, 63, 94, 0.3);
+}
+
+.add-member-button:hover {
+  background-color: #DC264C;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(244, 63, 94, 0.4);
+}
+
+.team-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 15px;
+}
+
+/* ------------------------------------------------------------------------- /
+/ 3. Team Grid and Card Styles /
+/ ------------------------------------------------------------------------- */
+.team-grid {
+  display: grid;
+  /* Fluid grid */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding-bottom: 20px;
+}
+
+.team-card {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s;
+}
+
+.team-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-image-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #4338CA;
+}
+
+/* Status Dot */
+.status-dot {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.status-dot.online {
+  background-color: #22C55E;
+}
+.status-dot.offline {
+  background-color: #94A3B8;
+}
+
+.member-info {
+  flex-grow: 1;
+  /* Prevent overflow for long names */
+  min-width: 0;
+}
+
+.member-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.member-designation {
+  font-size: 14px;
+  color: #64748B;
+  margin: 3px 0 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.online-badge {
+  background-color: #D1FAE5;
+  color: #065F46;
+}
+.offline-badge {
+  background-color: #E2E8F0;
+  color: #4B5563;
+}
+
+/* Contact Section */
+.contact-section {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contact-detail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #334155;
+  /* Ensure text doesn't overflow */
+  min-width: 0;
+}
+
+.contact-detail .icon-blue {
+  color: #4338CA;
+  font-size: 15px;
+  width: 15px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.contact-detail .contact-text {
+  color: #64748B;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ------------------------------------------------------------------------- /
+/ 4. Action Buttons /
+/ ------------------------------------------------------------------------- */
+.team-card-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #E2E8F0;
+}
+
+.action-button {
+  flex-grow: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none; /* For anchor tags */
+}
+
+.primary-action {
+  background-color: #4338CA;
+  color: white;
+  box-shadow: 0 2px 4px rgba(67, 56, 202, 0.3);
+}
+.primary-action:hover {
+  background-color: #3730a3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(67, 56, 202, 0.4);
+}
+
+.secondary-action {
+  background-color: white;
+  color: #4338CA;
+  border: 1px solid #C7D2FE;
+}
+.secondary-action:hover {
+  background-color: #E0E7FF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(67, 56, 202, 0.1);
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 50px;
+  margin-top: 20px;
+  background-color: #F8FAFC;
+  border: 1px dashed #E2E8F0;
+  border-radius: 8px;
+  color: #64748B;
+}
+
+.loading-spinner i {
+  color: #4338CA;
+}
+
+/* ------------------------------------------------------------------------- /
+/ 6. Responsive adjustments (Mobile Friendly) /
+/ ------------------------------------------------------------------------- */
+/* Tablet & Small Laptop (max 1200px) */
+@media (max-width: 1200px) {
+  .team-container {
+    width: 95%; /* Adjust width */
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    height: auto;
+    position: relative;
+    top: auto;
+    left: auto;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Mobile Devices (max 768px) */
+@media (max-width: 768px) {
+  .team-grid {
+    grid-template-columns: 1fr; /* Stack cards */
+  }
+
+  .team-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .team-controls {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .search-wrapper {
+    width: 100%;
+  }
+
+  .add-member-button, .refresh-button {
+    width: 100%;
+  }
+  
+  .team-card-actions {
+    flex-direction: column;
+  }
+  
+  .member-name {
+    font-size: 16px;
+  }
+}

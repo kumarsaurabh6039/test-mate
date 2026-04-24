@@ -1,0 +1,195 @@
+<div class="leaves-container">
+  <div class="leaves-header">
+    <h2><i class="fas fa-leaf" style="color: #4F46E5;"></i> Leave Management</h2>
+    <button class="apply-button" (click)="showLeaveModal = true">
+        <i class="fas fa-plus"></i> Apply Leave
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading && !showLeaveModal" class="loading-message">
+    <i class="fas fa-circle-notch fa-spin fa-2x" style="color: #4F46E5; margin-bottom: 12px;"></i>
+    <p>Loading your leave data...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && errorMessage" class="error-message">
+    <i class="fas fa-exclamation-circle fa-2x" style="margin-bottom: 12px;"></i>
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Main Content Area -->
+  <div *ngIf="!isLoading && !errorMessage" class="leaves-content">
+    
+    <!-- Leave Balances Summary -->
+    <div class="balance-cards-grid">
+      <div class="balance-card" *ngFor="let balance of leaveBalances">
+        <p class="leave-type">{{ balance.leaveType }}</p>
+        <h3 class="balance-total">{{ balance.total }} Days</h3>
+        <div class="balance-stats">
+          <span class="used">Used: {{ balance.consumed }}</span>
+          <span class="remaining">Available: {{ balance.available }}</span>
+        </div>
+      </div>
+      
+      <div *ngIf="leaveBalances.length === 0" class="empty-balance">
+          <p>No leave balances found.</p>
+      </div>
+    </div>
+
+    <!-- Leave History Table -->
+    <div class="history-section">
+        <h3>Request History</h3>
+        <div class="table-responsive">
+            <table class="leaves-table">
+                <thead>
+                    <tr>
+                        <th>Applied On</th>
+                        <th>Type</th>
+                        <th>Duration</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Action</th> <!-- Action Header -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let leave of leaveRequests">
+                        <!-- Date Applied -->
+                        <td>{{ leave.fromDate | date:'dd MMM yyyy' }}</td>
+                        
+                        <!-- Leave Type -->
+                        <td>{{ leave.leaveType }}</td>
+                        
+                        <!-- Duration -->
+                        <td>
+                             <span style="font-weight: 500;">
+                                 {{ calculateDays(leave.fromDate, leave.toDate) }} Days
+                             </span>
+                             <br>
+                             <span style="font-size: 11px; color: #94A3B8;">
+                                 {{ leave.fromDate | date:'dd MMM' }} - {{ leave.toDate | date:'dd MMM' }}
+                             </span>
+                        </td>
+                        
+                        <!-- Reason -->
+                        <td>
+                            <span [title]="leave.reason" style="display:block; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                {{ leave.reason || '-' }}
+                            </span>
+                        </td>
+                        
+                        <!-- Status Column -->
+                        <td>
+                            <span class="status-badge" [ngClass]="getLeaveStatusClass(leave.status)">
+                                <i class="fas" 
+                                   [class.fa-clock]="leave.status === 'PENDING' || leave.status === 'APPLIED'"
+                                   [class.fa-check-circle]="leave.status === 'APPROVED'"
+                                   [class.fa-times-circle]="leave.status === 'REJECTED' || leave.status === 'CANCELLED'"
+                                   style="font-size: 10px; margin-right: 6px;"></i>
+                                {{ leave.status }}
+                            </span>
+                        </td>
+                        
+                        <!-- Action Column (Modified) -->
+                        <td>
+                            <!-- Cancel Button for PENDING or APPLIED -->
+                            <button 
+                                *ngIf="leave.status === 'PENDING' || leave.status === 'APPLIED'" 
+                                class="btn-cancel-req"
+                                title="Cancel this leave request"
+                                (click)="cancelLeaveRequest(leave.leaveRequestId)">
+                                <i class="fas fa-times-circle" style="margin-right: 4px; color: #EF4444;"></i> 
+                                <span style="color: #EF4444; font-weight: 600;">Cancel</span>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="leaveRequests.length === 0">
+                        <td colspan="6" style="text-align: center; padding: 30px; color: #94A3B8;">
+                            No leave history found.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+
+  <!-- MNC STYLE APPLY LEAVE MODAL -->
+  <div *ngIf="showLeaveModal" class="modal-overlay">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h3>Apply For Leave</h3>
+              <button class="close-btn" (click)="showLeaveModal = false">
+                  <i class="fas fa-times"></i>
+              </button>
+          </div>
+
+          <div class="modal-body">
+              <form #leaveFormRef="ngForm" (ngSubmit)="submitLeaveApplication()">
+                  
+                  <div class="form-group">
+                      <label class="form-label">Leave Type</label>
+                      <select 
+                          class="form-select" 
+                          name="leaveType" 
+                          [(ngModel)]="leaveForm.leaveType" 
+                          required>
+                          <option value="CASUAL">Casual Leave</option>
+                          <option value="SICK">Sick Leave</option>
+                          <option value="ANNUAL">Annual Leave</option>
+                      </select>
+                  </div>
+
+                  <div class="date-row">
+                      <div class="form-group">
+                          <label class="form-label">From Date</label>
+                          <input 
+                              type="date" 
+                              class="form-control" 
+                              name="fromDate" 
+                              [(ngModel)]="leaveForm.fromDate" 
+                              [min]="today"
+                              required>
+                      </div>
+                      <div class="form-group">
+                          <label class="form-label">To Date</label>
+                          <input 
+                              type="date" 
+                              class="form-control" 
+                              name="toDate" 
+                              [(ngModel)]="leaveForm.toDate" 
+                              [min]="leaveForm.fromDate || today"
+                              required>
+                      </div>
+                  </div>
+
+                  <div class="form-group">
+                      <label class="form-label">Reason for Leave</label>
+                      <textarea 
+                          class="form-control" 
+                          name="reason" 
+                          [(ngModel)]="leaveForm.reason" 
+                          rows="4" 
+                          placeholder="Please briefly explain why you are requesting leave..."
+                          required 
+                          maxlength="500"></textarea>
+                      <div class="char-count">{{ leaveForm.reason.length }}/500</div>
+                  </div>
+              </form>
+          </div>
+
+          <div class="modal-footer">
+              <button type="button" class="btn-cancel" (click)="showLeaveModal = false">Cancel</button>
+              <button 
+                  type="button" 
+                  class="btn-submit" 
+                  (click)="submitLeaveApplication()" 
+                  [disabled]="!leaveFormRef.form.valid || isSubmitting">
+                  <span *ngIf="!isSubmitting">Submit Application</span>
+                  <span *ngIf="isSubmitting"><i class="fas fa-circle-notch fa-spin"></i> Processing...</span>
+              </button>
+          </div>
+      </div>
+  </div>
+
+</div>

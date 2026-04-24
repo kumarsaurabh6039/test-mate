@@ -1,0 +1,92 @@
+<div class="timesheet-admin-container">
+  
+  <!-- Header / Filters -->
+  <div class="ts-header">
+    <div class="title-section">
+      <!-- Toggle Switch for Admin -->
+      <div class="manager-toggle-container" style="margin-bottom: 0;">
+        <div class="toggle-switch-wrapper">
+            <button class="toggle-btn" [class.active]="viewMode === 'timesheet'" (click)="setViewMode('timesheet')">
+                <i class="fas fa-tasks"></i> Work Logs
+            </button>
+            <button class="toggle-btn" [class.active]="viewMode === 'attendance'" (click)="setViewMode('attendance')">
+                <i class="fas fa-user-check"></i> Attendance
+            </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filters-section">
+      <div class="filter-group">
+        <i class="fas fa-user"></i>
+        <select [(ngModel)]="selectedEmpId" (change)="applyFilters()">
+          <option value="">All Employees</option>
+          <option *ngFor="let emp of employees" [value]="emp.empId">
+            {{ emp.firstName }} {{ emp.surname }} ({{ emp.empId }})
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <i class="fas fa-calendar"></i>
+        <!-- Empty the date input to view all dates -->
+        <input type="date" [(ngModel)]="selectedDate" (change)="applyFilters()">
+      </div>
+
+      <button class="btn-refresh" (click)="refreshData()" title="Refresh Data">
+        <i class="fas fa-sync-alt" [class.fa-spin]="isLoading"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Data Grid -->
+  <div class="ts-grid-container">
+    <!-- View 1: Timesheet Table -->
+    <table class="ts-table" *ngIf="viewMode === 'timesheet'">
+      <thead>
+        <tr>
+            <th style="width: 150px;">Date</th>
+            <th style="width: 250px;">Employee</th>
+            <th>Work Update / Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log of filteredTimesheets">
+          <td data-label="Date"><span>{{ log.workDate | date:'dd MMM yyyy' }}</span></td>
+          <td data-label="Employee">
+            <div class="user-info"><span class="u-name">{{ getEmployeeName(log.employeeId) }}</span><span class="u-id">{{ log.employeeId }}</span></div>
+          </td>
+          <td data-label="Work Update" class="remarks-cell">{{ log.remarks || '-' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- View 2: Attendance Summary Table -->
+    <table class="ts-table" *ngIf="viewMode === 'attendance'">
+      <thead>
+        <tr><th>Date</th><th>Employee</th><th>Punch Time</th><th>Worked</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let att of filteredAttendance">
+          <td data-label="Date">{{ att.date | date:'dd MMM yyyy' }}</td>
+          <td data-label="Employee">
+            <div class="user-info"><span class="u-name">{{ att.employeeName || getEmployeeName(att.empId) }}</span><span class="u-id">{{ att.empId }}</span></div>
+          </td>
+          <td data-label="Punch Time">{{ (att.loginTime | date:'shortTime') || 'Missed Punch' }}</td>
+          <td data-label="Worked" style="font-weight: 600;">{{ att.totalHoursWorked ? (att.totalHoursWorked | number:'1.1-2') + ' hrs' : '-' }}</td>
+          <td data-label="Status">
+            <!-- Displays status (e.g. PRESENT/ABSENT) or falls back to approval status -->
+            <span class="status-badge" [ngClass]="getAttendanceStatusClass(att.status || att.managerApprovalStatus)">
+              {{ att.status || att.managerApprovalStatus || 'UNKNOWN' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!isLoading && ((viewMode === 'timesheet' && filteredTimesheets.length === 0) || (viewMode === 'attendance' && filteredAttendance.length === 0))" class="empty-state">
+      <i class="fas fa-clipboard-list"></i>
+      <p>No records found for current filters.</p>
+    </div>
+  </div>
+</div>

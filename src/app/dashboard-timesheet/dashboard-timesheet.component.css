@@ -1,0 +1,299 @@
+/* ------------------------------------------------------------------------- /
+/ 1. Component Container and Layout /
+/ ------------------------------------------------------------------------- */
+.timesheet-container {
+  position: relative;
+  width: 100%;
+  height: 100%; /* Fill the parent container */
+  background-color: white; 
+  padding: 24px;
+  box-sizing: border-box;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; 
+}
+
+.timesheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #E2E8F0;
+  flex-shrink: 0;
+}
+
+.timesheet-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1E293B;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+    color: #4338CA;
+    font-weight: 500;
+}
+
+/* ------------------------------------------------------------------------- /
+/ 2. Timesheet Grid /
+/ ------------------------------------------------------------------------- */
+.timesheet-grid {
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; 
+}
+
+.timesheet-body {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.row {
+    display: grid;
+    /* Date | Remarks | Status | Actions */
+    /* Removed Hours and Time columns */
+    grid-template-columns: 120px 1fr 100px 80px; 
+    padding: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+    align-items: center;
+    gap: 10px;
+}
+
+.header {
+    background: #F8FAFC;
+    font-weight: 600;
+    color: #475569;
+    border-bottom: 2px solid #E2E8F0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.row:last-child {
+    border-bottom: none;
+}
+
+.date-col { font-weight: 600; color: #4338CA; }
+
+.remarks-col {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #475569;
+}
+
+.status-badge {
+    background: #E0F2FE; /* Default Blue */
+    color: #0369A1;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-block;
+    min-width: 70px;
+    text-align: center;
+}
+
+.status-badge.approved { background: #DCFCE7; color: #166534; }
+.status-badge.rejected { background: #FEE2E2; color: #991B1B; }
+
+.actions-col {
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    transition: transform 0.2s;
+}
+
+.edit-btn { color: #64748B; }
+.edit-btn:hover { color: #4338CA; transform: scale(1.1); }
+
+.delete-btn { color: #CBD5E1; }
+.delete-btn:hover { color: #EF4444; transform: scale(1.1); }
+
+.no-data {
+    padding: 40px;
+    text-align: center;
+    color: #94A3B8;
+    font-style: italic;
+}
+
+/* ------------------------------------------------------------------------- /
+/ 3. Entry Form /
+/ ------------------------------------------------------------------------- */
+.entry-form {
+    margin-top: auto; 
+    padding: 20px;
+    background: #F8FAFC;
+    border-radius: 8px;
+    border: 1px solid #E2E8F0;
+    flex-shrink: 0;
+    transition: background-color 0.3s;
+}
+
+.entry-form.editing-mode {
+    background: #EFF6FF; /* Slight blue tint when editing */
+    border-color: #BFDBFE;
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.entry-form h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #334155;
+    font-weight: 600;
+}
+
+.cancel-edit-btn {
+    background: none;
+    border: none;
+    color: #EF4444;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end; /* Align inputs and button */
+    flex-wrap: wrap;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.input-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748B;
+    text-transform: uppercase;
+}
+
+.input-field {
+    padding: 8px 10px;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    background: white;
+}
+
+.input-field:focus {
+    border-color: #4338CA;
+    box-shadow: 0 0 0 2px rgba(67, 56, 202, 0.1);
+}
+
+.flex-grow { flex-grow: 1; }
+.date-field { width: 130px; }
+
+.submit-btn {
+    background: #4338CA;
+    color: white;
+    padding: 9px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    height: 38px; /* Match input height roughly */
+}
+
+.submit-btn.update-btn {
+    background: #2563EB;
+}
+
+.submit-btn:hover { background: #3730A3; }
+.submit-btn.update-btn:hover { background: #1D4ED8; }
+
+/* ------------------------------------------------------------------------- /
+/ 4. Responsive Design /
+/ ------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+    .timesheet-container {
+        width: 100%; height: auto;
+        min-height: 500px;
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .timesheet-container { padding: 15px; margin-top: 15px; border: none; background: transparent; box-shadow: none; }
+    .row.header { display: none; }
+    
+    .timesheet-grid { border: none; background: transparent; }
+    
+    .row {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        padding: 16px;
+        gap: 10px;
+    }
+    
+    .row > div { width: 100%; display: flex; justify-content: space-between; text-align: left !important; }
+
+    /* Mobile Labels */
+    .date-col::before { content: "Date"; color: #94A3B8; font-weight: normal; }
+    /* Removed Hours and Time labels */
+    .remarks-col::before { content: "Remarks"; color: #94A3B8; }
+    .row > div:nth-child(3)::before { content: "Status"; color: #94A3B8; }
+
+    .actions-col { 
+        border-top: 1px dashed #E2E8F0; 
+        padding-top: 10px; 
+        margin-top: 5px; 
+        justify-content: flex-end; 
+    }
+
+    /* Form Mobile */
+    .entry-form { padding: 15px; }
+    .form-row { flex-direction: column; align-items: stretch; gap: 10px; }
+    .input-group label { display: block; }
+    .input-field { width: 100%; box-sizing: border-box; }
+    .submit-btn { width: 100%; justify-content: center; margin-top: 10px; }
+}

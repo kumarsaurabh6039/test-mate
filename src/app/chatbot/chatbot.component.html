@@ -1,0 +1,209 @@
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- Floating Chat Bubble                                                    -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="chat-bubble" (click)="toggleChat()" [class.hidden]="isChatOpen" title="Chat with Lova">
+  <i class="fas fa-robot"></i>
+  <span class="bubble-ping"></span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- Chat Panel                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="chat-panel" [class.open]="isChatOpen">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="header-left">
+      <div class="bot-avatar">
+        <i class="fas fa-robot"></i>
+        <span class="status-dot"></span>
+      </div>
+      <div class="header-info">
+        <h4>Lova</h4>
+        <span class="online-label">
+          <span class="pulse-dot"></span> Always online
+        </span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" (click)="clearChat()" title="New conversation">
+        <i class="fas fa-edit"></i>
+      </button>
+      <button class="icon-btn" (click)="toggleChat()" title="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages Area -->
+  <div class="chat-body" #messagesContainer>
+
+    <!-- Quick Prompts (shown only at start) -->
+    <div class="quick-prompts" *ngIf="showWelcome">
+      <p class="prompts-label">Suggested questions</p>
+      <div class="prompts-grid">
+        <button class="prompt-chip" *ngFor="let prompt of quickPrompts" (click)="useQuickPrompt(prompt)">
+          {{ prompt }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Message Loop -->
+    <ng-container *ngFor="let msg of messages; trackBy: trackById; let last = last">
+
+      <div class="message-row"
+           [class.user-row]="msg.role === 'user'"
+           [class.bot-row]="msg.role === 'assistant'">
+
+        <!-- Bot avatar -->
+        <div class="msg-avatar" *ngIf="msg.role === 'assistant'">
+          <i class="fas fa-robot"></i>
+        </div>
+
+        <!-- Bubble -->
+        <div class="msg-bubble"
+             [class.user-bubble]="msg.role === 'user'"
+             [class.bot-bubble]="msg.role === 'assistant'">
+
+          <!-- Typing animation -->
+          <div class="typing-dots" *ngIf="msg.isStreaming">
+            <span></span><span></span><span></span>
+          </div>
+
+          <!-- Text content -->
+          <div class="msg-text" *ngIf="!msg.isStreaming"
+               [innerHTML]="formatMessage(msg.content)">
+          </div>
+
+          <!-- ═══════════════════════════════════════════════════════════════ -->
+          <!-- Rich Cards                                                       -->
+          <!-- ═══════════════════════════════════════════════════════════════ -->
+          <ng-container *ngIf="!msg.isStreaming && msg.richCard">
+
+            <!-- TABLE CARD -->
+            <div class="rich-card" *ngIf="msg.richCard.type === 'table' || msg.richCard.type === 'attendance' || msg.richCard.type === 'profile'">
+              <div class="rich-card-header">
+                <i [class]="msg.richCard.icon"></i>
+                <span>{{ msg.richCard.title }}</span>
+              </div>
+              <div class="rich-card-row" *ngFor="let row of msg.richCard.rows">
+                <span class="row-label">{{ row.label }}</span>
+                <div class="row-right">
+                  <span class="row-value">{{ row.value }}</span>
+                  <span *ngIf="row.badge" class="row-badge" [ngClass]="row.badgeClass">{{ row.badge }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- LIST CARD -->
+            <div class="rich-card" *ngIf="msg.richCard.type === 'list' || msg.richCard.type === 'training'">
+              <div class="rich-card-header">
+                <i [class]="msg.richCard.icon"></i>
+                <span>{{ msg.richCard.title }}</span>
+              </div>
+              <div class="list-item" *ngFor="let item of msg.richCard.items">
+                <div class="list-item-icon">
+                  <i [class]="item.icon"></i>
+                </div>
+                <div class="list-item-content">
+                  <div class="list-item-title">{{ item.title }}</div>
+                  <div class="list-item-subtitle">{{ item.subtitle }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TEAM CARD -->
+            <div class="rich-card" *ngIf="msg.richCard.type === 'team'">
+              <div class="rich-card-header">
+                <i [class]="msg.richCard.icon"></i>
+                <span>{{ msg.richCard.title }}</span>
+              </div>
+              <div class="team-member-item" *ngFor="let item of msg.richCard.items">
+                <div class="team-avatar">
+                  <i [class]="item.icon"></i>
+                </div>
+                <div class="list-item-content">
+                  <div class="list-item-title">{{ item.title }}</div>
+                  <div class="list-item-subtitle">{{ item.subtitle }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LINKS CARD -->
+            <div class="rich-card" *ngIf="msg.richCard.type === 'links'">
+              <div class="rich-card-header">
+                <i [class]="msg.richCard.icon"></i>
+                <span>{{ msg.richCard.title }}</span>
+              </div>
+              <div class="link-item" *ngFor="let item of msg.richCard.items">
+                <div class="list-item-icon">
+                  <i [class]="item.icon"></i>
+                </div>
+                <div class="list-item-content">
+                  <div class="list-item-title">{{ item.title }}</div>
+                  <div class="list-item-subtitle">{{ item.subtitle }}</div>
+                </div>
+                <a *ngIf="item.actionUrl" [href]="item.actionUrl" target="_blank" class="link-open-btn">
+                  {{ item.action }} <i class="fas fa-external-link-alt"></i>
+                </a>
+              </div>
+            </div>
+
+          </ng-container>
+          <!-- End Rich Cards -->
+
+          <span class="msg-time">{{ formatTime(msg.timestamp) }}</span>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- Auto Follow-Up Chips (shown after every completed bot response)    -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="follow-up-section"
+           *ngIf="msg.role === 'assistant' && !msg.isStreaming && msg.followUps && msg.followUps.length > 0">
+        <div class="follow-up-label">
+          <i class="fas fa-bolt"></i> What would you like to do next?
+        </div>
+        <div class="follow-up-chips">
+          <button
+            class="follow-up-chip"
+            *ngFor="let chip of msg.followUps"
+            (click)="useFollowUp(chip)">
+            {{ chip }}
+          </button>
+        </div>
+      </div>
+
+    </ng-container>
+    <!-- End Message Loop -->
+
+  </div>
+
+  <!-- Input Area -->
+  <div class="chat-footer">
+    <div class="input-wrapper">
+      <textarea
+        #inputField
+        class="chat-input"
+        placeholder="Ask about leave, assets, policies, or IT tickets..."
+        [(ngModel)]="userInput"
+        [rows]="inputRows"
+        (keydown)="onKeyDown($event)"
+        (input)="onInputChange()"
+        [disabled]="isLoading">
+      </textarea>
+      <button
+        class="send-btn"
+        (click)="sendMessage()"
+        [disabled]="!userInput.trim() || isLoading"
+        [class.active]="userInput.trim().length > 0">
+        <i class="fas"
+           [class.fa-arrow-up]="!isLoading"
+           [class.fa-circle-notch]="isLoading"
+           [class.fa-spin]="isLoading"></i>
+      </button>
+    </div>
+    <p class="footer-hint">Press <kbd>Enter</kbd> to send &nbsp;·&nbsp; <kbd>Shift+Enter</kbd> for new line</p>
+  </div>
+
+</div>

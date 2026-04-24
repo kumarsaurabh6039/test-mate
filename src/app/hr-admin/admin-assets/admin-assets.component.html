@@ -1,0 +1,186 @@
+<div class="admin-container">
+
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Asset Inventory</h1>
+      <p>Track and manage company hardware resources</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-primary-header" (click)="openCreateModal()">
+        <i class="fas fa-plus-circle"></i> Add Asset
+      </button>
+    </div>
+  </header>
+
+  <!-- Toolbar: Search + Filter -->
+  <div class="toolbar-section">
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" placeholder="Search by name, tag, serial or type..." [(ngModel)]="searchText" (keyup)="applyFilters()">
+    </div>
+    <div class="filter-tabs">
+      <button class="tab-btn" [class.active]="statusFilter === 'All'" (click)="setFilter('All')">All</button>
+      <button class="tab-btn" [class.active]="statusFilter === 'AVAILABLE'" (click)="setFilter('AVAILABLE')">Available</button>
+      <button class="tab-btn" [class.active]="statusFilter === 'ASSIGNED'" (click)="setFilter('ASSIGNED')">Assigned</button>
+    </div>
+  </div>
+
+  <!-- Asset Cards Grid -->
+  <div class="cards-grid" *ngIf="!isLoading">
+    <div *ngFor="let asset of filteredAssets" class="asset-card">
+      <div class="card-actions-top">
+        <button class="icon-btn-edit" (click)="openEditModal(asset)">
+          <i class="fas fa-edit"></i>
+        </button>
+      </div>
+      <div class="card-icon">
+        <i [class]="getAssetIcon(asset.type)"></i>
+      </div>
+      <div class="card-details">
+        <h3 class="asset-name">{{ asset.name }}</h3>
+        <span class="asset-tag">{{ asset.assetTag }}</span>
+        <div class="asset-info-grid">
+          <div class="info-item">
+            <span class="info-label">Type</span>
+            <span class="info-value">{{ asset.type }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Serial No</span>
+            <span class="info-value">{{ asset.serialNumber }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Status</span>
+            <span class="status-badge" [ngClass]="asset.status === 'AVAILABLE' ? 'status-avail' : 'status-assigned'">
+              {{ asset.status || 'AVAILABLE' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions-bottom">
+        <button class="btn-assign" *ngIf="asset.status === 'AVAILABLE'" (click)="openAssignModal(asset)">
+          Assign Asset
+        </button>
+        <div class="assigned-info" *ngIf="asset.status === 'ASSIGNED'">
+          <i class="fas fa-user-check"></i> Assigned to {{ asset.employeeId }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && filteredAssets.length === 0">
+    <i class="fas fa-box-open"></i>
+    <p>No assets found</p>
+  </div>
+
+  <!-- Create/Edit Modal -->
+  <div class="modal-overlay" *ngIf="showModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>{{ isEditingAsset ? 'Edit Asset' : 'Add New Asset' }}</h2>
+        <button class="btn-close" (click)="closeModal()">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <form [formGroup]="assetForm">
+          <div class="form-row">
+            <div class="input-group">
+              <label>Asset Name *</label>
+              <input type="text" formControlName="name" placeholder="e.g. MacBook Pro M2">
+              <span class="error-text" *ngIf="assetForm.get('name')?.invalid && assetForm.get('name')?.touched">Name is required</span>
+            </div>
+            <div class="input-group">
+              <label>Serial Number *</label>
+              <input type="text" formControlName="serialNumber" placeholder="e.g. C02XG..." [readonly]="isEditingAsset" [class.readonly-input]="isEditingAsset">
+              <span class="error-text" *ngIf="assetForm.get('serialNumber')?.invalid && assetForm.get('serialNumber')?.touched">Serial Number is required</span>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="input-group">
+              <label>Asset Type *</label>
+              <select formControlName="type">
+                <option value="LAPTOP">Laptop</option>
+                <option value="PHONE">Phone</option>
+                <option value="MONITOR">Monitor</option>
+                <option value="KEYBOARD">Keyboard</option>
+                <option value="MOUSE">Mouse</option>
+                <option value="OTHER">Other</option>
+                <option value="NEW">+ Add New Type</option>
+              </select>
+            </div>
+
+            <!-- Naya Custom Type Field (Sirf tab dikhega jab user naya type add karna chahe) -->
+            <div class="input-group" *ngIf="assetForm.get('type')?.value === 'NEW'">
+              <label>Custom Asset Type *</label>
+              <input type="text" formControlName="customType" placeholder="e.g. Tablet, Server">
+              <span class="error-text" *ngIf="assetForm.get('customType')?.invalid && assetForm.get('customType')?.touched">Custom type is required</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="input-group">
+              <label>Location</label>
+              <input type="text" formControlName="location" placeholder="e.g. HQ Office, Remote">
+            </div>
+          </div>
+
+          <div class="input-group full-width">
+            <label>Description</label>
+            <textarea formControlName="description" rows="3" placeholder="Additional details, specs, etc."></textarea>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel-text" (click)="closeModal()">Cancel</button>
+        <button class="btn-submit" (click)="saveAsset()">{{ isEditingAsset ? 'Update Asset' : 'Save Asset' }}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assign Asset Modal -->
+  <div class="modal-overlay" *ngIf="showAssignModal">
+    <div class="modal-content small-modal">
+      <div class="modal-header custom-header">
+        <div class="header-icon-wrap">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="modal-header-text">
+          <h2>Assign Asset</h2>
+          <p>Choose a staff member to assign this device</p>
+        </div>
+        <button class="btn-close" (click)="showAssignModal=false">&times;</button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <!-- Asset info chip -->
+        <div class="assign-asset-info" *ngIf="selectedAsset">
+          <i [class]="getAssetIcon(selectedAsset.type)"></i>
+          <span>{{ selectedAsset.name }} &nbsp;·&nbsp; {{ selectedAsset.assetTag }}</span>
+        </div>
+
+        <div class="input-group">
+          <label><i class="fas fa-users"></i> Select Staff Member</label>
+          <select [(ngModel)]="assigneeId">
+            <option value="" disabled>— Select Employee —</option>
+            <option *ngFor="let emp of employees" [value]="emp.empId">
+              {{ emp.firstName }} {{ emp.surname }} ({{ emp.empId }})
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-actions">
+        <button class="btn-cancel-text" (click)="showAssignModal=false">Cancel</button>
+        <button class="btn-submit" (click)="confirmAssign()" [disabled]="!assigneeId"
+          style="background: linear-gradient(135deg, #0f766e, #14b8a6); box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);">
+          Confirm Assignment
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

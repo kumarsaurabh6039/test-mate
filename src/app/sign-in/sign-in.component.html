@@ -1,0 +1,69 @@
+<div class="full-bg-container">
+  <div class="form-content">
+    <img src="assets/logo-stream.png" alt="Logo" class="logo" />
+    <h1>The Doorway</h1>
+    <p class="subtitle">Step into your space</p>
+    <p class="subtitle">Where work begins with belonging...</p>
+
+    <!-- Sign-in Form -->
+    <form [formGroup]="signInForm" (ngSubmit)="signIn()">
+      <div class="form-group">
+        <label for="userName">
+          User Name
+          <span class="hint">(You can always rename this)</span>
+        </label>
+        <input
+          id="userName"
+          type="text"
+          formControlName="userName"
+          autocomplete="username"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">
+          Password
+          <span class="hint">(You can always change this)</span>
+        </label>
+        <div class="password-wrapper">
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            class="eye-toggle"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="forgot-flow-row">
+        <div class="left">
+          <a routerLink="/forgot-password">Forgot something?</a>
+          <span>We've got your back.</span>
+        </div>
+        <button type="submit" class="flow-btn" [disabled]="isLoading">
+          {{ isLoading ? 'Loading...' : 'Flow In' }}
+        </button>
+      </div>
+    </form>
+
+    <!-- Bottom text -->
+    <p class="bottom-text">
+        The current will carry you soon. Check your email for onboarding details.
+    </p>
+  </div>
+</div>

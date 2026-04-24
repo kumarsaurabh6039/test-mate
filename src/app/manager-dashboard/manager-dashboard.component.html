@@ -1,0 +1,704 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+<!-- LOADING OVERLAY -->
+<div *ngIf="loadingDashboardData" class="dashboard-loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading Dashboard...</p>
+</div>
+
+<div class="container">
+    <header>
+      <div class="logo-search">
+        <div class="logo">
+          <img src="assets/logo-stream.png" alt="Lovahr Logo" class="logo-img" height="40px">
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <!-- Setup Profile Button -->
+        <button class="btn-setup-profile" (click)="setupProfile()" *ngIf="!isOnboarded && profileSetupAcknowledged">
+            <i class="fas fa-user-plus"></i> Setup Profile
+        </button>
+        
+        <!-- Notification Bell -->
+        <div class="notification-wrapper" (click)="$event.stopPropagation()">
+            <button class="btn-notification" (click)="toggleNotifications($event)">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+            </button>
+
+            <div class="notification-dropdown" *ngIf="showNotifications">
+                <div class="notif-header">
+                    <h3>Notifications</h3>
+                    <span class="mark-read" (click)="markAllAsReadRealtime()">Mark all read</span>
+                </div>
+                <div class="notif-list">
+                    <div class="notif-item" *ngFor="let n of notifications" [class.unread]="!n.read" (click)="markSingleAsRead(n, $event)">
+                        <div class="notif-icon" [ngClass]="n.type">
+                            <i class="fas" [ngClass]="{
+                                'fa-info-circle': n.type === 'info',
+                                'fa-check-circle': n.type === 'success',
+                                'fa-exclamation-triangle': n.type === 'warning'
+                            }"></i>
+                        </div>
+                        <div class="notif-content">
+                            <p class="notif-title">{{ n.title }}</p>
+                            <p class="notif-msg">{{ n.message }}</p>
+                            <span class="notif-time">{{ n.createdAt | date:'short' }}</span>
+                        </div>
+                    </div>
+                    <div *ngIf="notifications.length === 0" class="empty-notif">
+                        <p>No notifications</p>
+                    </div>
+                </div>
+                <div class="notif-footer">
+                    <button>View All</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Avatar with Dropdown -->
+        <div class="user-profile-dropdown-wrapper" (mouseenter)="showProfileMenu = true" (mouseleave)="showProfileMenu = false">
+            <div class="user-avatar-container" (click)="toggleProfileMenu($event)">
+                <ng-container *ngIf="userProfileImageUrl; else defaultAvatar">
+                    <img [src]="userProfileImageUrl" alt="Avatar" class="user-avatar">
+                </ng-container>
+                <ng-template #defaultAvatar>
+                    <div class="avatar-placeholder">{{ getUserInitial() }}</div>
+                </ng-template>
+            </div>
+      
+            <div class="dropdown-menu" *ngIf="showProfileMenu">
+                <div class="dropdown-header">
+                    <strong>{{ userName }}</strong>
+                    <span>{{ employeeInfo?.personalEmailId || 'Manager' }}</span>
+                </div>
+                <ul>
+                    <li (click)="openProfileModal('details')"><i class="fas fa-user"></i> View Profile</li>
+                    <li (click)="openProfileModal('security')"><i class="fas fa-key"></i> Change Password</li>
+                    <li (click)="navigateToTraining()"><i class="fas fa-graduation-cap"></i> Training</li>
+                    <!-- NEW HELP OPTION ADDED HERE -->
+                    <li (click)="navigateToHelp()">
+                        <i class="fas fa-question-circle"></i> Help / POSH
+                    </li>
+                    <li class="logout-item" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Logout</li>
+                </ul>
+            </div>
+        </div>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <a [class.active]="activePage === 'dashboard'" (click)="setActivePage('dashboard')"><i class="fas fa-th-large"></i>Dashboard</a>
+          <a [class.active]="activePage === 'leaves'" (click)="setActivePage('leaves')"><i class="fas fa-leaf"></i>Leaves</a>
+          <a [class.active]="activePage === 'swipedata'" (click)="setActivePage('swipedata')"><i class="fas fa-exchange-alt"></i>Attendance</a>
+          <a [class.active]="activePage === 'timesheet'" (click)="setActivePage('timesheet')"><i class="fas fa-clock"></i>Timesheet</a>
+          <a [class.active]="activePage === 'payslip'" (click)="setActivePage('payslip')"><i class="fas fa-file-invoice-dollar"></i>Payslip</a>
+          <a [class.active]="activePage === 'team'" (click)="setActivePage('team')"><i class="fas fa-users"></i>Team</a>
+          <!-- Added Exit Link -->
+          <a [class.active]="activePage === 'exit'" (click)="setActivePage('exit')"><i class="fas fa-sign-out-alt"></i>Exit</a>
+        </nav>
+    </aside>
+
+    <!-- Right Schedule Card (Hidden on Help and Training page to focus on form) -->
+    <section class="right-schedule-card" *ngIf="activePage !== 'help' && activePage !== 'training'">
+        <!-- 1. STANDARD CALENDAR & SCHEDULE (Shown when NOT on Exit page) -->
+        <ng-container *ngIf="activePage !== 'exit'">
+            <div class="calendar-wrapper">
+                <div class="calendar-controls">
+                    <button aria-label="Previous Month" (click)="navigateCalendar(-1)"><i class="fas fa-chevron-left"></i></button>
+                    <p>{{ selectedMonthYear }}</p>
+                    <button aria-label="Next Month" (click)="navigateCalendar(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="calendar-weekdays">
+                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                </div>
+                <div class="calendar-days">
+                    <div *ngFor="let day of calendarDays"
+                        [class.inactive]="day.disabled"
+                        [class.active]="day.selected"
+                        [class.is-holiday]="day.isHoliday"
+                        [title]="day.holidayDesc || ''"
+                        (click)="!day.disabled && onDateSelect(day.fullDate)"
+                        [class.selected-for-leave]="isCalendarDaySelectedForLeave(day)">
+                        {{ day.date }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="schedule-list">
+                <div *ngFor="let item of scheduleDetails" class="schedule-item" 
+                    [ngClass]="{
+                    'payday-item': item.type === 'payday',
+                    'holiday-item': item.type === 'holiday',
+                    'leave-item': item.type === 'leave',
+                    'meeting-item': item.type === 'attendance'
+                    }">
+                <div class="date">{{ item.dayOfWeekShort }} <br> {{ item.dayOfMonth }}</div>
+                <p class="desc" [innerHTML]="item.desc"></p>
+                <button *ngIf="item.canApplyLeave" (click)="openLeaveApplicationModal(selectedScheduleDate)">Apply Leave</button>
+                </div>
+
+                <div *ngIf="selectedDateForLeave && !showLeaveApplicationModal && scheduleDetails.length === 0" class="schedule-item apply-leave-prompt">
+                <div class="date">{{ selectedDateForLeave | date:'dd-MM-yyyy' }}</div>
+                <p class="desc">Selected for leave application. Click "Apply Leave" below.</p>
+                <button class="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded" (click)="openLeaveApplicationModal(selectedDateForLeave)">Apply Leave</button>
+                </div>
+            </div>
+
+            <!-- Leave Application Modal (Form) -->
+            <div *ngIf="showLeaveApplicationModal" class="leave-application-form-container">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Apply Leave for {{ selectedDateForLeave | date:'dd MMM yyyy' }}</h3>
+                    <button class="close-button" (click)="closeLeaveApplicationModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                    <label for="leaveType">Leave Type:</label>
+                    <select id="leaveType" [formControl]="leaveTypeControl">
+                        <option value="">Select Leave Type</option>
+                        <option value="Casual">Casual Leave</option>
+                        <option value="Sick">Sick Leave</option>
+                        <option value="Annual">Annual Leave</option>
+                        <option value="Unpaid">Unpaid Leave</option>
+                    </select>
+                    </div>
+                    <div class="form-group">
+                    <label for="leaveReason">Reason:</label>
+                    <textarea id="leaveReason" [formControl]="leaveReasonControl" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cancel" (click)="closeLeaveApplicationModal()">Cancel</button>
+                    <button class="btn-submit" (click)="submitLeaveApplication()" [disabled]="!leaveTypeControl.valid || !leaveReasonControl.valid">Submit Request</button>
+                </div>
+                </div>
+            </div>
+        </ng-container>
+
+        <!-- 2. EXIT PROCESS GUIDE (Shown ONLY when on Exit page) -->
+        <ng-container *ngIf="activePage === 'exit'">
+            <div class="info-card">
+                <h3>Exit Process Guide</h3>
+                <ul class="info-list">
+                    <li>Submit your resignation via this portal.</li>
+                    <li>Manager approval is required for LWD confirmation.</li>
+                    <li>Asset handover checklist will be triggered 7 days before LWD.</li>
+                    <li>Full & Final settlement takes 45 days after exit.</li>
+                </ul>
+            </div>
+        
+            <div class="info-card">
+                <h3>Notice Period Policy</h3>
+                <p style="font-size: 13px; color: #64748B; line-height: 1.5;">
+                    The standard notice period is <strong>60 Days</strong>. 
+                    Early release is subject to project dependencies and managerial approval. 
+                    Shortfall in notice period may attract buyout recovery.
+                </p>
+            </div>
+        
+            <div class="contact-hr-box">
+                <div class="contact-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div class="contact-details">
+                    <strong>HR Helpdesk</strong>
+                    <p>hr-support@lovahr.com</p>
+                </div>
+            </div>
+        </ng-container>
+    </section>
+
+    <main class="main-content">
+      <ng-container *ngIf="activePage === 'dashboard'">
+        <section class="good-morning-card">
+          <p class="small-text">{{ greeting }}</p>
+          <h2>{{ userName }}</h2>
+          <div class="time-row">
+            <i class="fas fa-sun"></i>
+            <span>{{ currentTime }}</span>
+          </div>
+          <p class="small-text" style="margin-bottom: 16px;">Realtime Insights</p>
+          <p class="small-text" style="margin-bottom: 24px;">Today: {{ currentDayOfWeek }}, {{ currentDay }} {{ currentMonth }} {{ todayDate | date:'yyyy' }}</p>
+          <button (click)="viewAttendance()">View Attendance</button>
+        </section>
+
+        <section class="leave-cards-container">
+          <div class="leave-card">
+            <div class="chart-wrapper">
+                <svg viewBox="0 0 36 36">
+                  <circle class="text-bg" cx="18" cy="18" r="15" stroke-width="3" fill="none"></circle>
+                  <circle class="text-fill" cx="18" cy="18" r="15" stroke-width="3" fill="none"
+                          [attr.stroke-dasharray]="getLeaveStrokeDasharray(casualLeaveUsed, casualLeaveTotal)"
+                          [attr.stroke-dashoffset]="getLeaveStrokeDashoffset(casualLeaveUsed, casualLeaveTotal)"
+                          transform="rotate(-90 18 18)"></circle>
+                </svg>
+                <span class="circle-text">{{ formatLeaveCount(casualLeaveUsed) }}/{{ formatLeaveCount(casualLeaveTotal) }}</span>
+            </div>
+            <div class="leave-info">
+                <p class="title">Casual Leave</p>
+                <div class="row"><span>Pending</span><span class="value">{{ casualLeaveTotal - casualLeaveUsed }}</span></div>
+                <div class="row"><span>Used</span><span>{{ casualLeaveUsed }}</span></div>
+                <div class="row"><span>Total</span><span>{{ casualLeaveTotal }}</span></div>
+            </div>
+          </div>
+
+          <div class="leave-card">
+            <div class="chart-wrapper">
+                <svg viewBox="0 0 36 36">
+                  <circle class="text-bg" cx="18" cy="18" r="15" stroke-width="3" fill="none"></circle>
+                  <circle class="text-fill" cx="18" cy="18" r="15" stroke-width="3" fill="none"
+                          [attr.stroke-dasharray]="getLeaveStrokeDasharray(sickLeaveUsed, sickLeaveTotal)"
+                          [attr.stroke-dashoffset]="getLeaveStrokeDashoffset(sickLeaveUsed, sickLeaveTotal)"
+                          transform="rotate(-90 18 18)"></circle>
+                </svg>
+                <span class="circle-text">{{ formatLeaveCount(sickLeaveUsed) }}/{{ formatLeaveCount(sickLeaveTotal) }}</span>
+            </div>
+            <div class="leave-info">
+                <p class="title">Sick Leave</p>
+                <div class="row"><span>Pending</span><span class="value">{{ sickLeaveTotal - sickLeaveUsed }}</span></div>
+                <div class="row"><span>Used</span><span>{{ sickLeaveUsed }}</span></div>
+                <div class="row"><span>Total</span><span>{{ sickLeaveTotal }}</span></div>
+            </div>
+          </div>
+          
+          <div class="leave-card">
+             <div class="chart-wrapper">
+                 <svg viewBox="0 0 36 36">
+                   <circle class="text-bg" cx="18" cy="18" r="15" stroke-width="3" fill="none"></circle>
+                   <circle class="text-fill" cx="18" cy="18" r="15" stroke-width="3" fill="none"
+                           [attr.stroke-dasharray]="getLeaveStrokeDasharray(assignmentLeaveUsed, assignmentLeaveTotal)"
+                           [attr.stroke-dashoffset]="getLeaveStrokeDashoffset(assignmentLeaveUsed, assignmentLeaveTotal)"
+                           transform="rotate(-90 18 18)"></circle>
+                 </svg>
+                 <span class="circle-text">{{ formatLeaveCount(assignmentLeaveUsed) }}/{{ formatLeaveCount(assignmentLeaveTotal) }}</span>
+             </div>
+             <div class="leave-info">
+                <p class="title">Annual Leave</p>
+                <div class="row"><span>Pending</span><span class="value">{{ assignmentLeaveTotal - assignmentLeaveUsed }}</span></div>
+                <div class="row"><span>Used</span><span>{{ assignmentLeaveUsed }}</span></div>
+                <div class="row"><span>Total</span><span>{{ assignmentLeaveTotal }}</span></div>
+             </div>
+           </div>
+
+           <!-- CARD 4: MANAGER ATTENDANCE REGULARIZATION (PRESERVED) -->
+           <div class="leave-card" style="cursor: pointer;" (click)="openRegularizationModal()">
+             <div class="chart-wrapper">
+                 <i class="fas fa-user-check" style="font-size: 32px; color: #4338CA;"></i>
+             </div>
+             <div class="leave-info">
+               <p class="title">Attendance Requests</p>
+               <div class="row"><span>Pending</span><span class="value">{{ stats.pendingAttendance }}</span></div>
+               <div class="row"><span>Action</span><span style="color:#F43F5E;">Required</span></div>
+             </div>
+           </div>
+        </section>
+
+        <section class="time-tracking-card">
+          <div class="time-tracking-header">
+            <h3>Time Tracking</h3>
+            <button aria-label="More options"><i class="fas fa-ellipsis-h"></i></button>
+          </div>
+          <div class="timer-wrapper">
+            <svg class="timer-svg" viewBox="0 0 120 120">
+              <circle class="bg" cx="60" cy="60" r="54" />
+              <circle class="fg" cx="60" cy="60" r="54" [attr.stroke-dasharray]="workingTimeStrokeDasharray" [attr.stroke-dashoffset]="workingTimeStrokeDashoffset" transform="rotate(-90 60 60)"></circle>
+            </svg>
+            <div class="timer-center">
+              <div class="time">{{ timeTrackingTimer }}</div>
+              <p style="font-size: 10px; color: #94A3B8; margin: -10px 0 10px 0;">(Gross Hours)</p>
+              <div class="timer-controls-buttons">
+                <button id="startBtn" aria-label="Start Timer" (click)="clockIn()" [disabled]="isWorking"><i class="fas fa-play"></i></button>
+                <button id="stopBtn" aria-label="Stop Timer" (click)="clockOut()" [disabled]="!isWorking"><i class="fas fa-pause"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="time-info">
+            <div class="time-info-item">
+                <p class="label">Net Work</p>
+                <p class="value" style="color: #22C55E;">{{ totalWorkingHours }}</p>
+            </div>
+            <div class="time-info-item">
+                <p class="label">Break Time</p>
+                <p class="value" style="color: #EAB308;">{{ breakDurationDisplay }}</p>
+            </div>
+            <div class="time-info-item">
+              <p class="label">Pending</p>
+              <p class="value">{{ pendingWorkingHours }}</p>
+            </div>
+          </div>
+          <div class="break-management" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+            <div *ngIf="!isBreakActive" class="break-buttons" style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px;">
+              <button class="break-btn" (click)="startBreak('Coffee')">Coffee</button>
+              <button class="break-btn" (click)="startBreak('Lunch')">Lunch</button>
+              <button class="break-btn" (click)="startBreak('Short')">Short</button>
+            </div>
+            <div *ngIf="isBreakActive" class="current-break-info">
+              <p class="break-status">On {{ currentBreakType }} Break</p>
+              <p class="break-timer">{{ breakTimerDisplay }}</p>
+              <button class="end-break-btn" (click)="endBreak()">End Break</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="next-holidays-card">
+          <div class="next-holidays-header">
+            <h3>Next Holidays</h3>
+            <button aria-label="Next Holidays Navigation"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          <div class="holiday-list">
+            <div class="holiday-item" *ngFor="let holiday of nextHolidays">
+                <img src="https://placehold.co/60x60/AEC6CF/FFFFFF?text=Holiday" alt="Holiday" />
+                <div class="holiday-info">
+                  <p class="title">{{ holiday.description }}</p>
+                  <p class="date">{{ holiday.date | date:'dd MMM yyyy' }}</p>
+                </div>
+            </div>
+            <div *ngIf="nextHolidays.length === 0" class="text-center py-4 text-gray-500">No upcoming holidays.</div>
+          </div>
+        </section>
+
+        <section class="video-card">
+            <ng-container *ngIf="!showVideo">
+              <img src="assets/banner.png" alt="Video Placeholder" />
+              <div class="video-overlay">
+                <p class="title">Watch how work begins...</p>
+                <p class="subtitle">The Lovahr Way</p>
+                <button aria-label="Play Video" (click)="playVideo()"><i class="fas fa-play"></i></button>
+                <span class="duration">03 min</span>
+              </div>
+            </ng-container>
+  
+            <iframe *ngIf="showVideo"
+                    width="100%"
+                    height="100%"
+                    [src]="safeVideoUrl"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+            </iframe>
+        </section>
+      </ng-container>
+
+      <ng-container *ngIf="activePage === 'leaves'">
+         <div class="employee-content-wrapper">
+            <!-- LEAVE APPROVAL TOGGLE & TABLE -->
+            <div class="manager-toggle-container">
+                <div class="toggle-switch-wrapper">
+                    <button class="toggle-btn" [class.active]="leaveViewMode === 'apply'" (click)="setLeaveMode('apply')">Apply Leave</button>
+                    <button class="toggle-btn btn-approve" [class.active]="leaveViewMode === 'approve'" (click)="setLeaveMode('approve')">Approve Requests</button>
+                </div>
+            </div>
+            
+            <!-- Apply View -->
+            <ng-container *ngIf="leaveViewMode === 'apply'">
+                <app-leaves></app-leaves>
+            </ng-container>
+            
+            <!-- Approve View -->
+            <ng-container *ngIf="leaveViewMode === 'approve'">
+                <div class="content-overlay">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3>Leave Requests</h3>
+                        <div class="segment-control">
+                            <button class="segment-btn" [class.active]="leaveFilter === 'pending'" (click)="filterLeaves('pending')">Pending</button>
+                            <button class="segment-btn" [class.active]="leaveFilter === 'all'" (click)="filterLeaves('all')">History</button>
+                        </div>
+                    </div>
+
+                    <table class="styled-table">
+                        <thead>
+                            <tr><th>Employee</th><th>Type</th><th>Dates</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let leave of displayedLeaves">
+                                <td>{{ leave.employeeName }}</td>
+                                <td>{{ getLeaveTypeDisplay(leave.leaveType) }}</td>
+                                <td>{{ leave.fromDate | date:'dd MMM' }} - {{ leave.toDate | date:'dd MMM' }}</td>
+                                <td><span [ngClass]="getStatusBadgeClass(leave.displayStatus)">{{ leave.displayStatus }}</span></td>
+                                <td>
+                                    <ng-container *ngIf="leave.displayStatus === 'PENDING' || leave.displayStatus === 'APPLIED'">
+                                        <button class="btn-approve-action" (click)="approveLeave(leave)">Approve</button>
+                                        <button class="btn-reject-action" (click)="rejectLeave(leave)">Reject</button>
+                                    </ng-container>
+                                    <span *ngIf="leave.displayStatus !== 'PENDING' && leave.displayStatus !== 'APPLIED'" style="color: #94A3B8; font-size: 12px; font-style: italic;">
+                                        {{ leave.displayStatus | titlecase }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr *ngIf="displayedLeaves.length === 0">
+                                <td colspan="5" style="text-align: center; padding: 20px; color: #94a3b8;">No requests found.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </ng-container>
+         </div>
+      </ng-container>
+
+      <ng-container *ngIf="activePage === 'swipedata'"><div class="employee-content-wrapper"><app-dashboard-swipedata></app-dashboard-swipedata></div></ng-container>
+      <ng-container *ngIf="activePage === 'timesheet'"><div class="employee-content-wrapper"><app-dashboard-timesheet></app-dashboard-timesheet></div></ng-container>
+      <ng-container *ngIf="activePage === 'payslip'"><app-payslip></app-payslip></ng-container>
+      <ng-container *ngIf="activePage === 'team'"><app-dashboard-team></app-dashboard-team></ng-container>
+
+      <!-- NEW: EXIT / RESIGNATION VIEW WITH TOGGLE -->
+      <ng-container *ngIf="activePage === 'exit'">
+        <div class="employee-content-wrapper">
+            <!-- Manager Exit Toggle -->
+            <div class="manager-toggle-container">
+                <div class="toggle-switch-wrapper">
+                    <button class="toggle-btn" [class.active]="exitViewMode === 'apply'" (click)="setExitMode('apply')">Apply Resignation</button>
+                    <button class="toggle-btn btn-approve" [class.active]="exitViewMode === 'approve'" (click)="setExitMode('approve')">Team Requests</button>
+                </div>
+            </div>
+
+            <!-- VIEW 1: APPLY RESIGNATION (My Exit) -->
+            <ng-container *ngIf="exitViewMode === 'apply'">
+                
+                <!-- LIVE STATUS BANNER (Copied from ExitComponent) -->
+                <div *ngIf="myExitRequest" class="status-banner fade-in">
+                    <div class="status-header">
+                        <h3><i class="fas fa-info-circle"></i> Application Status</h3>
+                        <span class="live-indicator"><span class="dot"></span> Live Updates</span>
+                    </div>
+                    <div class="status-steps">
+                        <div class="step" [class.completed]="true">
+                            <div class="icon"><i class="fas fa-check"></i></div>
+                            <div class="label">Submitted</div>
+                            <div class="date">{{ myExitRequest.resignationDate | date:'dd MMM' }}</div>
+                        </div>
+                        <div class="line" [class.active]="myExitRequest.managerApprovalStatus === 'APPROVED'"></div>
+                        <div class="step" [class.completed]="myExitRequest.managerApprovalStatus === 'APPROVED'" [class.rejected]="myExitRequest.managerApprovalStatus === 'REJECTED'">
+                            <div class="icon">
+                                <i class="fas" [ngClass]="myExitRequest.managerApprovalStatus === 'REJECTED' ? 'fa-times' : (myExitRequest.managerApprovalStatus === 'APPROVED' ? 'fa-check' : 'fa-hourglass-half')"></i>
+                            </div>
+                            <div class="label">Manager Approval</div>
+                            <div class="status-text" [ngClass]="getStatusBadgeClass(myExitRequest.managerApprovalStatus)">{{ myExitRequest.managerApprovalStatus || 'PENDING' }}</div>
+                        </div>
+                        <div class="line" [class.active]="myExitRequest.hrApprovalStatus === 'APPROVED'"></div>
+                        <div class="step" [class.completed]="myExitRequest.hrApprovalStatus === 'APPROVED'" [class.rejected]="myExitRequest.hrApprovalStatus === 'REJECTED'">
+                            <div class="icon">
+                                <i class="fas" [ngClass]="myExitRequest.hrApprovalStatus === 'REJECTED' ? 'fa-times' : (myExitRequest.hrApprovalStatus === 'APPROVED' ? 'fa-check' : 'fa-hourglass-half')"></i>
+                            </div>
+                            <div class="label">HR Approval</div>
+                            <div class="status-text" [ngClass]="getStatusBadgeClass(myExitRequest.hrApprovalStatus)">{{ myExitRequest.hrApprovalStatus || 'PENDING' }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APPLY FORM -->
+                <form [formGroup]="exitForm" (ngSubmit)="onExitSubmit()" class="exit-form-card" *ngIf="!myExitRequest">
+                    <div class="form-header">
+                        <h2>Resignation Application</h2>
+                        <p>Please fill in the details below to initiate your separation process.</p>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Employee ID</label>
+                            <input type="text" formControlName="empId" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Exit Type</label>
+                            <select formControlName="exitType">
+                                <option value="Resignation">Resignation</option>
+                                <option value="Retirement">Retirement</option>
+                                <option value="Termination">Termination (Self)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Resignation Date</label>
+                            <input type="date" formControlName="resignationDate" readonly>
+                            <small class="text-gray-400">Date of application</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Notice Period (Days)</label>
+                            <input type="number" formControlName="noticePeriodDays" readonly>
+                        </div>
+                        <div class="form-group toggle-wrapper">
+                            <label class="toggle-switch">
+                                <input type="checkbox" formControlName="earlyReleaseRequested">
+                                <span class="slider"></span>
+                            </label>
+                            <label style="margin-bottom: 0; cursor: pointer;" (click)="toggleEarlyRelease()">Request Early Release</label>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Working Date (LWD)</label>
+                            <input type="date" formControlName="lastWorkingDate" [readonly]="!exitForm.get('earlyReleaseRequested')?.value">
+                            <small *ngIf="!exitForm.get('earlyReleaseRequested')?.value" class="text-gray-400">Calculated based on notice period</small>
+                            <small *ngIf="exitForm.get('earlyReleaseRequested')?.value" class="text-red-500">Subject to approval</small>
+                        </div>
+                        <div class="form-group" *ngIf="exitForm.get('earlyReleaseRequested')?.value">
+                            <label>Estimated Notice Buyout Amount</label>
+                            <input type="number" formControlName="noticeBuyoutAmount">
+                            <small class="text-gray-400">Auto-calculated based on shortfall days</small>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Reason for Leaving <span class="text-red-500">*</span></label>
+                            <textarea formControlName="reason" rows="4" placeholder="Please provide a detailed reason for your resignation..."></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" (click)="onCancelExit()">Cancel</button>
+                        <button type="submit" class="btn-submit" [disabled]="exitForm.invalid || isExitSubmitting">
+                            <i class="fas fa-paper-plane"></i>
+                            {{ isExitSubmitting ? 'Submitting...' : 'Submit Resignation' }}
+                        </button>
+                    </div>
+                </form>
+
+                <!-- WITHDRAW BUTTON (If Applied) -->
+                <div *ngIf="myExitRequest && myExitRequest.status !== 'WITHDRAWN' && myExitRequest.hrApprovalStatus !== 'APPROVED'" style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                     <button type="button" class="btn-withdraw" (click)="onWithdrawExit()" style="background-color: #64748B; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer;">
+                        <i class="fas fa-undo"></i> Withdraw Application
+                    </button>
+                </div>
+            </ng-container>
+
+            <!-- VIEW 2: APPROVE TEAM (Manager View) -->
+            <ng-container *ngIf="exitViewMode === 'approve'">
+                <div class="content-overlay">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3>Team Exit Requests</h3>
+                    </div>
+
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Resignation Date</th>
+                                <th>LWD</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let req of managerExitRequests">
+                                <td>
+                                    <div style="font-weight: 600; color: #334155;">{{ req.employeeName || req.empId }}</div>
+                                    <div style="font-size: 11px; color: #94A3B8;">{{ req.empId }}</div>
+                                </td>
+                                <td>{{ req.resignationDate | date:'dd MMM yyyy' }}</td>
+                                <td>{{ req.lastWorkingDate | date:'dd MMM yyyy' }}</td>
+                                <td title="{{req.reason}}" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{ req.reason }}
+                                </td>
+                                <td>
+                                    <span [ngClass]="getStatusBadgeClass(req.managerApprovalStatus)">
+                                        {{ req.managerApprovalStatus || 'PENDING' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <ng-container *ngIf="req.managerApprovalStatus === 'PENDING' || !req.managerApprovalStatus">
+                                        <button class="btn-approve-action" (click)="approveExit(req)">Approve</button>
+                                        <button class="btn-reject-action" (click)="rejectExit(req)">Reject</button>
+                                    </ng-container>
+                                    <span *ngIf="req.managerApprovalStatus && req.managerApprovalStatus !== 'PENDING'" style="color: #94A3B8; font-size: 12px; font-style: italic;">
+                                        Action Taken
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr *ngIf="managerExitRequests.length === 0">
+                                <td colspan="6" style="text-align: center; padding: 20px; color: #94a3b8;">No pending exit requests in your team.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </ng-container>
+
+        </div>
+    </ng-container>
+
+    <!-- NEW: TRAINING SECTION -->
+    <ng-container *ngIf="activePage === 'training'">
+        <div class="employee-content-wrapper">
+            <app-employee-training></app-employee-training>
+        </div>
+    </ng-container>
+
+    <!-- NEW: HELP / POSH VIEW -->
+    <ng-container *ngIf="activePage === 'help'">
+        <div class="employee-content-wrapper">
+            <app-posh></app-posh>
+        </div>
+    </ng-container>
+
+    </main>
+
+    <!-- NEW ATTENDANCE REGULARIZATION MODAL (Manager Specific) -->
+    <div *ngIf="showRegularizationModal" class="attendance-details-modal-overlay">
+      <div class="attendance-details-modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+          <h3>Pending Attendance Approvals</h3>
+          <button class="close-button" (click)="closeRegularizationModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <table class="styled-table">
+            <thead>
+              <tr><th>Employee</th><th>Date</th><th>Correction</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of pendingRegularizations">
+                <td>{{ item.employeeName || item.empId }}</td> <!-- Fallback added here -->
+                <td>{{ item.date | date:'dd MMM' }}</td>
+                <td>{{ item.loginTime | date:'shortTime' }}</td>
+                <td>
+                  <button class="btn-approve-action" (click)="approveRegularization(item)">Approve</button>
+                  <button class="btn-reject-action" (click)="rejectRegularization(item)">Reject</button>
+                </td>
+              </tr>
+              <tr *ngIf="pendingRegularizations.length === 0">
+                <td colspan="4" style="text-align: center; color: #94A3B8; padding: 20px;">No pending regularizations</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Attendance Details Modal -->
+    <div *ngIf="showAttendanceDetailsModal" class="attendance-details-modal-overlay">
+      <div class="attendance-details-modal-content">
+        <div class="modal-header">
+          <h3>Attendance Details</h3>
+          <button class="close-button" (click)="closeAttendanceDetailsModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="attendance-list">
+            <div class="attendance-item" *ngFor="let record of attendanceRecords">
+              <div class="attendance-date">{{ record.date | date:'dd MMM yyyy' }}</div>
+              <div class="attendance-times">
+                <p>Login: {{ record.loginTime | date:'shortTime' }}</p>
+                <p *ngIf="record.logoutTime">Logout: {{ record.logoutTime | date:'shortTime' }}</p>
+                <p *ngIf="!record.logoutTime" class="text-yellow-600">Still clocked in</p>
+              </div>
+            </div>
+            <div *ngIf="attendanceRecords.length === 0" class="text-center py-4 text-gray-500">
+                No attendance records found for this month.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Onboarding Modal -->
+    <div *ngIf="showOnboardingPopup" class="onboarding-modal-overlay">
+        <div class="onboarding-modal-content">
+            <div class="onboarding-icon">
+                <i class="fas fa-user-cog"></i>
+            </div>
+            <h3>Profile Setup Required</h3>
+            <p>You need to setup your profile to continue using the dashboard features.</p>
+            <button class="btn-acknowledge" (click)="acknowledgeOnboarding()">OK</button>
+        </div>
+    </div>
+    
+    <!-- Message Box -->
+    <div *ngIf="globalMessage" [class]="'message-box ' + globalMessage.type">
+      {{ globalMessage.message }}
+    </div>
+
+    <app-profile-manage [isVisible]="isProfileModalVisible" [employeeData]="employeeInfo" [activeTab]="profileActiveTab === 'security' ? 'password' : 'profile'" (close)="closeProfileModal()"></app-profile-manage>
+</div>

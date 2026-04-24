@@ -1,0 +1,155 @@
+<div class="payslip-container no-print">
+  <div class="payslip-header">
+    <h2><i class="fas fa-file-invoice-dollar"></i> Payslip History</h2>
+    <p>View and download your monthly salary slips.</p>
+  </div>
+
+  <div class="filter-section" *ngIf="!isLoading">
+    <div class="search-wrapper">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search by Month/Year..." [(ngModel)]="searchText" (input)="filterPayslips()">
+    </div>
+    <div class="filter-stats">
+      <span>Total: {{ filteredPayslips.length }}</span>
+    </div>
+  </div>
+
+  <div class="payslip-content">
+    <div *ngIf="isLoading || isLoadingModalData" class="loading-spinner" style="text-align: center; padding: 40px;">
+        <i class="fas fa-spinner fa-spin fa-2x mb-3 text-indigo-500"></i>
+        <p>{{ isLoadingModalData ? 'Preparing Preview...' : 'Loading history...' }}</p>
+    </div>
+
+    <ng-container *ngIf="!isLoading && !isLoadingModalData">
+        <div *ngIf="filteredPayslips.length > 0; else noData" class="payslip-grid">
+          <div class="payslip-card" *ngFor="let slip of filteredPayslips" (click)="viewPayslip(slip)">
+            <div class="slip-icon">
+              <div class="calendar-icon">
+                <span class="month">{{ getMonthName(slip.payPeriod) | slice:0:3 }}</span>
+                <span class="year">{{ getYear(slip.payPeriod) }}</span>
+              </div>
+            </div>
+            <div class="slip-details">
+              <h4 class="slip-title">{{ getMonthName(slip.payPeriod) }} {{ getYear(slip.payPeriod) }}</h4>
+              <p class="slip-subtitle">ID: {{ slip.employeeId }}</p>
+              <div class="slip-amount-row">
+                 <span class="label">Net Pay:</span>
+                 <ng-container *ngIf="isNetPayVisible(slip.payPeriod); else hiddenAmount">
+                    <span class="amount">₹{{ slip.netPay | number:'1.2-2' }}</span>
+                    <button class="visibility-btn" (click)="toggleNetPay(slip.payPeriod, $event)"><i class="fas fa-eye-slash"></i></button>
+                 </ng-container>
+                 <ng-template #hiddenAmount>
+                    <span class="amount blurred">•••••••</span>
+                    <button class="visibility-btn" (click)="toggleNetPay(slip.payPeriod, $event)"><i class="fas fa-eye"></i></button>
+                 </ng-template>
+              </div>
+            </div>
+            <div class="slip-actions">
+              <button class="view-button">
+                <i class="fas fa-eye"></i> View & Print
+              </button>
+            </div>
+          </div>
+        </div>
+        <ng-template #noData>
+            <div class="empty-state" style="text-align: center; padding: 40px;">
+                <i class="fas fa-database fa-3x mb-4 text-indigo-400"></i>
+                <p style="font-size: 18px; font-weight: 600;">No Payslips Found</p>
+            </div>
+        </ng-template>
+    </ng-container>
+  </div>
+</div>
+
+<div *ngIf="selectedPayslip" class="payslip-modal-overlay" [class.visible]="showModal">
+  <div class="payslip-modal-content">
+    <div class="modal-header no-print">
+      <h3>Payslip Preview</h3>
+      <div class="header-actions">
+        <button class="btn-print" (click)="downloadPayslip()" [disabled]="isGeneratingPdf">
+          <i class="fas" [ngClass]="isGeneratingPdf ? 'fa-spinner fa-spin' : 'fa-file-pdf'"></i>
+          {{ isGeneratingPdf ? 'Generating PDF...' : 'Download PDF' }}
+        </button>
+        <button class="btn-close" (click)="closeModal()">&times;</button>
+      </div>
+    </div>
+
+    <!-- PRINTABLE AREA -->
+    <div id="printable-payslip" class="printable-payslip">
+      <div class="print-header">
+        <div class="company-info-left">
+           <!-- Base64 logo ko priority di hai PDF ke liye -->
+           <img [src]="logoBase64 || selectedOrg?.companyLogo" 
+                class="dynamic-logo-left" 
+                alt="Company Logo" 
+                onerror="this.src='https://via.placeholder.com/150x50?text=LOGO'">
+           <h1 class="company-name-text">{{ selectedOrg?.companyName || 'COMPANY NAME' }}</h1>
+           <p class="company-address-text">{{ selectedOrg?.corporateAddress || 'Address not available' }}</p>
+        </div>
+
+        <div class="header-right-section">
+          <div class="month-info-box">
+            <span class="label">Payslip For</span>
+            <span class="value">{{ getMonthName(selectedPayslip.payPeriod) }} {{ getYear(selectedPayslip.payPeriod) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-container">
+        <div class="employee-details-full">
+           <div class="section-title">EMPLOYEE SUMMARY</div>
+           <div class="details-grid">
+               <div class="detail-row"><span class="lbl">Employee Name</span> <span class="sep">:</span> <span class="val">{{ employeeName }}</span></div>
+               <div class="detail-row"><span class="lbl">Employee ID</span> <span class="sep">:</span> <span class="val">{{ selectedPayslip.employeeId }}</span></div>
+               <div class="detail-row"><span class="lbl">Pay Period</span> <span class="sep">:</span> <span class="val">{{ getMonthName(selectedPayslip.payPeriod) }}</span></div>
+               <div class="detail-row"><span class="lbl">Pay Date</span> <span class="sep">:</span> <span class="val">{{ selectedPayslip.payDate | date:'dd/MM/yyyy' }}</span></div>
+           </div>
+        </div>
+      </div>
+
+      <div class="salary-table-wrapper">
+        <table class="salary-table">
+          <thead>
+            <tr><th>EARNINGS</th><th>AMOUNT</th><th>DEDUCTIONS</th><th>AMOUNT</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Basic</td><td>Rs. {{ selectedPayslip.basic | number:'1.2-2' }}</td>
+              <td>Income Tax</td><td>Rs. {{ selectedPayslip.tax | number:'1.2-2' }}</td> 
+            </tr>
+            <tr>
+              <td>House Rent Allowance</td><td>Rs. {{ selectedPayslip.hra | number:'1.2-2' }}</td>
+              <td>Provident Fund</td><td>Rs. {{ selectedPayslip.pf | number:'1.2-2' }}</td>
+            </tr>
+            <tr>
+              <td>Conveyance Allowance</td><td>Rs. {{ selectedPayslip.conveyanceAllowance | number:'1.2-2' }}</td>
+              <td>Professional Tax</td><td>Rs. 0.00</td>
+            </tr>
+            <tr>
+              <td>Medical Allowance</td><td>Rs. {{ selectedPayslip.medicalAllowance | number:'1.2-2' }}</td>
+              <td>Insurances</td><td>Rs. {{ selectedPayslip.insurances | number:'1.2-2' }}</td>
+            </tr>
+            <tr>
+              <td>Special Allowance</td><td>Rs. {{ selectedPayslip.specialAllowances | number:'1.2-2' }}</td>
+              <td>Other Deductions</td><td>Rs. {{ selectedPayslip.otherDeductions | number:'1.2-2' }}</td>
+            </tr>
+            <tr><td>Bonus</td><td>Rs. {{ selectedPayslip.bonus | number:'1.2-2' }}</td><td></td><td></td></tr>
+             <tr><td>Other Earnings</td><td>Rs. {{ selectedPayslip.otherEarnings | number:'1.2-2' }}</td><td></td><td></td></tr>
+            <tr class="gross-row">
+              <td>Gross Earnings</td><td>Rs. {{ selectedPayslip.grossPay | number:'1.2-2' }}</td>
+              <td>Total Deductions</td><td>Rs. {{ selectedPayslip.totalDeductions | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="net-pay-bar">
+         <div class="left"><h4>TOTAL NET PAYABLE</h4><span>Gross Earnings - Total Deductions</span></div>
+         <div class="right"><span class="amount">Rs. {{ selectedPayslip.netPay | number:'1.2-2' }}</span></div>
+      </div>
+
+      <div class="amount-words-row">Amount In Words: {{ getAmountInWords(selectedPayslip.netPay) }}</div>
+      <div class="footer-line">-- This is a system-generated document. --</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,222 @@
+/* Container Layout - Updated to be fluid/flexible */
+.swipedata-container {
+  padding: 24px;
+  background-color: white; 
+  box-sizing: border-box;
+  
+  /* FIXED: Removed hardcoded margins and calc width */
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  
+  border: 1px solid #E2E8F0;
+  border-radius: 8px; 
+  display: flex;
+  flex-direction: column;
+}
+
+.swipedata-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 16px;
+}
+
+.swipedata-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1E293B;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+/* Controls */
+.controls-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.date-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-filter-group label {
+    font-size: 13px;
+    color: #64748B;
+    font-weight: 500;
+}
+
+.date-filter-group input {
+    padding: 8px 12px;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #334155;
+    outline: none;
+}
+
+.controls-bar button {
+    background-color: #4338CA;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.controls-bar button:hover {
+    background-color: #3730A3;
+}
+
+/* Table */
+.swipedata-content {
+  flex-grow: 1; 
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.data-table th {
+    background-color: #F8FAFC;
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #E2E8F0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.data-table td {
+    padding: 16px;
+    border-bottom: 1px solid #F1F5F9;
+    font-size: 14px;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.data-table tr:hover td {
+    background-color: #F8FAFC;
+}
+
+/* Time Pills */
+.time-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.time-pill.in {
+    background-color: #ECFDF5;
+    color: #059669;
+}
+
+.time-pill.out {
+    background-color: #EFF6FF;
+    color: #2563EB;
+}
+
+.time-pill i {
+    font-size: 10px;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-valid {
+    background-color: #DCFCE7;
+    color: #166534;
+}
+
+.status-missing {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+.status-onduty {
+    background-color: #DBEAFE;
+    color: #1E40AF;
+}
+
+.status-absent {
+    background-color: #F3F4F6;
+    color: #4B5563;
+}
+
+/* Regularize Button */
+.btn-regularize {
+    background-color: transparent;
+    border: 1px solid #E2E8F0;
+    color: #475569;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-regularize:hover {
+    border-color: #F43F5E;
+    color: #F43F5E;
+    background-color: #FFF1F2;
+}
+
+/* Empty & Loading States */
+.empty-state, .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #94A3B8;
+}
+
+.empty-state i { font-size: 48px; margin-bottom: 16px; color: #CBD5E1; }
+.loading-state i { font-size: 32px; margin-bottom: 16px; color: #4338CA; }
+
+.empty-state .title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #334155;
+    margin: 0 0 4px 0;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .swipedata-container {
+        width: 100%;
+        height: auto;
+    }
+}

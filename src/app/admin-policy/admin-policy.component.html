@@ -1,0 +1,67 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+<div class="admin-container">
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Organization Policy</h1>
+      <p>View and manage employee code of conduct summary</p>
+    </div>
+
+    <div class="header-actions">
+      <!-- Edit Button (Read Mode) -->
+      <button *ngIf="!isEditingPolicy()" class="btn-primary-header" (click)="enablePolicyEdit()">
+        <i class="fas fa-edit"></i> Edit Policy
+      </button>
+
+      <!-- Save / Cancel (Edit Mode) -->
+      <div *ngIf="isEditingPolicy()" style="display: flex; gap: 8px;">
+        <button class="btn-cancel-text" (click)="cancelPolicyEdit()">Cancel</button>
+        <button class="btn-primary-header" (click)="savePolicy()" [disabled]="isSavingPolicy">
+          <i class="fas" [ngClass]="isSavingPolicy ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Policy Panel -->
+  <div class="policy-editor-panel">
+
+    <div class="panel-header">
+      <h2 class="panel-title">Culture Summary</h2>
+      <span *ngIf="!isEditingPolicy()" class="badge-view">PREVIEW MODE</span>
+      <span *ngIf="isEditingPolicy()" class="badge-edit">EDIT MODE</span>
+    </div>
+
+    <!-- READ MODE -->
+    <div *ngIf="!isEditingPolicy()" class="policy-display-container">
+      <div class="saved-content-box">
+        <pre *ngIf="currentPolicy['culture_policy']">{{ currentPolicy['culture_policy'] }}</pre>
+        <div *ngIf="!currentPolicy['culture_policy']" class="empty-placeholder">
+          <i class="fas fa-file-signature"></i>
+          <p>No policy content has been saved yet. Click 'Edit Policy' to define your organization's culture.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDIT MODE -->
+    <div *ngIf="isEditingPolicy()" class="policy-edit-container">
+      <div class="form-group">
+        <label class="edit-label">Update Policy Content (Markdown Supported)</label>
+        <textarea
+          class="editor-textarea"
+          [(ngModel)]="currentPolicy['culture_policy']"
+          rows="20"
+          placeholder="Enter the company culture policy and legal terms here...">
+        </textarea>
+      </div>
+      <div class="help-box">
+        <i class="fas fa-info-circle" style="margin-top: 3px;"></i>
+        <div>Employees will be required to read this updated content during their onboarding.</div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,130 @@
+<div class="profile-modal-overlay" *ngIf="isVisible" (click)="closeModal()">
+    <div class="profile-modal-content" (click)="$event.stopPropagation()">
+        
+        <!-- Sidebar Navigation -->
+        <div class="profile-sidebar">
+            <div class="avatar-section">
+                <div class="avatar-container">
+                    <img [src]="previewImage || 'https://ui-avatars.com/api/?name=' + (employeeData?.firstName || 'User') + '+' + (employeeData?.surname || '') + '&background=4338CA&color=fff&size=128'" 
+                         alt="User Profile">
+                    
+                    <div class="upload-overlay">
+                        <label for="profileUpload" class="icon-btn camera-btn" title="Upload Photo">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <button *ngIf="previewImage" class="icon-btn trash-btn" (click)="removePhoto()" title="Remove Photo">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <input type="file" id="profileUpload" (change)="onFileSelected($event)" accept="image/*" hidden>
+                </div>
+                <div>
+                    <h4>{{ employeeData?.firstName }} {{ employeeData?.surname }}</h4>
+                    <p style="font-size: 13px; color: #64748B;">{{ employeeData?.designation || 'Employee' }}</p>
+                </div>
+            </div>
+
+            <nav class="tab-nav">
+                <div class="tab-link" [class.active]="activeTab === 'profile'" (click)="switchTab('profile')">
+                    <i class="fas fa-user-circle"></i> Personal Info
+                </div>
+                <div class="tab-link" [class.active]="activeTab === 'password'" (click)="switchTab('password')">
+                    <i class="fas fa-shield-alt"></i> Password & Security
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Form Area -->
+        <div class="profile-body">
+            <button class="close-modal-btn" (click)="closeModal()">&times;</button>
+
+            <!-- EDIT PROFILE SECTION -->
+            <div *ngIf="activeTab === 'profile'" class="fade-in">
+                <h2 style="margin-top: 0;">Public Profile</h2>
+                <p style="color: #64748B; margin-bottom: 24px;">Update your basic information to help people recognize you.</p>
+
+                <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" formControlName="firstName">
+                        </div>
+                        <div class="form-group">
+                            <label>Surname</label>
+                            <input type="text" formControlName="surname">
+                        </div>
+                        <div class="form-group">
+                            <label>Middle Name</label>
+                            <input type="text" formControlName="middleName">
+                        </div>
+                        <div class="form-group">
+                            <label>Nick Name</label>
+                            <input type="text" formControlName="nickName">
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select formControlName="gender">
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" formControlName="birthday">
+                        </div>
+                        <div class="form-group">
+                            <label>Personal Email</label>
+                            <input type="email" formControlName="personalEmailId">
+                        </div>
+                        <div class="form-group">
+                            <label>Mobile Number</label>
+                            <input type="text" formControlName="mobileNumber">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Current Location</label>
+                            <textarea formControlName="location" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-cancel" (click)="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-save" [disabled]="isLoading">
+                            <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- SECURITY SECTION -->
+            <div *ngIf="activeTab === 'password'" class="fade-in">
+                <h2 style="margin-top: 0;">Security Settings</h2>
+                <p style="color: #64748B; margin-bottom: 24px;">Change your password regularly to keep your account safe.</p>
+
+                <form [formGroup]="passwordForm" (ngSubmit)="changePasswordSubmit()">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>Current Password</label>
+                        <input type="password" formControlName="oldPassword" placeholder="••••••••">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>New Password</label>
+                        <input type="password" formControlName="newPassword" placeholder="Min 8 characters">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>Confirm New Password</label>
+                        <input type="password" formControlName="confirmPassword" placeholder="Confirm your new password">
+                        <small class="text-red-500" *ngIf="passwordForm.errors?.['notSame'] && passwordForm.get('confirmPassword')?.touched">
+                            Passwords do not match.
+                        </small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-save" style="background: #EF4444;" [disabled]="isLoading || passwordForm.invalid">
+                            Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

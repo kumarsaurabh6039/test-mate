@@ -1,0 +1,173 @@
+<!-- Main Container -->
+<div class="admin-container">
+  
+  <!-- Header Section -->
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Team Management</h1>
+      <p>Organize your departments and project groups</p>
+    </div>
+    <button class="btn-primary-header" (click)="openCreateModal()">
+      <i class="fas fa-plus-circle"></i> Create New Team
+    </button>
+  </header>
+
+  <!-- Toolbar -->
+  <div class="toolbar-section">
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input 
+        type="text" 
+        placeholder="Search teams by name or manager..." 
+        [(ngModel)]="searchText"
+        (keyup)="applyFilters()"
+      >
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-pills">
+      <div class="stat-pill">
+        <span class="label">Total Teams</span>
+        <span class="value">{{ teams.length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading team structures...</p>
+  </div>
+
+  <!-- Teams Grid -->
+  <div class="cards-grid" *ngIf="!isLoading">
+    <div *ngFor="let team of filteredTeams" class="team-card">
+      
+      <!-- Card Actions -->
+      <div class="card-actions-top">
+        <button class="icon-btn-edit" (click)="openEditModal(team)" title="Edit Team">
+          <i class="fas fa-pencil-alt"></i>
+        </button>
+        <button class="icon-btn-delete" (click)="deleteTeam(team)" title="Delete Team">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+
+      <!-- Team Icon/Avatar -->
+      <div class="team-visual">
+        <div class="team-icon">
+          <i class="fas fa-users"></i>
+        </div>
+      </div>
+
+      <!-- Team Info -->
+      <div class="card-body">
+        <h3 class="team-name">{{ team.teamName || team.name }}</h3>
+        <p class="team-desc">{{ team.description || 'No description provided' }}</p>
+        
+        <div class="manager-info">
+          <span class="label">Team Lead:</span>
+          <div class="manager-chip">
+            <i class="fas fa-user-tie"></i>
+            <span>{{ getManagerName(team.managerEmpId) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Stats -->
+      <div class="card-footer">
+        <div class="member-count">
+          <i class="fas fa-user-friends"></i>
+          <span>{{ team.memberEmpIds?.length || 0 }} Members</span>
+        </div>
+        <!-- Added (click) event here -->
+        <button class="btn-view-members" (click)="openEditModal(team)" title="View Members">
+          View Details <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredTeams.length === 0" class="empty-state">
+    <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
+    <h3>No Teams Found</h3>
+    <p>Create a new team to get started.</p>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ isEditing ? 'Edit Team' : 'Create New Team' }}</h2>
+      <button class="btn-close" (click)="showModal=false"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="modal-body">
+      <form [formGroup]="teamForm" (ngSubmit)="submit()">
+        
+        <!-- Basic Info -->
+        <div class="input-group">
+          <label>Team Name <span class="req">*</span></label>
+          <input formControlName="name" type="text" placeholder="e.g. Engineering Squad A">
+        </div>
+
+        <div class="input-group">
+          <label>Description <span class="req">*</span></label>
+          <textarea formControlName="description" rows="2" placeholder="Briefly describe the team's purpose..."></textarea>
+        </div>
+
+        <!-- Manager Selection -->
+        <div class="input-group">
+          <label>Team Manager <span class="req">*</span></label>
+          <select formControlName="managerEmpId">
+            <option value="">-- Select a Manager --</option>
+            <option *ngFor="let m of managers" [value]="m.empId">
+              {{ m.firstName }} {{ m.surname }} ({{m.empId}})
+            </option>
+          </select>
+        </div>
+
+        <!-- Member Selection (Custom Multi-select UI) -->
+        <div class="input-group">
+          <label>Select Team Members</label>
+          <div class="member-selector-box">
+            <div class="member-search-local">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Filter employees..." #memberSearch (keyup)="0">
+            </div>
+            
+            <div class="members-list">
+              <div *ngFor="let emp of allEmployees" [style.display]="shouldShowMember(emp, memberSearch.value) ? 'flex' : 'none'" class="member-option">
+                <input type="checkbox" 
+                       [id]="'emp-'+emp.empId" 
+                       [checked]="isMemberSelected(emp.empId)"
+                       (change)="toggleMember(emp.empId)">
+                <label [for]="'emp-'+emp.empId">
+                  <div class="emp-avatar-small">{{ emp.firstName[0] }}</div>
+                  <div class="emp-details">
+                    <span class="emp-name">{{ emp.firstName }} {{ emp.surname }}</span>
+                    <span class="emp-role">{{ emp.designation || emp.role }}</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            <div class="selected-count">
+              {{ selectedMemberIds.length }} members selected
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="showModal=false">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="teamForm.invalid">
+            {{ isEditing ? 'Save Changes' : 'Create Team' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

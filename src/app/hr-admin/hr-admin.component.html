@@ -1,0 +1,88 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+<div class="admin-container">
+
+  <!-- HEADER -->
+  <header class="admin-header">
+    <div class="brand-area">
+      <img src="assets/logo-stream.png" alt="Logo" height="32"
+           onerror="this.src='https://placehold.co/100x40/4338CA/FFFFFF?text=LOVAHR'">
+      <span class="badge-admin">Admin Portal</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="header-toggle-container" (click)="goBackToEmployeeView()" title="Switch to Employee View">
+        <div class="header-toggle-label">Admin</div>
+        <div class="header-toggle-switch admin-active">
+          <div class="header-toggle-thumb"><i class="fas fa-user-shield"></i></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <nav class="sidebar-nav">
+      <a [class.active]="activeTab === 'users'" (click)="setActiveTab('users')">
+        <i class="fas fa-users"></i> <span>Users</span>
+      </a>
+      <a [class.active]="activeTab === 'team'" (click)="setActiveTab('team')">
+        <i class="fas fa-sitemap"></i> <span>Teams</span>
+      </a>
+      <a [class.active]="activeTab === 'assets'" (click)="setActiveTab('assets')">
+        <i class="fas fa-laptop"></i> <span>Assets</span>
+      </a>
+      <a [class.active]="activeTab === 'timesheet'" (click)="setActiveTab('timesheet')">
+        <i class="fas fa-clock"></i> <span>Timesheet</span>
+      </a>
+      <a [class.active]="activeTab === 'links'" (click)="setActiveTab('links')">
+        <i class="fas fa-link"></i> <span>Links</span>
+      </a>
+      <a [class.active]="activeTab === 'payroll'" (click)="setActiveTab('payroll')">
+        <i class="fas fa-file-invoice-dollar"></i> <span>Payroll</span>
+      </a>
+      <a [class.active]="activeTab === 'exits'" (click)="activeTab = 'exits'">
+        <i class="fas fa-sign-out-alt"></i> <span>Exits</span>
+      </a>
+      <a [class.active]="activeTab === 'holidays'" (click)="activeTab = 'holidays'">
+        <i class="fas fa-calendar-alt"></i> <span>Holidays</span>
+      </a>
+      <a [class.active]="activeTab === 'posh'" (click)="activeTab = 'posh'">
+        <i class="fas fa-user-shield"></i> <span>POSH</span>
+      </a>
+      <a [class.active]="activeTab === 'training'" (click)="activeTab = 'training'">
+        <i class="fas fa-graduation-cap"></i> <span>Training</span>
+      </a>
+      <a [class.active]="activeTab === 'policy'" (click)="activeTab = 'policy'">
+        <i class="fas fa-file-signature"></i> <span>Policy</span>
+      </a>
+      <a [class.active]="activeTab === 'chatbot-docs'" (click)="setActiveTab('chatbot-docs')">
+        <i class="fas fa-robot"></i> <span>AI Docs</span>
+      </a>
+      <!-- ✅ NEW: Document Types Tab -->
+      <a [class.active]="activeTab === 'doc-types'" (click)="setActiveTab('doc-types')">
+        <i class="fas fa-file-alt"></i> <span>Doc Types</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="admin-main">
+    <app-admin-users          *ngIf="activeTab === 'users'"></app-admin-users>
+    <app-admin-teams          *ngIf="activeTab === 'team'"></app-admin-teams>
+    <app-admin-timesheet      *ngIf="activeTab === 'timesheet'"></app-admin-timesheet>
+    <app-admin-assets         *ngIf="activeTab === 'assets'"></app-admin-assets>
+    <app-admin-external-links *ngIf="activeTab === 'links'"></app-admin-external-links>
+    <app-admin-payroll        *ngIf="activeTab === 'payroll'"></app-admin-payroll>
+    <app-admin-exit           *ngIf="activeTab === 'exits'"></app-admin-exit>
+    <app-admin-holidays       *ngIf="activeTab === 'holidays'"></app-admin-holidays>
+    <app-admin-posh           *ngIf="activeTab === 'posh'"></app-admin-posh>
+    <app-admin-training       *ngIf="activeTab === 'training'"></app-admin-training>
+    <app-admin-policy         *ngIf="activeTab === 'policy'"></app-admin-policy>
+    <app-upload-doc-chatbot   *ngIf="activeTab === 'chatbot-docs'"></app-upload-doc-chatbot>
+
+    <!-- ✅ NEW: Document Types Management -->
+    <app-admin-document-types *ngIf="activeTab === 'doc-types'"></app-admin-document-types>
+  </main>
+
+</div>

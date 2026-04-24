@@ -1,0 +1,72 @@
+<div class="doc-upload-container">
+  <div class="header">
+    <h2>Policy Chatbot Documents</h2>
+    <p>Upload company policies (PDF/DOC/DOCX) here. The AI Chatbot will automatically read them to answer employee queries.</p>
+  </div>
+
+  <!-- Upload Section -->
+  <div class="upload-card">
+    <h3><i class="fas fa-cloud-upload-alt"></i> Upload New Policy</h3>
+    
+    <div class="file-input-wrapper">
+      <input type="file" id="policyFile" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx,.txt" [disabled]="isUploading">
+      <label for="policyFile" class="file-label">
+        <span *ngIf="!selectedFile">Click to choose a file...</span>
+        <span *ngIf="selectedFile">Ready to upload: <strong>{{ selectedFile.name }}</strong> ({{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB)</span>
+      </label>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" (click)="uploadFile()" [disabled]="!selectedFile || isUploading">
+        <i class="fas" [ngClass]="isUploading ? 'fa-spinner fa-spin' : 'fa-upload'"></i>
+        {{ isUploading ? 'Uploading to AI...' : 'Upload Document' }}
+      </button>
+    </div>
+
+    <div class="alert success" *ngIf="uploadMessage">
+      <i class="fas fa-check-circle"></i> {{ uploadMessage }}
+    </div>
+    <div class="alert error" *ngIf="uploadError">
+      <i class="fas fa-exclamation-circle"></i> {{ uploadError }}
+    </div>
+  </div>
+
+  <!-- Documents Table -->
+  <div class="table-card">
+    <h3><i class="fas fa-folder-open"></i> Uploaded Documents</h3>
+    
+    <div class="loading-state" *ngIf="isLoadingDocs">
+      <i class="fas fa-spinner fa-spin"></i> Fetching AI knowledge base...
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoadingDocs && documents.length === 0">
+      <i class="fas fa-file-excel"></i>
+      <p>No documents found. Upload a policy to get started.</p>
+    </div>
+
+    <table class="doc-table" *ngIf="!isLoadingDocs && documents.length > 0">
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Uploaded By</th>
+          <th>Upload Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let doc of documents">
+          <td><strong>{{ doc.fileName }}</strong></td>
+          <td><span class="badge gray">{{ doc.fileType }}</span></td>
+          <td>
+            <span class="badge" [ngClass]="{'green': doc.status === 'ACTIVE', 'yellow': doc.status === 'PROCESSING' || doc.status === 'PENDING'}">
+              {{ doc.status || 'ACTIVE' }}
+            </span>
+          </td>
+          <td>{{ doc.uploadedBy || 'Admin' }}</td>
+          <td>{{ formatDate(doc.createdAt) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

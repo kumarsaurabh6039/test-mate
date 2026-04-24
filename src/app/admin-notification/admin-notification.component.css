@@ -1,0 +1,288 @@
+/* Container Layout */
+.links-container {
+  padding: 2rem;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.header-section {
+  margin-bottom: 2rem;
+}
+
+.header-section h2 { font-size: 1.8rem; font-weight: 800; color: #0f172a; margin: 0; }
+.header-section p { color: #64748b; margin-top: 0.3rem; font-size: 0.95rem; }
+
+/* Tabs Styling */
+.tabs-wrapper {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.tab-btn.active {
+  background: #4f46e5;
+  color: white;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+}
+
+/* Card Styling for Forms */
+.card-container {
+  background: white;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  max-width: 800px;
+}
+
+.card-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.card-header h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: #1e293b; }
+.subtitle { margin: 0.3rem 0 0 0; font-size: 0.85rem; color: #64748b; }
+
+.card-body {
+  padding: 2rem;
+}
+
+/* Form Styles */
+.form-group { margin-bottom: 1.5rem; }
+.form-row { display: flex; gap: 1.5rem; }
+.flex-1 { flex: 1; }
+
+.form-group label { 
+  display: block; 
+  font-size: 0.85rem; 
+  font-weight: 700; 
+  color: #475569; 
+  margin-bottom: 0.5rem; 
+}
+
+.form-control { 
+  width: 100%; 
+  padding: 0.8rem 1rem; 
+  border: 1.5px solid #e2e8f0; 
+  border-radius: 0.6rem; 
+  font-size: 0.95rem; 
+  transition: border-color 0.2s; 
+  outline: none; 
+  font-family: inherit;
+  box-sizing: border-box; /* Important for mobile to prevent overflow */
+}
+
+.form-control:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+.error-text { color: #ef4444; font-size: 0.75rem; margin-top: 6px; display: block; font-weight: 500; }
+.hint-text { font-size: 0.75rem; color: #94a3b8; margin-top: 6px; display: block; }
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Primary Button */
+.btn-primary { 
+  background: #4f46e5; 
+  color: white; 
+  border: none; 
+  padding: 0.8rem 1.8rem; 
+  border-radius: 0.6rem; 
+  font-weight: 700; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  transition: transform 0.2s, box-shadow 0.2s; 
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); 
+}
+.btn-primary:hover:not(:disabled) { background: #4338ca; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+
+/* System Actions Grid */
+.system-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.system-action-card {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.8rem;
+  background: #ffffff;
+  transition: box-shadow 0.2s;
+}
+
+.system-action-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-right: 1.5rem;
+  flex-shrink: 0;
+}
+
+.icon-box.blue { background: #eff6ff; color: #2563eb; }
+.icon-box.orange { background: #fff7ed; color: #ea580c; }
+.icon-box.red { background: #fef2f2; color: #dc2626; }
+
+.action-info { flex: 1; }
+.action-info h4 { margin: 0 0 0.3rem 0; font-size: 1.05rem; color: #1e293b; }
+.action-info p { margin: 0; font-size: 0.85rem; color: #64748b; }
+
+.btn-outline {
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: white;
+  transition: all 0.2s;
+}
+
+.blue-btn { border: 1px solid #2563eb; color: #2563eb; }
+.blue-btn:hover { background: #2563eb; color: white; }
+
+.orange-btn { border: 1px solid #ea580c; color: #ea580c; }
+.orange-btn:hover { background: #ea580c; color: white; }
+
+.red-btn { border: 1px solid #dc2626; color: #dc2626; }
+.red-btn:hover { background: #dc2626; color: white; }
+
+/* Animation */
+.animate-in { animation: slideUp 0.3s ease-out; }
+@keyframes slideUp { 
+  from { opacity: 0; transform: translateY(15px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+
+/* =========================================
+   RESPONSIVE ADJUSTMENTS (Mobile Friendly)
+   ========================================= */
+@media screen and (max-width: 768px) {
+  .links-container {
+    padding: 1rem;
+  }
+
+  .header-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .header-section h2 { 
+    font-size: 1.4rem; 
+  }
+  
+  .header-section p {
+    font-size: 0.85rem;
+  }
+
+  /* Tabs ko mobile par horizontal scrollable banana */
+  .tabs-wrapper {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+    gap: 0.5rem;
+  }
+
+  /* Scrollbar design thoda patla karna */
+  .tabs-wrapper::-webkit-scrollbar {
+    height: 4px;
+  }
+  .tabs-wrapper::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+  }
+
+  .tab-btn {
+    white-space: nowrap;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  /* Cards ki padding kam karna */
+  .card-header {
+    padding: 1rem 1.2rem;
+  }
+
+  .card-body {
+    padding: 1.2rem;
+  }
+
+  /* Form columns ko stack karna (ek ke neeche ek) */
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-group {
+    margin-bottom: 1.2rem;
+    width: 100%;
+  }
+
+  /* Buttons ko center aur full width karna */
+  .form-actions {
+    flex-direction: column;
+    margin-top: 1rem;
+  }
+
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+    padding: 0.8rem;
+  }
+
+  /* System actions design mobile ke liye adjust karna */
+  .system-action-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.2rem;
+    align-items: center;
+  }
+
+  .icon-box {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .btn-outline {
+    width: 100%;
+    margin-top: 1rem;
+  }
+}

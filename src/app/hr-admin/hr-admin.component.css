@@ -1,0 +1,275 @@
+/* =========================================
+   GLOBAL RESET & FONTS
+   ========================================= */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #F8FAFC;
+    color: #334155;
+    overflow-x: hidden;
+}
+
+/* =========================================
+   LAYOUT GRID (Admin Specific)
+   ========================================= */
+.admin-container {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    grid-template-rows: 64px 1fr;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    background-color: #F8FAFC;
+}
+
+/* =========================================
+   HEADER
+   ========================================= */
+.admin-header {
+    grid-column: 1 / -1;
+    background: white;
+    border-bottom: 1px solid #CBD5E1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 100;
+    height: 64px;
+}
+
+.brand-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.badge-admin {
+    background: #4338CA;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.header-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: #F1F5F9;
+    padding: 6px 12px;
+    border-radius: 30px;
+    transition: background 0.2s;
+}
+
+.header-toggle-switch {
+    width: 44px;
+    height: 24px;
+    border-radius: 24px;
+    position: relative;
+    background: #4338CA;
+}
+
+.header-toggle-thumb {
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4338CA;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* =========================================
+   SIDEBAR (Laptop Fixes: No Cutting)
+   ========================================= */
+aside.sidebar {
+    grid-row: 2 / -1;
+    grid-column: 1 / 2;
+    background-color: white;
+    border-right: 1px solid #CBD5E1;
+    margin: 0;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+aside.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+nav.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 32px; /* Balanced gap for desktop */
+    align-items: center;
+    width: 100%;
+}
+
+nav.sidebar-nav a {
+    color: #64748B;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: center;
+    padding: 10px 4px;
+}
+
+nav.sidebar-nav a i {
+    font-size: 20px;
+}
+
+nav.sidebar-nav a.active,
+nav.sidebar-nav a:hover {
+    color: #F43F5E;
+    font-weight: 600;
+}
+
+/* =========================================
+   MAIN CONTENT
+   ========================================= */
+.admin-main {
+    grid-column: 2 / -1;
+    background: #F8FAFC;
+    padding: 24px;
+    overflow-y: auto;
+    height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.page-header h2 { font-size: 24px; font-weight: 600; margin: 0; }
+.page-header p { color: #94A3B8; margin: 4px 0 0; font-size: 13px; }
+
+.content-card {
+    background: white;
+    border-radius: 5px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    max-width: 100%; /* Ensures cards don't exceed container width */
+}
+
+/* Table */
+.modern-table-wrapper { width: 100%; overflow-x: auto; }
+.modern-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+.modern-table th { text-align: left; padding: 12px 16px; background: #F8FAFC; font-size: 12px; color: #64748B; border-bottom: 1px solid #E2E8F0; }
+.modern-table td { padding: 16px; border-bottom: 1px solid #F1F5F9; }
+
+/* =========================================
+   MOBILE RESPONSIVE
+   ========================================= */
+@media (max-width: 1024px) {
+    .admin-container {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+    }
+
+    aside.sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        border-right: none;
+        border-bottom: 1px solid #CBD5E1;
+        padding: 12px;
+        position: static;
+        overflow-y: visible;
+    }
+
+    nav.sidebar-nav {
+        flex-direction: row;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    nav.sidebar-nav a {
+        width: auto;
+        padding: 8px;
+    }
+
+    .admin-main {
+        height: auto;
+        padding: 16px;
+    }
+
+    /* Fixed Holiday Card Overflow on Mobile */
+    .admin-main > div[style*="grid"] {
+        grid-template-columns: 1fr !important; /* Forces single column on small screens */
+    }
+
+    .content-card[style*="display: flex"] {
+        flex-direction: row; /* Keep date and title side-by-side unless screen is very tiny */
+    }
+}
+
+@media (max-width: 480px) {
+    .content-card[style*="display: flex"] {
+        flex-direction: column; /* Stack date and title for very small phones */
+        align-items: flex-start;
+    }
+    
+    .content-card[style*="display: flex"] > div:first-child {
+        width: 100% !important; /* Full width date block on mobile */
+        padding: 10px !important;
+    }
+}
+
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal-body { overflow-y: auto; padding: 24px; }

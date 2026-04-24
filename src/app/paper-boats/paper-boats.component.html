@@ -1,0 +1,227 @@
+<div class="container" role="main">
+  <form #form="ngForm" (ngSubmit)="moveForward(form)">
+
+    <!-- ══ LEFT ══ -->
+    <div class="left">
+
+      <button type="button" class="back-circle" (click)="goBack()" aria-label="Go back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+      </button>
+
+      <div class="logo">
+        <img src="/assets/logo-stream.png" alt="lovahr logo" />
+      </div>
+
+      <div class="title">
+        <h2>Paper Boats</h2>
+        <p>Your Docs, Your Story</p>
+      </div>
+
+      <!-- ── Loading state ── -->
+      <div class="loading-card" *ngIf="isLoadingTypes">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Loading document requirements...</span>
+      </div>
+
+      <!-- ── Error state ── -->
+      <div class="loading-card error-card" *ngIf="loadError && !isLoadingTypes">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Failed to load document types.</span>
+        <button type="button" class="retry-btn" (click)="loadDocumentTypes()">Retry</button>
+      </div>
+
+      <!-- ══ Main Upload Section ══ -->
+      <div class="upload-section" *ngIf="!isLoadingTypes && documentSlots.length > 0">
+
+        <!-- ── Selectors Row ── -->
+        <div class="selectors-row">
+          <!-- Category Selector -->
+          <div class="dropdown-wrapper">
+            <label class="dropdown-label" for="cat-select">
+              <i class="fas fa-tags"></i>
+              Select Category
+            </label>
+            <div class="dropdown-select-wrap">
+              <select
+                id="cat-select"
+                class="doc-dropdown"
+                [ngModel]="selectedCategory"
+                name="catSelect"
+                (ngModelChange)="onCategoryChange($event)">
+                <option *ngFor="let cat of uniqueCategories" [value]="cat">{{ cat }}</option>
+              </select>
+              <i class="fas fa-chevron-down dropdown-caret"></i>
+            </div>
+          </div>
+
+          <!-- Document Type Selector -->
+          <div class="dropdown-wrapper">
+            <label class="dropdown-label" for="doc-select">
+              <i class="fas fa-file-alt"></i>
+              Select Document Type
+            </label>
+            <div class="dropdown-select-wrap">
+              <select
+                id="doc-select"
+                class="doc-dropdown"
+                [ngModel]="currentSlot?.key"
+                name="docSelect"
+                (ngModelChange)="onDropdownChange($event)">
+                <option
+                  *ngFor="let slot of filteredSlots"
+                  [value]="slot.key">
+                  {{ slot.label }}
+                  <ng-container *ngIf="slot.uploaded"> ✓</ng-container>
+                </option>
+              </select>
+              <i class="fas fa-chevron-down dropdown-caret"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slot status pill -->
+        <div class="slot-status-row" *ngIf="currentSlot.uploaded || currentSlot.uploading">
+          <span class="status-pill pill-done"     *ngIf="currentSlot.uploaded && !currentSlot.uploading">
+            <i class="fas fa-check-circle"></i> Uploaded
+          </span>
+          <span class="status-pill pill-saving"   *ngIf="currentSlot.uploading">
+            <i class="fas fa-spinner fa-spin"></i> Saving…
+          </span>
+        </div>
+
+        <!-- ── The Upload Card ── -->
+        <div class="doc-card" [class]="slotStatusClass(currentSlot)">
+
+          <!-- Hint -->
+          <p class="card-hint">{{ currentSlot.hint }}</p>
+
+          <!-- Upload zone (no file yet) -->
+          <div class="upload-zone" *ngIf="!currentSlot.uploaded" (click)="triggerInput(currentSlot.key)">
+            <div class="upload-icon-wrap">
+              <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <span class="upload-text">Click to upload</span>
+            <span class="upload-sub">PDF, JPG, JPEG, PNG · max 5 MB</span>
+            <input
+              [id]="'file-' + currentSlot.key"
+              type="file"
+              class="upload-input"
+              [accept]="currentSlot.acceptedFormats"
+              (change)="onFileChange($event, currentSlot)" />
+          </div>
+
+          <!-- File row (after upload) -->
+          <div class="file-row" *ngIf="currentSlot.uploaded">
+            <div class="file-meta">
+              <div class="file-icon-wrap"
+                   [class.pdf-icon]="currentSlot.fileType === 'application/pdf'"
+                   [class.img-icon]="currentSlot.fileType?.startsWith('image/')">
+                <i class="fas" [ngClass]="getFileIcon(currentSlot)"></i>
+              </div>
+              <div class="file-info">
+                <span class="fname" [title]="currentSlot.fileName!">{{ currentSlot.fileName }}</span>
+                <span class="fsize" *ngIf="currentSlot.fileType === 'application/pdf'">PDF Document</span>
+                <span class="fsize" *ngIf="currentSlot.fileType?.startsWith('image/')">Image File</span>
+              </div>
+            </div>
+            <div class="file-btns">
+              <button type="button" class="fbtn fbtn-eye"
+                      (click)="openPreview(currentSlot)" title="Preview">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button type="button" class="fbtn fbtn-trash"
+                      (click)="removeDocument(currentSlot)" title="Remove">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Error -->
+          <p class="slot-error" *ngIf="currentSlot.error">
+            <i class="fas fa-exclamation-triangle"></i> {{ currentSlot.error }}
+          </p>
+
+          <!-- Comment Section -->
+          <div class="comment-section">
+            <label class="comment-label" [for]="'comment-' + currentSlot.key">
+              <i class="fas fa-comment-dots"></i> Add a comment (Optional)
+            </label>
+            <textarea
+              [id]="'comment-' + currentSlot.key"
+              class="comment-input"
+              rows="2"
+              placeholder="Any remarks about this document?"
+              [(ngModel)]="currentSlot.comment"
+              [name]="'comment-' + currentSlot.key">
+            </textarea>
+          </div>
+
+        </div><!-- /doc-card -->
+
+      </div><!-- /upload-section -->
+
+      <!-- Submit button -->
+      <button type="submit" class="btn-aboard" *ngIf="!isLoadingTypes && documentSlots.length > 0">
+        All Aboard
+      </button>
+
+      <!-- Progress bar -->
+      <div class="progress-bar">
+        <span class="active"></span>
+        <span class="active"></span>
+        <span class="active"></span>
+        <span class="active"></span>
+        <span class="inactive"></span>
+        <span class="inactive"></span>
+      </div>
+
+    </div><!-- /left -->
+
+    <!-- Right text -->
+    <div class="right-text">
+      A few essentials before we set sail. Upload<br />
+      your paper boats and we'll carry them safely
+    </div>
+
+  </form>
+</div>
+
+<!-- ═══════════════════ Preview Modal ═══════════════════ -->
+<div class="preview-overlay" *ngIf="previewVisible" (click)="closePreview()">
+  <div class="preview-modal" (click)="$event.stopPropagation()">
+
+    <div class="preview-head">
+      <span class="preview-title">
+        <i class="fas fa-file-alt"></i> {{ previewLabel }}
+      </span>
+      <button class="preview-x" (click)="closePreview()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="preview-body">
+      <iframe
+        *ngIf="previewIsPdf && previewData"
+        [src]="previewData"
+        class="preview-iframe"
+        frameborder="0">
+      </iframe>
+      <img
+        *ngIf="previewIsImage && previewData"
+        [src]="previewData"
+        class="preview-img"
+        alt="Document preview" />
+    </div>
+
+    <div class="preview-foot">
+      <span class="preview-fname">{{ previewLabel }}</span>
+      <button class="btn-close-modal" (click)="closePreview()">
+        <i class="fas fa-times"></i> Close
+      </button>
+    </div>
+
+  </div>
+</div>
